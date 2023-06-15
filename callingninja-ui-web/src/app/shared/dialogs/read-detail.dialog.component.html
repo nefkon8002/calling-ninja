@@ -1,0 +1,24 @@
+<h1 mat-dialog-content>{{title}}</h1>
+<mat-dialog-content>
+  <ng-container *ngIf="(object | async) as data">
+    <mat-label *ngFor="let attribute of labels(data)">
+      <strong>{{attribute | uppercaseWords}}: </strong>
+      <div *ngIf="isArray(data[attribute]);then is_array else not_array"></div>
+      <ng-template #is_array>
+        <mat-label *ngFor="let arrayObjectNumber of labels(data[attribute]); index as i">
+          <p>
+            <strong>{{arrayObjectNumber | uppercaseWords}}. </strong>
+            <mat-label *ngFor="let arrayObjectAttribute of labels(data[attribute][arrayObjectNumber])">
+              <strong>{{arrayObjectAttribute | uppercaseWords}}: </strong>
+              {{data[attribute][arrayObjectNumber][arrayObjectAttribute]}}
+            </mat-label>
+          </p>
+        </mat-label>
+      </ng-template>
+      <ng-template #not_array> {{data[attribute]}}</ng-template>
+    </mat-label>
+  </ng-container>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-dialog-close mat-raised-button>Close</button>
+</mat-dialog-actions>
