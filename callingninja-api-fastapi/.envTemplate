@@ -1,0 +1,15 @@
+# rename to .env
+# should be in .gitignore already
+# secret values directly after =. no "" needed.
+#TWILIO
+ACCOUNT_SID=
+AUTH_TOKEN=
+FROM_NUMBER=
+#AWS
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_DEFAULT_REGION=
+#Example region format: us-east-1
+AWS_BUCKET_NAME=
+
+

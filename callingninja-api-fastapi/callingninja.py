@@ -13,6 +13,7 @@ from fastapi import (
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 import motor.motor_asyncio
 from pydantic import BaseModel, HttpUrl
+from starlette.middleware.sessions import SessionMiddleware
 
 import csv
 import os
@@ -30,6 +31,11 @@ import magic  # detects file type. python-magic
 
 # init fastapi
 app = FastAPI()
+# register MiddleWare
+session_secret_key = (
+    os.getenv("SESSION_SECRET_KEY") or "very-top-secret-key-for-sessions"
+)
+app.add_middleware(SessionMiddleware, secret_key=session_secret_key)
 # init oauth2
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -131,7 +137,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
 
 # works
 @app.get("/get_from_numbers/")
-async def get_from_numbers():
+async def get_from_numbers(request: Request):
     from_numbers_list = []
     incoming_phone_numbers = client.incoming_phone_numbers.list()
     # limit returned numbers?
@@ -139,17 +145,8 @@ async def get_from_numbers():
 
     for record in incoming_phone_numbers:
         from_numbers_list.append(record.phone_number)
-
+    request.session["from_numbers"] = from_numbers_list
     return {"from_numbers": from_numbers_list}
-
-
-@app.get("/audio_checker")
-async def audio_checker(url: HttpUrl):
-    try:
-        magic.from_file(url, mime=True).split("/")[0] == "audio"
-        return True
-    except Exception as e:
-        raise HTTPException(400, "Only audio files allowed.")
 
 
 # works
@@ -159,6 +156,9 @@ async def audio_checker(url: HttpUrl):
     description="Upload a file to a S3 bucket using the standard boto3 lib - sync",
 )
 async def upload_audio(uploaded_audio: UploadFile):
+    #########################################
+    # DOES NOT CHECK IF FILE IS AUDIO FILE! #
+    #########################################
     # uses `upload_file`, which automagically splits big files
     # alternatively set up like this: `s3 = boto3.resource('s3')` and use function `put_object` --> no large file split, but more options
     file_key = str(uuid.uuid4()) + "_" + uploaded_audio.filename
@@ -173,10 +173,9 @@ async def upload_audio(uploaded_audio: UploadFile):
     summary="Async Upload to S3",
     description="Upload a file to a S3 bucket using the async wrapper for boto3 - aiboto3 - async",
 )
-async def upload_audio_async(uploaded_audio: UploadFile):
+async def upload_audio_async(uploaded_audio: UploadFile, request: Request):
     try:
-        await audio_checker(uploaded_audio)
-        if uploaded_audio.content_type.startswith("audio/"):
+        if magic.from_file(uploaded_audio.filename, mime=True).split("/")[0] == "audio":
             session = asyncboto.Session()
             async with session.client("s3") as s3_client:
                 file_key = str(uuid.uuid4()) + "_" + uploaded_audio.filename
@@ -184,6 +183,7 @@ async def upload_audio_async(uploaded_audio: UploadFile):
                     uploaded_audio.filename, bucket_name, file_key
                 )
                 file_url = "https://" + bucket_name + ".s3.amazonaws.com/" + file_key
+                request.session["audio_url"] = file_url
                 return {"file_key": file_key, "file_url": file_url}
         else:
             raise HTTPException(
@@ -198,24 +198,34 @@ async def upload_audio_async(uploaded_audio: UploadFile):
 
 
 # works
-# uploads numbers and initates calls through `call` endpoint
 @app.post("/upload_numbers/")
 async def upload_numbers(
     request: Request,
     uploaded_numbers: UploadFile,
-    # audio: str = Query(..., description="URL for audio message."),
-    audio: HttpUrl,
-    from_number: str = Query(..., description="From Number."),
 ):
     numbers = []
-    from_number = os.getenv("FROM_NUMBER")
+    # takes simple .csv with only one column and each number in the first cell of each row
     with open(uploaded_numbers.filename, "r") as f:
         csv_reader = csv.reader(f)
         for row in csv_reader:
-            to_number = row[0]
-            await call(to_number, from_number, audio, request)
-            numbers.append(to_number)
+            numbers.append(row[0])
+            # to_number = row[0]
+            # await call(to_number, from_number, audio, request)
+            # numbers.append(to_number)
+        request.session["to_numbers"] = numbers
         return {"numbers": numbers}
+
+
+@app.get("/a")
+async def a(request: Request):
+    from_numbers = request.session.get("from_numbers", [])
+    to_numbers = request.session.get("to_numbers", [])
+    audio_url = request.session.get("audio_url", [])
+    return {
+        "from_numbers": from_numbers,
+        "to_numbers": to_numbers,
+        "audio_url": audio_url,
+    }
 
 
 @app.get("/query_audios/")
@@ -226,24 +236,45 @@ async def query_audios():
 # works
 # missing: reporting function i.e. status callback
 @app.post("/call/")
-async def call(to_number, from_number, audio, request: Request):
+async def call(request: Request):
+    to_numbers = request.session.get("to_numbers", [])
+    from_numbers = request.session.get("from_numbers", [])
+    audio_url = request.session.get("audio_url", [])
+
+    if to_numbers == [] or from_numbers == [] or audio_url == []:
+        missing_parameters = []
+        if to_numbers == []:
+            missing_parameters.append("to_numbers")
+        if from_numbers == []:
+            missing_parameters.append("from_numbers")
+        if audio_url == []:
+            missing_parameters.append("audio_url")
+
+        raise HTTPException(
+            422, detail=f"Missing parameters {missing_parameters} to fulfill request."
+        )
+
     host = request.client.host
     # status_callback_url = "https://" + host + ":8000" + "/call_status"
-    status_callback_url = "https://7dbc-148-244-208-199.ngrok-free.app/call_status"
-    try:
-        # check if client is correctly set up
-        call = client.calls.create(
+    status_callback_url = "https://b489-148-244-208-199.ngrok-free.app" + "/call_status"
+    for to_number in to_numbers:
+        client.calls.create(
             method="GET",
             status_callback=status_callback_url,
             status_callback_event=["initiated", "ringing", "answered", "completed"],
             status_callback_method="POST",
-            url=audio,
+            url=audio_url,
             to=to_number,
-            from_=from_number,
+            from_=from_numbers[
+                0
+            ],  # use first number in from_numbers. UPDATE through other endpoint or from frontend
         )
-        return {"message": "Call initiated successfully", "to_number": to_number}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return {
+            "message": "Calls initiated successfully",
+            "Number of recipients": len(to_numbers),
+            "Emitter": from_numbers[0],
+            "Played Audio Message": audio_url,
+        }
 
 
 @app.post("/call_status")
