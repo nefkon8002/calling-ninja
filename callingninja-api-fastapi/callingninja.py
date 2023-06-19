@@ -11,6 +11,8 @@ from fastapi import (
     status,
 )
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from jose import JWTError, jwt
+from passlib.context import CryptContext
 import motor.motor_asyncio
 from pydantic import BaseModel, HttpUrl
 from starlette.middleware.sessions import SessionMiddleware
@@ -18,6 +20,7 @@ from starlette.middleware.sessions import SessionMiddleware
 import csv
 import os
 import uuid
+from datetime import datetime, timedelta
 
 
 from dotenv import load_dotenv, find_dotenv
@@ -27,7 +30,27 @@ from twilio.rest import Client
 import boto3  # aws python sdk
 import aioboto3 as asyncboto  # async wrapper for boto3
 
-import magic  # detects file type. python-magic
+import magic  # detects file type. python-magic, depends on local installation of `libmagic`
+
+# get enviroment variable file
+load_dotenv(find_dotenv())
+
+# Auth Secrets
+SECRET_KEY = os.getenv("AUTH_SECRET_KEY")
+ALGORITHM = os.getenv("AUTH_ALGORITHM")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("AUTH_ACCESS_TOKEN_EXPIRE_MINUTES"))
+
+# fake user table
+fake_users_db = {
+    "johndoe": {
+        "username": "johndoe",
+        "full_name": "John Doe",
+        "email": "johndoe@example.com",
+        "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
+        "disabled": False,
+    }
+}
+
 
 # init fastapi
 app = FastAPI()
@@ -36,11 +59,7 @@ session_secret_key = (
     os.getenv("SESSION_SECRET_KEY") or "very-top-secret-key-for-sessions"
 )
 app.add_middleware(SessionMiddleware, secret_key=session_secret_key)
-# init oauth2
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-# get enviroment variable file
-load_dotenv(find_dotenv())
 
 # load env variables from env file
 ## twilio
@@ -59,12 +78,29 @@ client = Client(account_sid, auth_token)
 s3 = boto3.client("s3")
 
 # connect to mongodb
-db_client = motor.motor_asyncio.AsyncIOMotorClient(os.environ["MONGODB_URL"])
+# db_client = motor.motor_asyncio.AsyncIOMotorClient(os.environ["MONGODB_URL"])
 # select collection from mongodb
-db = db_client.tpv
+# db = db_client.tpv
+
+
+def fake_hash_password(password: str):
+    return "fakehashed" + password
+
+
+# init oauth2
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 # pydantic Model
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    username: str | None = None
+
+
 class User(BaseModel):
     username: str
     email: str | None = None
@@ -76,23 +112,7 @@ class UserInDB(User):
     hashed_password: str
 
 
-# fake user table
-fake_users_db = {
-    "johndoe": {
-        "username": "johndoe",
-        "full_name": "John Doe",
-        "email": "johndoe@example.com",
-        "hashed_password": "fakehashedsecret",
-        "disabled": False,
-    },
-    "alice": {
-        "username": "alice",
-        "full_name": "Alice Wonderson",
-        "email": "alice@example.com",
-        "hashed_password": "fakehashedsecret2",
-        "disabled": True,
-    },
-}
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 ###############################################################################
@@ -101,36 +121,109 @@ fake_users_db = {
 ###############################################################################
 ###############################################################################
 
-
+"""
 # AUTH TESTS
-def fake_decode_token(token):
-    return User(
-        username=token + "fakedecoded", email="john@example.com", full_name="John Doe"
-    )
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
 
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
-    user = fake_decode_token(token)
+def get_password_hash(password):
+    return pwd_context.hash(password)
+
+
+def get_user(db, username: str):
+    if username in db:
+        user_dict = db[username]
+        return UserInDB(**user_dict)
+
+
+def authenticate_user(fake_db, username: str, password: str):
+    user = get_user(fake_db, username)
+    if not user:
+        return False
+    if not verify_password(password, user.hashed_password):
+        return False
     return user
 
 
-@app.get("/users/me")
-async def read_users_me(current_user: Annotated[User, Depends(get_current_user)]):
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+        token_data = TokenData(username=username)
+    except JWTError:
+        raise credentials_exception
+    user = get_user(fake_users_db, username=token_data.username)
+    if user is None:
+        raise credentials_exception
+    return user
+
+
+async def get_current_active_user(
+    current_user: Annotated[User, Depends(get_current_user)]
+):
+    if current_user.disabled:
+        raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
 
-@app.post("/token")
-async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
-    user_dict = fake_users_db.get(form_data.username)
-    if not user_dict:
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
-    user = UserInDB(**user_dict)
-    hashed_password = fake_hash_password(form_data.password)
-    if not hashed_password == user.hashed_password:
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
+@app.post("/token", response_model=Token)
+async def login_for_access_token(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
+):
+    # this example only checks for username and password.
+    # included and provided is also a check for scope. which is used through the OAuth2PasswordRequestForm as a list `scopes` with the actual strings.
 
-    return {"access_token": user.username, "token_type": "bearer"}
+    # db is queried here, since we use a dict here, we later on check if the dict is empty.
+    user = authenticate_user(fake_users_db, form_data.username, form_data.password)
 
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    # So, to avoid ID collisions, when creating the JWT token for the user, you could prefix the value of the sub key,
+    # e.g. with username:. So, in this example, the value of sub could have been: username:johndoe.
+    # The important thing to have in mind is that the sub key should have a unique identifier across the entire application, and it should be a string.
+    access_token = create_access_token(
+        data={"sub": user.username}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
+@app.get("/users/me")
+async def read_users_me(
+    current_user: Annotated[User, Depends(get_current_active_user)]
+):
+    return current_user
+
+
+@app.get("/users/me/items/")
+async def read_own_items(
+    current_user: Annotated[User, Depends(get_current_active_user)]
+):
+    return [{"item_id": "Foo", "owner": current_user.username}]
+"""
 
 ##################################################################################################
 
