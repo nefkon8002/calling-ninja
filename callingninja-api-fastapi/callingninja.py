@@ -1,5 +1,6 @@
+import requests
 import asyncio
-from typing import Union, Annotated
+from typing import Union, Annotated, Optional
 from fastapi import (
     FastAPI,
     Query,
@@ -10,7 +11,12 @@ from fastapi import (
     Depends,
     status,
 )
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import (
+    HTTPBearer,
+    HTTPAuthorizationCredentials,
+    OAuth2PasswordBearer,
+    OAuth2PasswordRequestForm,
+)
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 import motor.motor_asyncio
@@ -21,7 +27,8 @@ import csv
 import os
 import uuid
 from datetime import datetime, timedelta
-
+import requests
+import base64
 
 from dotenv import load_dotenv, find_dotenv
 
@@ -40,17 +47,8 @@ SECRET_KEY = os.getenv("AUTH_SECRET_KEY")
 ALGORITHM = os.getenv("AUTH_ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("AUTH_ACCESS_TOKEN_EXPIRE_MINUTES"))
 
-# fake user table
-fake_users_db = {
-    "johndoe": {
-        "username": "johndoe",
-        "full_name": "John Doe",
-        "email": "johndoe@example.com",
-        "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
-        "disabled": False,
-    }
-}
-
+# Java backend URL
+JAVA_BACKEND_URL = "http://localhost:8081/users/{username}"
 
 # init fastapi
 app = FastAPI()
@@ -72,10 +70,10 @@ region_name = os.getenv("AWS_DEFAULT_REGION")
 bucket_name = os.getenv("AWS_BUCKET_NAME")
 
 # init Client instance for twilio api
-client = Client(account_sid, auth_token)
+# client = Client(account_sid, auth_token)
 
 # init aws sdk boto3 client
-s3 = boto3.client("s3")
+# s3 = boto3.client("s3")
 
 # connect to mongodb
 # db_client = motor.motor_asyncio.AsyncIOMotorClient(os.environ["MONGODB_URL"])
@@ -83,18 +81,15 @@ s3 = boto3.client("s3")
 # db = db_client.tpv
 
 
-def fake_hash_password(password: str):
-    return "fakehashed" + password
-
-
 # init oauth2
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://localhost:8081/users/token")
+# init httpbearer
+security = HTTPBearer()
 
 
 # pydantic Model
 class Token(BaseModel):
-    access_token: str
-    token_type: str
+    token: Optional[str]
 
 
 class TokenData(BaseModel):
@@ -103,6 +98,8 @@ class TokenData(BaseModel):
 
 class User(BaseModel):
     username: str
+    name: str
+    role: str
     email: str | None = None
     full_name: str | None = None
     disabled: bool | None = None
@@ -121,96 +118,144 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 ###############################################################################
 ###############################################################################
 
-"""
+
 # AUTH TESTS
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
-
-
-def get_password_hash(password):
-    return pwd_context.hash(password)
-
-
-def get_user(db, username: str):
-    if username in db:
-        user_dict = db[username]
-        return UserInDB(**user_dict)
-
-
-def authenticate_user(fake_db, username: str, password: str):
-    user = get_user(fake_db, username)
-    if not user:
-        return False
-    if not verify_password(password, user.hashed_password):
-        return False
-    return user
-
-
-def create_access_token(data: dict, expires_delta: timedelta | None = None):
-    to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
-
-
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
-            raise credentials_exception
-        token_data = TokenData(username=username)
-    except JWTError:
-        raise credentials_exception
-    user = get_user(fake_users_db, username=token_data.username)
-    if user is None:
-        raise credentials_exception
-    return user
-
-
-async def get_current_active_user(
-    current_user: Annotated[User, Depends(get_current_user)]
-):
-    if current_user.disabled:
-        raise HTTPException(status_code=400, detail="Inactive user")
-    return current_user
-
-
-@app.post("/token", response_model=Token)
-async def login_for_access_token(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
-):
-    # this example only checks for username and password.
-    # included and provided is also a check for scope. which is used through the OAuth2PasswordRequestForm as a list `scopes` with the actual strings.
-
-    # db is queried here, since we use a dict here, we later on check if the dict is empty.
-    user = authenticate_user(fake_users_db, form_data.username, form_data.password)
-
-    if not user:
+"""
+    if not is_valid_token(token.credentials):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
+            detail="Invalid or expired token",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    # So, to avoid ID collisions, when creating the JWT token for the user, you could prefix the value of the sub key,
-    # e.g. with username:. So, in this example, the value of sub could have been: username:johndoe.
-    # The important thing to have in mind is that the sub key should have a unique identifier across the entire application, and it should be a string.
-    access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
+
+    # If the token is valid, you can extract the user information from it
+    user = extract_user_from_token(token.credentials)
+
+    # You can return the user object or any additional information
+    # that you want to make available in your protected endpoint
+    return user
+"""
+
+
+def verify_token(token, current_user_number):
+    try:
+        token = token.credentials
+        decoded_token = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return decoded_token
+    except IndexError:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    except JWTError as e:
+        raise HTTPException(
+            status_code=401,
+            detail=f"Token verification failed: {str(e)}",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+async def is_valid_token(token, current_user_number: str):
+    print(token)
+    print(SECRET_KEY)
+    base64_secretkey = base64.b64encode(SECRET_KEY.encode("utf-8")).decode("utf-8")
+    token_claims = jwt.get_unverified_claims(token.credentials)
+    print(token_claims)
+    print(
+        jwt.decode(token.credentials, SECRET_KEY.encode("utf-8"), algorithms=ALGORITHM)
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    try:
+        decoded_token = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
+        # Process the decoded token as needed
+        if decoded_token["user"] == current_user_number:
+            print("right user")
+            return True
+        else:
+            return False
+    except jwt.JWTError:
+        # Invalid token or signature verification failed
+        return False
 
 
+async def extract_data_from_token(token: str):
+    decoded_token = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
+    user = User(
+        username=decoded_token["user"],
+        role=decoded_token["role"],
+        name=decoded_token["name"],
+    )
+    return user
+
+
+async def get_current_user(
+    current_user_number: str, token: HTTPAuthorizationCredentials = Depends(security)
+):
+    # Perform token validation logic here
+    # For example, verify the token with your Java backend or decode it if needed
+    # print(token)
+    url = f"http://localhost:8081/users/{current_user_number}"
+    headers = {
+        "accept": "*/*",
+        "Authorization": f"Bearer {token.credentials}",
+        "Content-Type": "application/json",
+    }
+    payload = {}
+    params = {"current_user_number": current_user_number}
+    response = requests.get(url, headers=headers, json=payload, params=params)
+    # If token is invalid or expired, raise an HTTPException
+    # with 401 Unauthorized status code
+    if not await verify_token(token, current_user_number):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # If the token is valid, you can extract the user information from it
+    user = await extract_data_from_token(token.credentials)
+
+    # You can return the user object or any additional information
+    # that you want to make available in your protected endpoint
+    return user
+
+
+@app.post("/custom_token", response_model=Token)
+async def custom_token(username: str, password: str):
+    url = "http://localhost:8081/users/token"
+    auth_base64_base = username + ":" + password
+    auth_base64_encoded = base64.b64encode(auth_base64_base.encode("utf-8")).decode(
+        "utf-8"
+    )
+    headers = {
+        "accept": "*/*",
+        "Authorization": f"Basic {auth_base64_encoded}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "username": username,
+        "password": password,
+        "authorities": [{"authority": "string"}],
+        "accountNonExpired": True,
+        "accountNonLocked": True,
+        "credentialsNonExpired": True,
+        "enabled": True,
+    }
+    response = requests.post(url, headers=headers, json=payload)
+    if response.status_code == 200:
+        response = response.json()
+        return {"token": response["token"]}
+    else:
+        return {"token": None, "message": "Invalid user or password"}
+
+
+@app.get("/protected")
+async def protected_endpoint(current_user: User = Depends(get_current_user)):
+    # Access the authenticated user and perform protected operations here
+    return {"message": "Protected endpoint accessed"}
+
+
+"""
 @app.get("/users/me")
 async def read_users_me(
     current_user: Annotated[User, Depends(get_current_active_user)]
