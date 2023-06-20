@@ -22,6 +22,7 @@ from passlib.context import CryptContext
 import motor.motor_asyncio
 from pydantic import BaseModel, HttpUrl
 from starlette.middleware.sessions import SessionMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 
 import csv
 import os
@@ -59,11 +60,22 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("AUTH_ACCESS_TOKEN_EXPIRE_MINUTES"))
 
 # init fastapi
 app = FastAPI()
-# register MiddleWare
+# register MiddleWare Session
 session_secret_key = (
     os.getenv("SESSION_SECRET_KEY") or "very-top-secret-key-for-sessions"
 )
 app.add_middleware(SessionMiddleware, secret_key=session_secret_key)
+# register MiddleWare CORS
+origins = [
+    "http://localhost:4200",  # Replace with the actual origin of your Angular application
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_methods=["POST"],
+    allow_headers=["Content-Type"],
+)
 
 
 # load env variables from env file
@@ -217,6 +229,16 @@ async def get_current_active_user(
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
 ):
+    auth_header = form_data.headers.get("Authorization")
+    print(auth_header)
+    if auth_header and auth_header.startswith("Basic "):
+        credentials = auth_header.split(" ")[1]
+        decoded_credentials = base64.b64decode(credentials).decode("utf-8")
+        print(decoded_credentials)
+        username, password = decoded_credentials.split(":")
+        form_data.username = username
+        form_data.password = password
+
     user = authenticate_user(fake_users_db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
