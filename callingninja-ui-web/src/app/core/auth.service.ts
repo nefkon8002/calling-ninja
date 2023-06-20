@@ -1,57 +1,50 @@
-import { Injectable, Output } from '@angular/core';
-import {Router} from '@angular/router';
-import {Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
-import {JwtHelperService} from '@auth0/angular-jwt';
+import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { JwtHelperService } from '@auth0/angular-jwt';
 
-import {environment} from '@env';
-import {User} from '@core/user.model';
-import {HttpService} from '@core/http.service';
-import {Role} from '@core/role.model';
+import { environment } from '@env';
+import { User } from '@core/user.model';
+import { HttpService } from '@core/http.service';
+
+enum Role {
+  ADMIN = 'admin',
+  MANAGER = 'manager',
+  OPERATOR = 'operator',
+  CUSTOMER = 'customer'
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  static END_POINT = environment.REST_USER + '/users/token';
+  static TOKEN_ENDPOINT = environment.REST_USER + '/token';
   private user: User;
 
-  constructor(private httpService: HttpService, private router: Router) {
-  }
+  constructor(private httpService: HttpService, private router: Router) { }
 
-  // login(mobile: number, password: string): Observable<User> {
-  //   return this.httpService.authBasic(mobile, password)
-  //     .post(AuthService.END_POINT)
-  //     .pipe(
-  //       map(jsonToken => {
-  //         const jwtHelper = new JwtHelperService();
-  //         this.user = jsonToken; // {token:jwt} => user.token = jwt
-  //         this.user.mobile = jwtHelper.decodeToken(jsonToken.token).user;  // secret key is not necessary
-  //         this.user.name = jwtHelper.decodeToken(jsonToken.token).name;
-  //         this.user.role = jwtHelper.decodeToken(jsonToken.token).role;
-  //         return this.user;
-  //       })
-  //     );
-  // }
+  login(username: string, password: string): Observable<User> {
+    const credentials = btoa(`${username}:${password}`);
+    const headers = {
+      Authorization: `Basic ${credentials}`,
+    };
 
-  login(mobile: string, password: string): Observable<User> {
-    
-    return this.httpService.authBasic(mobile, password)
-      .post(AuthService.END_POINT)
+    return this.httpService
+      .post(AuthService.TOKEN_ENDPOINT, { headers })
       .pipe(
-        map(jsonToken => {
+        map((response: any) => {
           const jwtHelper = new JwtHelperService();
-          this.user = jsonToken; // {token:jwt} => user.token = jwt
-          this.user.mobile = jwtHelper.decodeToken(jsonToken.token).user;  // secret key is not necessary
-          this.user.name = jwtHelper.decodeToken(jsonToken.token).name;
-          this.user.role = jwtHelper.decodeToken(jsonToken.token).role;
+          this.user = {
+            username: username,
+            token: response.access_token,
+            name: jwtHelper.decodeToken(response.access_token).name,
+            role: jwtHelper.decodeToken(response.access_token).role as Role,
+          };
           return this.user;
         })
       );
   }
-
-
-
 
   logout(): void {
     this.user = undefined;
@@ -82,8 +75,8 @@ export class AuthService {
     return this.hasRoles([Role.CUSTOMER]);
   }
 
-  getMobile(): number {
-    return this.user ? this.user.mobile : undefined;
+  getUsername(): string {
+    return this.user ? this.user.username : undefined;
   }
 
   getName(): string {
@@ -94,4 +87,7 @@ export class AuthService {
     return this.user ? this.user.token : undefined;
   }
 
+  getMobile(): number {
+    return this.user ? this.user.mobile : undefined;
+  }
 }
