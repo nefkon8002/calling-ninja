@@ -102,17 +102,10 @@ def get_db():
         db.close()
 
 
-# init oauth2
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://localhost:8081/users/token")
-# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="custom_token")
-# init httpbearer
-security = HTTPBearer()
-
-
-# pydantic Model
+# pydantic models
 class Token(BaseModel):
-    access_token: str | None
-    token_type: str | None
+    access_token: str
+    token_type: str
 
 
 class TokenData(BaseModel):
@@ -121,8 +114,6 @@ class TokenData(BaseModel):
 
 class User(BaseModel):
     username: str
-    name: str
-    role: str
     email: str | None = None
     full_name: str | None = None
     disabled: bool | None = None
@@ -132,20 +123,28 @@ class UserInDB(User):
     hashed_password: str
 
 
+fake_users_db = {
+    "johndoe": {
+        "username": "johndoe",
+        "full_name": "John Doe",
+        "email": "johndoe@example.com",
+        "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
+        "disabled": False,
+    }
+}
+
+
+#########################################
+#########################################
+
+
+# init oauth2
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-def get_token(auth: HTTPAuthorizationCredentials = Depends(oauth2_scheme)):
-    print(f"GET TOKEN {auth}")
-    if auth.scheme.lower() != "bearer":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Invalid authentication scheme",
-        )
-    token = auth.credentials
-    return token
-
-
+# auth functions
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
@@ -154,18 +153,14 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-def get_user(username: str, db: Session = Depends(get_db)):
-    user = (
-        db.query(CallingninjaUser)
-        .filter(or_(mobile=username, email=username))
-        .one_or_none()
-    )
-    if user:
-        return user
+def get_user(db, username: str):
+    if username in db:
+        user_dict = db[username]
+        return UserInDB(**user_dict)
 
 
-def authenticate_user(username: str, password: str, db: Session = Depends(get_db)):
-    user = get_user(username)
+def authenticate_user(fake_db, username: str, password: str):
+    user = get_user(fake_db, username)
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
@@ -173,28 +168,32 @@ def authenticate_user(username: str, password: str, db: Session = Depends(get_db
     return user
 
 
-async def get_current_user(
-    access_token: Annotated[str, Depends(oauth2_scheme)], request: Request
-):
-    # async def get_current_user(token: Token = Depends(get_token)):
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    token = request.session.get("token")
-    print(f"YOUR TOKEN {token}")
-    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-    print(payload)
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("user")
+        username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
         token_data = TokenData(username=username)
     except JWTError:
         raise credentials_exception
-    user = get_user(username=token_data.username)
+    user = get_user(fake_users_db, username=token_data.username)
     if user is None:
         raise credentials_exception
     return user
@@ -203,9 +202,47 @@ async def get_current_user(
 async def get_current_active_user(
     current_user: Annotated[User, Depends(get_current_user)]
 ):
-    if current_user.active != 1:
+    if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
+
+
+#########################################
+#########################################
+
+# auth endpoints
+
+
+@app.post("/token", response_model=Token)
+async def login_for_access_token(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
+):
+    user = authenticate_user(fake_users_db, form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.username}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
+@app.get("/users/me/", response_model=User)
+async def read_users_me(
+    current_user: Annotated[User, Depends(get_current_active_user)]
+):
+    return current_user
+
+
+@app.get("/users/me/items/")
+async def read_own_items(
+    current_user: Annotated[User, Depends(get_current_active_user)]
+):
+    return [{"item_id": "Foo", "owner": current_user.username}]
 
 
 ###############################################################################
@@ -220,69 +257,6 @@ async def get_current_active_user(
 async def allusers(db: Session = Depends(get_db)):
     allusers = db.query(CallingninjaUser).all()
     return allusers
-
-
-@app.post("/custom_token", response_model=Token)
-async def custom_token(username: str, password: str, request: Request):
-    url = "http://localhost:8081/users/token"
-    auth_base64_base = username + ":" + password
-    auth_base64_encoded = base64.b64encode(auth_base64_base.encode("utf-8")).decode(
-        "utf-8"
-    )
-    headers = {
-        "accept": "*/*",
-        "Authorization": f"Basic {auth_base64_encoded}",
-        "Content-Type": "application/json",
-    }
-    payload = {
-        "username": username,
-        "password": password,
-        "authorities": [{"authority": "string"}],
-        "accountNonExpired": True,
-        "accountNonLocked": True,
-        "credentialsNonExpired": True,
-        "enabled": True,
-    }
-    response = requests.post(url, headers=headers, json=payload)
-    print(response.json())
-    if response.status_code == 200:
-        response = response.json()
-        request.session["token"] = response["token"]
-        return {"access_token": response["token"], "token_type": "bearer"}
-    else:
-        return {"token": None, "message": "Invalid user or password"}
-
-
-"""
-@app.get("/users/me/")
-async def read_users_me(
-    current_user: Annotated[User, Depends(get_current_active_user)]
-):
-    return current_user
-"""
-
-
-@app.get("/users/me/")
-async def read_users_me(request: Request):
-    token = request.session.get("token")
-    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-    user = payload.get("user")
-    headers = {"Authorization": f"Bearer {request.session.get('token')}"}
-    response = requests.get(f"http://localhost:8081/users/{user}", headers=headers)
-    if response.status_code == 200:
-        return response.json()
-    else:
-        return {"error": "Failed to fetch user details"}
-
-
-@app.get("/users/me/items/")
-async def read_own_items(
-    current_user: Annotated[User, Depends(get_current_active_user)]
-):
-    return [{"item_id": "Foo", "owner": current_user.username}]
-
-
-##################################################################################################
 
 
 # works
