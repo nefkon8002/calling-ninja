@@ -39,6 +39,13 @@ import aioboto3 as asyncboto  # async wrapper for boto3
 
 import magic  # detects file type. python-magic, depends on local installation of `libmagic`
 
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session
+from sqlalchemy import or_
+from models import CallingninjaUser
+
 # get enviroment variable file
 load_dotenv(find_dotenv())
 
@@ -48,7 +55,7 @@ ALGORITHM = os.getenv("AUTH_ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("AUTH_ACCESS_TOKEN_EXPIRE_MINUTES"))
 
 # Java backend URL
-JAVA_BACKEND_URL = "http://localhost:8081/users/{username}"
+# JAVA_BACKEND_URL = "http://localhost:8081/users/{username}"
 
 # init fastapi
 app = FastAPI()
@@ -80,16 +87,32 @@ bucket_name = os.getenv("AWS_BUCKET_NAME")
 # select collection from mongodb
 # db = db_client.tpv
 
+SQLALCHEMY_DATABASE_URL = "mysql+mysqlconnector://root:rootpwd@localhost/callingninja"
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+
+# Dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
 
 # init oauth2
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://localhost:8081/users/token")
+# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="custom_token")
 # init httpbearer
 security = HTTPBearer()
 
 
 # pydantic Model
 class Token(BaseModel):
-    token: Optional[str]
+    access_token: str | None
+    token_type: str | None
 
 
 class TokenData(BaseModel):
@@ -112,6 +135,79 @@ class UserInDB(User):
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
+def get_token(auth: HTTPAuthorizationCredentials = Depends(oauth2_scheme)):
+    print(f"GET TOKEN {auth}")
+    if auth.scheme.lower() != "bearer":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid authentication scheme",
+        )
+    token = auth.credentials
+    return token
+
+
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
+
+
+def get_password_hash(password):
+    return pwd_context.hash(password)
+
+
+def get_user(username: str, db: Session = Depends(get_db)):
+    user = (
+        db.query(CallingninjaUser)
+        .filter(or_(mobile=username, email=username))
+        .one_or_none()
+    )
+    if user:
+        return user
+
+
+def authenticate_user(username: str, password: str, db: Session = Depends(get_db)):
+    user = get_user(username)
+    if not user:
+        return False
+    if not verify_password(password, user.hashed_password):
+        return False
+    return user
+
+
+async def get_current_user(
+    access_token: Annotated[str, Depends(oauth2_scheme)], request: Request
+):
+    # async def get_current_user(token: Token = Depends(get_token)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    token = request.session.get("token")
+    print(f"YOUR TOKEN {token}")
+    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    print(payload)
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("user")
+        if username is None:
+            raise credentials_exception
+        token_data = TokenData(username=username)
+    except JWTError:
+        raise credentials_exception
+    user = get_user(username=token_data.username)
+    if user is None:
+        raise credentials_exception
+    return user
+
+
+async def get_current_active_user(
+    current_user: Annotated[User, Depends(get_current_user)]
+):
+    if current_user.active != 1:
+        raise HTTPException(status_code=400, detail="Inactive user")
+    return current_user
+
+
 ###############################################################################
 ###############################################################################
 # endpoints
@@ -120,108 +216,14 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 # AUTH TESTS
-"""
-    if not is_valid_token(token.credentials):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    # If the token is valid, you can extract the user information from it
-    user = extract_user_from_token(token.credentials)
-
-    # You can return the user object or any additional information
-    # that you want to make available in your protected endpoint
-    return user
-"""
-
-
-def verify_token(token, current_user_number):
-    try:
-        token = token.credentials
-        decoded_token = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return decoded_token
-    except IndexError:
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid token",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    except JWTError as e:
-        raise HTTPException(
-            status_code=401,
-            detail=f"Token verification failed: {str(e)}",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-
-async def is_valid_token(token, current_user_number: str):
-    print(token)
-    print(SECRET_KEY)
-    base64_secretkey = base64.b64encode(SECRET_KEY.encode("utf-8")).decode("utf-8")
-    token_claims = jwt.get_unverified_claims(token.credentials)
-    print(token_claims)
-    print(
-        jwt.decode(token.credentials, SECRET_KEY.encode("utf-8"), algorithms=ALGORITHM)
-    )
-    try:
-        decoded_token = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
-        # Process the decoded token as needed
-        if decoded_token["user"] == current_user_number:
-            print("right user")
-            return True
-        else:
-            return False
-    except jwt.JWTError:
-        # Invalid token or signature verification failed
-        return False
-
-
-async def extract_data_from_token(token: str):
-    decoded_token = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
-    user = User(
-        username=decoded_token["user"],
-        role=decoded_token["role"],
-        name=decoded_token["name"],
-    )
-    return user
-
-
-async def get_current_user(
-    current_user_number: str, token: HTTPAuthorizationCredentials = Depends(security)
-):
-    # Perform token validation logic here
-    # For example, verify the token with your Java backend or decode it if needed
-    # print(token)
-    url = f"http://localhost:8081/users/{current_user_number}"
-    headers = {
-        "accept": "*/*",
-        "Authorization": f"Bearer {token.credentials}",
-        "Content-Type": "application/json",
-    }
-    payload = {}
-    params = {"current_user_number": current_user_number}
-    response = requests.get(url, headers=headers, json=payload, params=params)
-    # If token is invalid or expired, raise an HTTPException
-    # with 401 Unauthorized status code
-    if not await verify_token(token, current_user_number):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    # If the token is valid, you can extract the user information from it
-    user = await extract_data_from_token(token.credentials)
-
-    # You can return the user object or any additional information
-    # that you want to make available in your protected endpoint
-    return user
+@app.get("/allusers")
+async def allusers(db: Session = Depends(get_db)):
+    allusers = db.query(CallingninjaUser).all()
+    return allusers
 
 
 @app.post("/custom_token", response_model=Token)
-async def custom_token(username: str, password: str):
+async def custom_token(username: str, password: str, request: Request):
     url = "http://localhost:8081/users/token"
     auth_base64_base = username + ":" + password
     auth_base64_encoded = base64.b64encode(auth_base64_base.encode("utf-8")).decode(
@@ -242,25 +244,35 @@ async def custom_token(username: str, password: str):
         "enabled": True,
     }
     response = requests.post(url, headers=headers, json=payload)
+    print(response.json())
     if response.status_code == 200:
         response = response.json()
-        return {"token": response["token"]}
+        request.session["token"] = response["token"]
+        return {"access_token": response["token"], "token_type": "bearer"}
     else:
         return {"token": None, "message": "Invalid user or password"}
 
 
-@app.get("/protected")
-async def protected_endpoint(current_user: User = Depends(get_current_user)):
-    # Access the authenticated user and perform protected operations here
-    return {"message": "Protected endpoint accessed"}
-
-
 """
-@app.get("/users/me")
+@app.get("/users/me/")
 async def read_users_me(
     current_user: Annotated[User, Depends(get_current_active_user)]
 ):
     return current_user
+"""
+
+
+@app.get("/users/me/")
+async def read_users_me(request: Request):
+    token = request.session.get("token")
+    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    user = payload.get("user")
+    headers = {"Authorization": f"Bearer {request.session.get('token')}"}
+    response = requests.get(f"http://localhost:8081/users/{user}", headers=headers)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return {"error": "Failed to fetch user details"}
 
 
 @app.get("/users/me/items/")
@@ -268,7 +280,7 @@ async def read_own_items(
     current_user: Annotated[User, Depends(get_current_active_user)]
 ):
     return [{"item_id": "Foo", "owner": current_user.username}]
-"""
+
 
 ##################################################################################################
 
@@ -363,6 +375,7 @@ async def a(request: Request):
         "from_numbers": from_numbers,
         "to_numbers": to_numbers,
         "audio_url": audio_url,
+        "token": request.session.get("token"),
     }
 
 
