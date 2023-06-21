@@ -45,7 +45,12 @@ export class AuthService {
             token: response.access_token,
             name: jwtHelper.decodeToken(response.access_token).name,
             role: jwtHelper.decodeToken(response.access_token).role as Role,
+            mobile: jwtHelper.decodeToken(response.access_token).user,
           };
+          console.log(this.user.username);
+          console.log(this.user.token);
+          console.log(this.user.name);
+          console.log(this.user.mobile);
           return this.user;
         })
       );

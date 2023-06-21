@@ -73,8 +73,10 @@ origins = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_methods=["POST"],
-    allow_headers=["Content-Type"],
+    allow_credentials=True,
+    allow_methods=["*"],  # this has to be restricted to the absolut minimum
+    allow_headers=["*"],  # this has to be restricted to the absolut minimum
+    # allow_headers=["Content-Type", "Access-Control-Request-Method"],
 )
 
 
@@ -131,6 +133,8 @@ class User(BaseModel):
     disabled: bool | None = None
     twilio_sid: str | None = None
     twilio_token: str | None = None
+    mobile: str
+    role: str
 
 
 class UserInDB(User):
@@ -146,6 +150,20 @@ fake_users_db = {
         "disabled": False,
         "twilio_sid": os.getenv("ACCOUNT_SID"),
         "twilio_token": os.getenv("AUTH_TOKEN"),
+        "mobile": "1234",
+        "role": "ADMIN",
+        "address": "Local Street 1, Dschibuti, IL",
+        "password": "secret",
+        "role": "ADMIN",
+        "active": True,
+        "registrationDate": "2023-06-20T10:04:41.037",
+        "company": "Hansi Inc.",
+        "id": 24,
+        "guid": "eab0324c-75ef-49a1-9c49-be2d68f50b17",
+        "balance": "$1,01",
+        "picture": "http://localhost:4200/assets/images/eddie.png",
+        "age": 56,
+        "eyeColor": "white",
     },
     "hans": {
         "username": "hans",
@@ -155,6 +173,31 @@ fake_users_db = {
         "disabled": False,
         "twilio_sid": os.getenv("ACCOUNT_SID2"),
         "twilio_token": os.getenv("AUTH_TOKEN2"),
+        "mobile": "9876",
+        "role": "OPERATOR",
+    },
+    "maria": {
+        "username": "maria",
+        "full_name": "Maria Chancla",
+        "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
+        "disabled": False,
+        "twilio_sid": os.getenv("ACCOUNT_SID2"),
+        "twilio_token": os.getenv("AUTH_TOKEN2"),
+        "mobile": "666",
+        "firstName": "mary",
+        "email": "mary@example.com",
+        "address": "Main Street 1, Hudriwudri, MN",
+        "password": "secret",
+        "role": "ADMIN",
+        "active": True,
+        "registrationDate": "2023-06-20T10:04:41.037",
+        "company": "Chanclas Inc.",
+        "id": 26,
+        "guid": "eab0324c-75ef-49a1-9c49-be2d68f50b17",
+        "balance": "$1,01",
+        "picture": "http://localhost:4200/assets/images/eddie.png",
+        "age": 24,
+        "eyeColor": "green",
     },
 }
 
@@ -195,11 +238,22 @@ def authenticate_user(fake_db, username: str, password: str):
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
+    # set exp
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(minutes=15)
     to_encode.update({"exp": expire})
+
+    # set iss:
+    to_encode.update({"iss": "mx-calling-ninja"})
+
+    # set iat (issued at) and nbf (not valid before)
+    # both are set to the time of issue
+    iatnbf = datetime.utcnow()
+    to_encode.update({"iat": iatnbf})
+    to_encode.update({"nbf": iatnbf})
+
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
@@ -253,7 +307,13 @@ async def login_for_access_token(
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
+        data={
+            "sub": user.username,
+            "user": user.mobile,
+            "name": user.username,
+            "role": user.role,
+        },
+        expires_delta=access_token_expires,
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
@@ -272,6 +332,22 @@ async def read_own_items(
     current_user: Annotated[User, Depends(get_current_active_user)]
 ):
     return [{"item_id": "Foo", "owner": current_user.username}]
+
+
+@app.get("/users/{mobile}")
+async def read_users_mobile(
+    current_user: Annotated[User, Depends(get_current_active_user)], mobile
+):
+    if mobile == "undefined":
+        return {"mobile": "undefined"}
+    # return current_user.mobile
+    for user in fake_users_db.values():
+        for data in user.values():
+            if data.mobile == mobile:
+                user = user
+    print(user)
+    profiledata = user.copy()
+    return profiledata
 
 
 ###############################################################################
@@ -393,6 +469,35 @@ async def query_audios():
     return {"nada": "nada"}
 
 
+@app.post("/call_manual")
+async def call_manual(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    from_number: str,
+    to_number: str,
+    audio_url: str,
+):
+    # init twilio client
+    client = Client(current_user.twilio_sid, current_user.twilio_token)
+    # set url for callbacks on call events
+    status_callback_url = "https://534c-189-216-168-189.ngrok-free.app/call_status"
+    # send call request to twilio api
+    client.calls.create(
+        method="GET",
+        status_callback=status_callback_url,
+        status_callback_event=["initiated", "ringing", "answered", "completed"],
+        status_callback_method="POST",
+        url=audio_url,
+        to=to_number,
+        from_=from_number,
+    )
+    return {
+        "message": "Call initiated successfully",
+        "Recipients; to": to_number,
+        "Emitter; from": from_number,
+        "Played Audio Message; url": audio_url,
+    }
+
+
 # works
 # missing: reporting function i.e. status callback
 @app.post("/call/")
@@ -419,7 +524,7 @@ async def call(
 
     host = request.client.host
     # status_callback_url = "https://" + host + ":8000" + "/call_status"
-    status_callback_url = "https://b489-148-244-208-199.ngrok-free.app" + "/call_status"
+    status_callback_url = "https://3450-201-137-187-214.ngrok-free.app" + "/call_status"
     for to_number in to_numbers:
         client.calls.create(
             method="GET",
@@ -441,14 +546,16 @@ async def call(
 
 
 @app.post("/call_status")
-async def call_status(call_status):
-    fieldnames = call_status.keys()
-    with open("status.csv", "r") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerow(call_status)
+async def call_status(request: Request):
+    payload = await request.json()
+    # Process the status update payload received from Twilio
+    # Extract relevant information from the payload
+    call_sid = payload["CallSid"]
+    call_status = payload["CallStatus"]
+    # Handle the call status as needed
+    # You can store the status in a database, update a webpage, or perform any other action
 
-    return {"call_status": call_status}
+    return {"message": "Call status received"}
 
 
 @app.get("/example")
