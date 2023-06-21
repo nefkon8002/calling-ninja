@@ -80,8 +80,8 @@ app.add_middleware(
 
 # load env variables from env file
 ## twilio
-account_sid = os.getenv("ACCOUNT_SID")
-auth_token = os.getenv("AUTH_TOKEN")
+# account_sid = os.getenv("ACCOUNT_SID")
+# auth_token = os.getenv("AUTH_TOKEN")
 ##aws
 aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID")
 aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY")
@@ -129,6 +129,8 @@ class User(BaseModel):
     email: str | None = None
     full_name: str | None = None
     disabled: bool | None = None
+    twilio_sid: str | None = None
+    twilio_token: str | None = None
 
 
 class UserInDB(User):
@@ -142,7 +144,18 @@ fake_users_db = {
         "email": "johndoe@example.com",
         "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
         "disabled": False,
-    }
+        "twilio_sid": os.getenv("ACCOUNT_SID"),
+        "twilio_token": os.getenv("AUTH_TOKEN"),
+    },
+    "hans": {
+        "username": "hans",
+        "full_name": "Hans Wurst",
+        "email": "hanswurst@example.com",
+        "hashed_password": "$2b$12$pFcGTUw8ycv.H6BaAiPSyu9TJh9hUbXvVeLbD2cpwNiNATx30Zymi",
+        "disabled": False,
+        "twilio_sid": os.getenv("ACCOUNT_SID2"),
+        "twilio_token": os.getenv("AUTH_TOKEN2"),
+    },
 }
 
 
@@ -152,7 +165,7 @@ fake_users_db = {
 
 # init oauth2
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
+# init pwd hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
@@ -225,20 +238,12 @@ async def get_current_active_user(
 # auth endpoints
 
 
+# works
 @app.post("/token", response_model=Token)
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
 ):
-    auth_header = form_data.headers.get("Authorization")
-    print(auth_header)
-    if auth_header and auth_header.startswith("Basic "):
-        credentials = auth_header.split(" ")[1]
-        decoded_credentials = base64.b64decode(credentials).decode("utf-8")
-        print(decoded_credentials)
-        username, password = decoded_credentials.split(":")
-        form_data.username = username
-        form_data.password = password
-
+    print(form_data.username)
     user = authenticate_user(fake_users_db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
@@ -253,6 +258,7 @@ async def login_for_access_token(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
+# works
 @app.get("/users/me/", response_model=User)
 async def read_users_me(
     current_user: Annotated[User, Depends(get_current_active_user)]
@@ -260,6 +266,7 @@ async def read_users_me(
     return current_user
 
 
+# works
 @app.get("/users/me/items/")
 async def read_own_items(
     current_user: Annotated[User, Depends(get_current_active_user)]
@@ -276,14 +283,20 @@ async def read_own_items(
 
 # AUTH TESTS
 @app.get("/allusers")
-async def allusers(db: Session = Depends(get_db)):
+async def allusers(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    db: Session = Depends(get_db),
+):
     allusers = db.query(CallingninjaUser).all()
     return allusers
 
 
 # works
 @app.get("/get_from_numbers/")
-async def get_from_numbers(request: Request):
+async def get_from_numbers(
+    current_user: Annotated[User, Depends(get_current_active_user)], request: Request
+):
+    client = Client(current_user.twilio_sid, current_user.twilio_token)
     from_numbers_list = []
     incoming_phone_numbers = client.incoming_phone_numbers.list()
     # limit returned numbers?
@@ -383,7 +396,10 @@ async def query_audios():
 # works
 # missing: reporting function i.e. status callback
 @app.post("/call/")
-async def call(request: Request):
+async def call(
+    current_user: Annotated[User, Depends(get_current_active_user)], request: Request
+):
+    client = Client(current_user.twilio_sid, current_user.twilio_token)
     to_numbers = request.session.get("to_numbers", [])
     from_numbers = request.session.get("from_numbers", [])
     audio_url = request.session.get("audio_url", [])

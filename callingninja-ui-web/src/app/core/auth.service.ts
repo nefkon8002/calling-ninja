@@ -25,13 +25,18 @@ export class AuthService {
   constructor(private httpService: HttpService, private router: Router) { }
 
   login(username: string, password: string): Observable<User> {
-    const credentials = btoa(`${username}:${password}`);
-    const headers = {
-      Authorization: `Basic ${credentials}`,
-    };
+    const formData = new FormData();
+    formData.append('username', username);
+    formData.append('password', password);
+    formData.append('grant_type', "password");
+    //password: password,
+    //username: username,
+    //grant_type: 'password',
+    //client_id: 'your_client_id',
+    //client_secret: 'your_client_secret',
 
     return this.httpService
-      .post(AuthService.TOKEN_ENDPOINT, { headers })
+      .post(AuthService.TOKEN_ENDPOINT, formData)
       .pipe(
         map((response: any) => {
           const jwtHelper = new JwtHelperService();

@@ -11,5 +11,10 @@ AWS_SECRET_ACCESS_KEY=
 AWS_DEFAULT_REGION=
 #Example region format: us-east-1
 AWS_BUCKET_NAME=
+#oauth2
+# generate with: openssl rand -hex 32
+AUTH_SECRET_KEY=
+AUTH_ALGORITHM=HS256
+AUTH_ACCESS_TOKEN_EXPIRE_MINUTES=30
 
 
