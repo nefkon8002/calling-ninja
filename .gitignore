@@ -1,0 +1,4 @@
+tpv/
+.DS_Store
+venv/
+settings.json
