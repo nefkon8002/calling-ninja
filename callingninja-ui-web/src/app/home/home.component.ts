@@ -12,7 +12,7 @@ import { AuthService } from '@core/auth.service';
   styleUrls: ['home.component.css'],
 })
 export class HomeComponent {
-  title = 'SmartPUMP';
+  title = 'CallingNinja';
   username = undefined;
 
   constructor(private dialog: MatDialog, private authService: AuthService) {
