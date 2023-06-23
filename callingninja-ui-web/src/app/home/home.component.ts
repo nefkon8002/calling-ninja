@@ -1,17 +1,18 @@
-import {Component} from '@angular/core';
-import {MatDialog} from '@angular/material/dialog';
+import { Component } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 
-import {LoginDialogComponent} from '@shared/dialogs/login-dialog.component';
-import {ProfileComponent} from './profile/profile.component';
-
-import {AuthService} from '@core/auth.service';
+import { LoginDialogComponent } from '@shared/dialogs/login-dialog.component';
+import { ProfileComponent } from './profile/profile.component';
+import { InitcallComponent } from '../caller/initcall/initcall.component';
+import { UploadaudioComponent } from 'app/caller/uploadaudio/uploadaudio.component';
+import { AuthService } from '@core/auth.service';
 
 @Component({
   templateUrl: 'home.component.html',
   styleUrls: ['home.component.css'],
 })
 export class HomeComponent {
-  title = 'SmartPUMP';
+  title = 'CallingNinja';
   username = undefined;
 
   constructor(private dialog: MatDialog, private authService: AuthService) {
@@ -25,6 +26,10 @@ export class HomeComponent {
 
   profiler(): void {
     this.dialog.open(ProfileComponent).afterClosed().subscribe(() => this.dialog.closeAll());
+  }
+
+  caller(): void {
+    this.dialog.open(InitcallComponent).afterClosed().subscribe(() => this.dialog.closeAll());
   }
 
 

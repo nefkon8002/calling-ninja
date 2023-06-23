@@ -1,0 +1,5 @@
+tpv/
+.DS_Store
+venv/
+settings.json
+callingninja-api-fastapi/htmxample.html
