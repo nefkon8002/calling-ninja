@@ -15,6 +15,8 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 import motor.motor_asyncio
 from pydantic import BaseModel, HttpUrl
 from starlette.middleware.sessions import SessionMiddleware
+from fastapi.middleware.cors import CORSMiddleware
+
 from src.security import JWTBearer
 
 import csv
@@ -35,10 +37,27 @@ import magic  # detects file type. python-magic
 # init fastapi
 app = FastAPI()
 # register MiddleWare
+## session middleware
 session_secret_key = (
     os.getenv("SESSION_SECRET_KEY") or "very-top-secret-key-for-sessions"
 )
 app.add_middleware(SessionMiddleware, secret_key=session_secret_key)
+## CORS middleware
+origins = [
+    "http://localhost:4200",  # Replace with the actual origin of your Angular application
+    "http://localhost",
+    "file:///Users/christian/python/calling-ninja/callingninja-api-fastapi/htmxample.html",
+    "file://",
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],  # this has to be restricted to the absolut minimum
+    allow_headers=["*"],  # this has to be restricted to the absolut minimum
+    # allow_headers=["Content-Type", "Access-Control-Request-Method"],
+)
+
 # init oauth2
 # oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 # not needed bc custom jwt auth in security.py
@@ -186,7 +205,7 @@ async def upload_audio_async(
 
 
 # works
-@app.post("/upload_numbers/")
+@app.post("/upload_numbers")
 async def upload_numbers(
     request: Request,
     uploaded_numbers: UploadFile,
@@ -319,7 +338,8 @@ async def example_admin(request: Request, admin=Depends(JWTBearer(["ADMIN"]))):
 
 @app.get("/example_all")
 async def example_all(
-    request: Request, user=Depends(JWTBearer(["ADMIN", "CUSTOMER", "OPERATOR"]))
+    request: Request,
+    user=Depends(JWTBearer(["ADMIN", "MANAGER", "CUSTOMER", "OPERATOR"])),
 ):
     host = request.client.host
     return {"host": host, "current_user": user}
