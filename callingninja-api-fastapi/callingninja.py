@@ -156,7 +156,10 @@ async def get_from_numbers(request: Request):
     summary="Sync Upload to S3",
     description="Upload a file to a S3 bucket using the standard boto3 lib - sync",
 )
-async def upload_audio(uploaded_audio: UploadFile):
+async def upload_audio(
+    uploaded_audio: UploadFile,
+    current_user=Depends(JWTBearer(["ADMIN", "MANAGER", "OPERATOR", "CUSTOMER"])),
+):
     #########################################
     # DOES NOT CHECK IF FILE IS AUDIO FILE! #
     #########################################
@@ -164,7 +167,14 @@ async def upload_audio(uploaded_audio: UploadFile):
     # alternatively set up like this: `s3 = boto3.resource('s3')` and use function `put_object` --> no large file split, but more options
     # init aws sdk boto3 client
     s3 = boto3.client("s3")
-    file_key = str(uuid.uuid4()) + "_" + uploaded_audio.filename
+    file_key = (
+        "public/"
+        + current_user["name"]
+        + "/"
+        + str(uuid.uuid4())
+        + "_"
+        + uploaded_audio.filename
+    )
     s3.upload_file(uploaded_audio.filename, bucket_name, file_key)
     file_url = "https://" + bucket_name + ".s3.amazonaws.com/" + file_key
     return {"file_key": file_key, "file_url": file_url}
@@ -177,13 +187,23 @@ async def upload_audio(uploaded_audio: UploadFile):
     description="Upload a file to a S3 bucket using the async wrapper for boto3 - aiboto3 - async",
 )
 async def upload_audio_async(
-    uploaded_audio: UploadFile, request: Request, admin=Depends(JWTBearer(["ADMIN"]))
+    uploaded_audio: UploadFile,
+    request: Request,
+    current_user=Depends(JWTBearer(["ADMIN", "CUSTOMER", "OPERATOR", "MANAGER"])),
 ):
+    print(current_user["name"])
     try:
         if magic.from_file(uploaded_audio.filename, mime=True).split("/")[0] == "audio":
             session = asyncboto.Session()
             async with session.client("s3") as s3_client:
-                file_key = str(uuid.uuid4()) + "_" + uploaded_audio.filename
+                file_key = (
+                    "public/"
+                    + current_user["name"]
+                    + "/"
+                    + str(uuid.uuid4())
+                    + "_"
+                    + uploaded_audio.filename
+                )
                 await s3_client.upload_file(
                     uploaded_audio.filename, bucket_name, file_key
                 )
@@ -202,31 +222,50 @@ async def upload_audio_async(
         )
 
 
+@app.put("/upload_numbers_s3")
+async def upload_numbers_s3(
+    request: Request,
+    uploaded_numbers: UploadFile,
+    current_user=Depends(JWTBearer(["ADMIN", "MANAGER", "OPERATOR", "CUSTOMER"])),
+):
+    try:
+        # no file type check!
+        session = asyncboto.Session()
+        async with session.client("s3") as s3_client:
+            file_key = (
+                "private/"
+                + current_user["name"]
+                + "/"
+                + str(uuid.uuid4())
+                + "_"
+                + uploaded_numbers.filename
+            )
+            # sets key to "fake" folder name. Where the folder name is the current_user's name.
+            await s3_client.upload_file(
+                uploaded_numbers.filename, bucket_name, file_key
+            )
+            file_url = "https://" + bucket_name + ".s3.amazonaws.com/" + file_key
+            # request.session["audio_url"] = file_url
+            return {"file_key": file_key, "file_url": file_url}
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail="Failed to upload the file.",
+        )
+
+
 # works
 @app.post("/upload_numbers")
 async def upload_numbers(
     request: Request,
     uploaded_numbers: UploadFile,
+    current_user=Depends(JWTBearer(["ADMIN", "MANAGER", "OPERATOR", "CUSTOMER"])),
 ):
-    numbers = []
-    # takes simple .csv with only one column and each number in the first cell of each row
-    with open(uploaded_numbers.filename, "r") as f:
-        csv_reader = csv.reader(f)
-        for row in csv_reader:
-            numbers.append(row[0])
-            # to_number = row[0]
-            # await call(to_number, from_number, audio, request)
-            # numbers.append(to_number)
-        request.session["to_numbers"] = numbers
-        return {"numbers": numbers}
-
-
-@app.post("/upload_numbers_s3")
-async def upload_numbers(
-    request: Request,
-    uploaded_numbers: UploadFile,
-    current_user=Depends(JWTBearer(["CUSTOMER"])),
-):
+    await upload_numbers_s3(
+        request,
+        uploaded_numbers,
+        current_user,
+    )
     numbers = []
     # takes simple .csv with only one column and each number in the first cell of each row
     with open(uploaded_numbers.filename, "r") as f:
