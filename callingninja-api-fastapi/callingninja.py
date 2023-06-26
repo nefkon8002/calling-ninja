@@ -46,15 +46,13 @@ app.add_middleware(SessionMiddleware, secret_key=session_secret_key)
 origins = [
     "http://localhost:4200",  # Replace with the actual origin of your Angular application
     "http://localhost",
-    "file:///Users/christian/python/calling-ninja/callingninja-api-fastapi/htmxample.html",
-    "file://",
 ]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],  # this has to be restricted to the absolut minimum
-    allow_headers=["*"],  # this has to be restricted to the absolut minimum
+    allow_methods=["*"],  # this has to be restricted to the absolute minimum
+    allow_headers=["*"],  # this has to be restricted to the absolute minimum
     # allow_headers=["Content-Type", "Access-Control-Request-Method"],
 )
 
@@ -78,8 +76,6 @@ bucket_name = os.getenv("AWS_BUCKET_NAME")
 # init Client instance for twilio api
 client = Client(account_sid, auth_token)
 
-# init aws sdk boto3 client
-s3 = boto3.client("s3")
 
 # connect to mongodb
 # db_client = motor.motor_asyncio.AsyncIOMotorClient(os.environ["MONGODB_URL"])
@@ -166,6 +162,8 @@ async def upload_audio(uploaded_audio: UploadFile):
     #########################################
     # uses `upload_file`, which automagically splits big files
     # alternatively set up like this: `s3 = boto3.resource('s3')` and use function `put_object` --> no large file split, but more options
+    # init aws sdk boto3 client
+    s3 = boto3.client("s3")
     file_key = str(uuid.uuid4()) + "_" + uploaded_audio.filename
     s3.upload_file(uploaded_audio.filename, bucket_name, file_key)
     file_url = "https://" + bucket_name + ".s3.amazonaws.com/" + file_key
@@ -209,6 +207,25 @@ async def upload_audio_async(
 async def upload_numbers(
     request: Request,
     uploaded_numbers: UploadFile,
+):
+    numbers = []
+    # takes simple .csv with only one column and each number in the first cell of each row
+    with open(uploaded_numbers.filename, "r") as f:
+        csv_reader = csv.reader(f)
+        for row in csv_reader:
+            numbers.append(row[0])
+            # to_number = row[0]
+            # await call(to_number, from_number, audio, request)
+            # numbers.append(to_number)
+        request.session["to_numbers"] = numbers
+        return {"numbers": numbers}
+
+
+@app.post("/upload_numbers_s3")
+async def upload_numbers(
+    request: Request,
+    uploaded_numbers: UploadFile,
+    current_user=Depends(JWTBearer(["CUSTOMER"])),
 ):
     numbers = []
     # takes simple .csv with only one column and each number in the first cell of each row
