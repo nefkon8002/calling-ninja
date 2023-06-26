@@ -10,6 +10,7 @@ from fastapi import (
     Request,
     Depends,
     status,
+    Form,
 )
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 import motor.motor_asyncio
@@ -23,6 +24,7 @@ import csv
 import os
 import uuid
 import requests
+import urllib.parse
 
 
 from dotenv import load_dotenv, find_dotenv
@@ -65,8 +67,8 @@ load_dotenv(find_dotenv())
 
 # load env variables from env file
 ## twilio
-account_sid = os.getenv("ACCOUNT_SID")
-auth_token = os.getenv("AUTH_TOKEN")
+account_sid = os.getenv("ACCOUNT_SID2")
+auth_token = os.getenv("AUTH_TOKEN2")
 ##aws
 aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID")
 aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY")
@@ -318,7 +320,10 @@ async def call(request: Request):
 
     host = request.client.host
     # status_callback_url = "https://" + host + ":8000" + "/call_status"
-    status_callback_url = "https://b489-148-244-208-199.ngrok-free.app" + "/call_status"
+    status_callback_url = (
+        "https://38e6-2806-106e-13-1995-449d-2bda-4b68-8f23.ngrok-free.app"
+        + "/call_status"
+    )
     for to_number in to_numbers:
         client.calls.create(
             method="GET",
@@ -344,12 +349,16 @@ async def call_manual(
     from_number: str,
     to_number: str,
     audio_url: str,
-    customer=Depends(JWTBearer(["CUSTOMER"])),
+    customer=Depends(JWTBearer(["ADMIN", "OPERATOR", "MANAGER", "CUSTOMER"])),
 ):
     # init twilio client
-    client = Client(customer.twilio_sid, customer.twilio_token)
+    # client = Client(customer.twilio_sid, customer.twilio_token)
+    client = Client(account_sid, auth_token)
     # set url for callbacks on call events
-    status_callback_url = "https://534c-189-216-168-189.ngrok-free.app/call_status"
+    status_callback_url = (
+        "https://38e6-2806-106e-13-1995-449d-2bda-4b68-8f23.ngrok-free.app"
+        + "/call_status"
+    )
     # send call request to twilio api
     client.calls.create(
         method="GET",
@@ -369,14 +378,51 @@ async def call_manual(
 
 
 @app.post("/call_status")
-async def call_status(call_status):
-    fieldnames = call_status.keys()
-    with open("status.csv", "r") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerow(call_status)
+async def call_status(request: Request):
+    form_data = await request.form()
+    decoded_data = {}
 
-    return {"call_status": call_status}
+    for key, value in form_data.items():
+        decoded_data[key] = value
+
+    print(decoded_data)
+    return {"decoded_data": decoded_data}
+
+
+# Values sent in form from twilio:
+"""
+    Called: Annotated[str, Form()],
+    ToState: Annotated[str, Form()],
+    CallerCountry: Annotated[str, Form()],
+    Direction: Annotated[str, Form()],
+    Timestamp: Annotated[str, Form()],
+    CallbackSource: Annotated[str, Form()],
+    SipResponseCode: Annotated[str, Form()],
+    CallerState: Annotated[str, Form()],
+    ToZip: Annotated[str, Form()],
+    SequenceNumber: Annotated[str, Form()],
+    CallSid: Annotated[str, Form()],
+    To: Annotated[str, Form()],
+    CallerZip: Annotated[str, Form()],
+    ToCountry: Annotated[str, Form()],
+    CalledZip: Annotated[str, Form()],
+    ApiVersion: Annotated[str, Form()],
+    CalledCity: Annotated[str, Form()],
+    CallStatus: Annotated[str, Form()],
+    Duration: Annotated[str, Form()],
+    From: Annotated[str, Form()],
+    CallDuration: Annotated[str, Form()],
+    AccountSid: Annotated[str, Form()],
+    CalledCountry: Annotated[str, Form()],
+    CallerCity: Annotated[str, Form()],
+    ToCity: Annotated[str, Form()],
+    FromCountry: Annotated[str, Form()],
+    Caller: Annotated[str, Form()],
+    FromCity: Annotated[str, Form()],
+    CalledState: Annotated[str, Form()],
+    FromZip: Annotated[str, Form()],
+    FromState: Annotated[str, Form()],
+"""
 
 
 @app.get("/example_customer")
