@@ -191,7 +191,6 @@ async def upload_audio_async(
     request: Request,
     current_user=Depends(JWTBearer(["ADMIN", "CUSTOMER", "OPERATOR", "MANAGER"])),
 ):
-    print(current_user["name"])
     try:
         if magic.from_file(uploaded_audio.filename, mime=True).split("/")[0] == "audio":
             session = asyncboto.Session()
