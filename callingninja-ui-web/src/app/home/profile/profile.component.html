@@ -5,102 +5,106 @@
 
   <div class="card-body">
     <div class="row">
-        <div class="col-md-4">
-            <div class="card card-profile">
-                <div class="card-avatar">
-                    <div class='holder'>
-                      <ng-container *ngIf="load">
+      <div class="col-md-4">
+        <div class="card card-profile">
+          <div class="card-avatar">
+            <div class='holder'>
+              <ng-container *ngIf="load">
 
-                        <a href="javascript:void(0)">
-                            <!-- <img class="img" src="./assets/images/eddie.png" /> -->
-                            <img class="img" src={{profile.picture}} />
+                <a href="javascript:void(0)">
+                  <!-- <img class="img" src="./assets/images/eddie.png" /> -->
+                  <img class="img" src={{profile.picture}} />
 
-                        </a>
-                      </ng-container>
-                    </div>
-
-                </div>
-                <div class="card-body">
-                    <h6 class="card-category text-gray">CEO / Co-Founder</h6>
-
-                    <!-- <h4 class="card-title">Alec Thompson</h4> -->
-                </div>
+                </a>
+              </ng-container>
             </div>
+
+          </div>
+          <div class="card-body">
+            <h6 class="card-category text-gray">CEO / Co-Founder</h6>
+
+            <!-- <h4 class="card-title">Alec Thompson</h4> -->
+          </div>
         </div>
+      </div>
     </div>
-</div>
-<!-- <mat-form-field class="full-width"> -->
+  </div>
+  <!-- <mat-form-field class="full-width"> -->
   <!-- <mat-label>Active</mat-label> -->
 
-<!-- </mat-form-field> -->
-<!-- <ng-container *ngIf="isObject(profile)"> -->
+  <!-- </mat-form-field> -->
+  <!-- <ng-container *ngIf="isObject(profile)"> -->
 
   <ng-container *ngIf="load">
 
-  <mat-form-field class="full-width">
-    <mat-label>Company</mat-label>
-    <input [(ngModel)]="profile.company" id="company" matInput required type="text"/>
-  </mat-form-field>
-  <mat-form-field class="full-width">
-    <mat-label>Dni</mat-label>
-    <input [(ngModel)]="profile.dni" matInput required type="text"/>
-  </mat-form-field>
-  <mat-form-field class="full-width">
-    <mat-label>Movil</mat-label>
-    <input [(ngModel)]="profile.mobile" matInput required type="number">
-    <mat-hint align="start">9 digits</mat-hint>
-  </mat-form-field>
-  <mat-form-field class="full-width">
-    <mat-label>E-mail</mat-label>
-    <input [(ngModel)]="profile.email" matInput required type="email">
-  </mat-form-field>
-  <mat-form-field class="full-width">
-    <mat-label>Address</mat-label>
-    <input [(ngModel)]="profile.address" matInput required type="text"/>
-  </mat-form-field>
-  <mat-form-field class="full-width">
-    <mat-label>Age</mat-label>
-    <input [(ngModel)]="profile.age" matInput type="number"/>
-  </mat-form-field>
-  <mat-form-field class="full-width">
-    <mat-label>Eye Color</mat-label>
-    <input [(ngModel)]="profile.eyeColor" matInput type="text"/>
-  </mat-form-field>
-  <mat-form-field class="full-width">
-    <mat-label>Balance</mat-label>
-    <input [(ngModel)]="profile.balance" matInput required type="text"/>
-    <!-- <input value="{{balance}}" matInput required type="text"/> -->
-  </mat-form-field>
-  <mat-form-field class="full-width">
-    <mat-label>Family Name</mat-label>
-    <input [(ngModel)]="profile.familyName" matInput type="text"/>
-  </mat-form-field>
-  <mat-form-field class="full-width">
-    <mat-label>First Name</mat-label>
-    <input [(ngModel)]="profile.firstName" matInput type="text"/>
-  </mat-form-field>
-  <mat-form-field class="full-width">
-    <mat-label>Last Name</mat-label>
-    <input [(ngModel)]="profile.lastName" matInput type="text"/>
-  </mat-form-field>
-  <mat-slide-toggle [(ngModel)]="profile.active">Active</mat-slide-toggle>
-</ng-container>
-<!-- </ng-container> -->
+    <mat-form-field class="full-width">
+      <mat-label>Company</mat-label>
+      <input [(ngModel)]="profile.company" id="company" matInput required type="text" />
+    </mat-form-field>
+    <mat-form-field class="full-width">
+      <mat-label>Dni</mat-label>
+      <input [(ngModel)]="profile.dni" matInput required type="text" />
+    </mat-form-field>
+    <mat-form-field class="full-width">
+      <mat-label>Movil</mat-label>
+      <input [(ngModel)]="profile.mobile" matInput required type="number">
+      <mat-hint align="start">9 digits</mat-hint>
+    </mat-form-field>
+    <mat-form-field class="full-width">
+      <mat-label>E-mail</mat-label>
+      <input [(ngModel)]="profile.email" matInput required type="email">
+    </mat-form-field>
+    <mat-form-field class="full-width">
+      <mat-label>Address</mat-label>
+      <input [(ngModel)]="profile.address" matInput required type="text" />
+    </mat-form-field>
+    <mat-form-field class="full-width">
+      <mat-label>Age</mat-label>
+      <input [(ngModel)]="profile.age" matInput type="number" />
+    </mat-form-field>
+    <mat-form-field class="full-width">
+      <mat-label>Eye Color</mat-label>
+      <input [(ngModel)]="profile.eyeColor" matInput type="text" />
+    </mat-form-field>
+    <mat-form-field class="full-width">
+      <mat-label>Balance</mat-label>
+      <input [(ngModel)]="profile.balance" matInput required type="text" />
+      <!-- <input value="{{balance}}" matInput required type="text"/> -->
+    </mat-form-field>
+    <mat-form-field class="full-width">
+      <mat-label>Family Name</mat-label>
+      <input [(ngModel)]="profile.familyName" matInput type="text" />
+    </mat-form-field>
+    <mat-form-field class="full-width">
+      <mat-label>First Name</mat-label>
+      <input [(ngModel)]="profile.firstName" matInput type="text" />
+    </mat-form-field>
+    <mat-form-field class="full-width">
+      <mat-label>Last Name</mat-label>
+      <input [(ngModel)]="profile.lastName" matInput type="text" />
+    </mat-form-field>
+    <mat-slide-toggle [(ngModel)]="profile.active">Active</mat-slide-toggle>
 
-<mat-dialog-actions>
-  <button cdkFocusInitial mat-dialog-close mat-raised-button>Close</button>
-  <!-- <button (click)="profileUser()" *ngIf="isCreate()" [disabled]=invalid() color="primary" mat-raised-button>Create
+    <mat-form-field class="full-width">
+      <mat-label>Twilio SID</mat-label>
+      <input [(ngModel)]="profile.twilio_sid" matInput type="text" />
+    </mat-form-field>
+    <mat-form-field class="full-width">
+      <mat-label>Twilio AUTH</mat-label>
+      <input [(ngModel)]="profile.twilio_auth" matInput type="text" />
+    </mat-form-field>
+
+  </ng-container>
+  <!-- </ng-container> -->
+
+  <mat-dialog-actions>
+    <button cdkFocusInitial mat-dialog-close mat-raised-button>Close</button>
+    <!-- <button (click)="profileUser()" *ngIf="isCreate()" [disabled]=invalid() color="primary" mat-raised-button>Create
   </button>
   <button (click)="profileUser()" *ngIf="!isCreate()" [disabled]=invalid() color="primary" mat-raised-button>Update
   </button> -->
-  <!-- <button (click)="profileUser()" color="primary" mat-raised-button>Create
+    <!-- <button (click)="profileUser()" color="primary" mat-raised-button>Create
   </button> -->
-  <button (click)="updateUser(profile)" color="primary" mat-raised-button>Update
-  </button>
-</mat-dialog-actions>
-
-
-
-
-
-
+    <button (click)="updateUser(profile)" color="primary" mat-raised-button>Update
+    </button>
+  </mat-dialog-actions>

@@ -90,7 +90,7 @@ public class UserService {
         // user.setCompany("PLUSNETWORK.COM");
         // user.setEyeColor("BLUEEEE");
         // user.setAge(30);    
-        this.userRepository.dinamicUpdate(user.getCompany(),user.getEyeColor(),user.getAge(),user.getPicture(),user.getBalance(),user.getFirstName(),user.getLastName(),user.getFamilyName(),user.getEmail(),user.getDni(),user.getAddress(),user.getActive(),user.getMobile());
+        this.userRepository.dinamicUpdate(user.getCompany(),user.getEyeColor(),user.getAge(),user.getPicture(),user.getBalance(),user.getFirstName(),user.getLastName(),user.getFamilyName(),user.getEmail(),user.getDni(),user.getAddress(),user.getActive(),user.getMobile(),user.getTwilio_sid(),user.getTwilio_auth());
         
         //this.userRepository.dinamicUpdate("PLUSNETWORK","BLUE",89,user.getPicture(),user.getBalance(),user.getFirstName(),user.getLastName(),user.getEmail(),user.getDni(),user.getAddress(),user.getActive(),user.getMobile());
         

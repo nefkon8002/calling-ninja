@@ -27,9 +27,9 @@ public interface UserRepository extends JpaRepository< User, Integer > {
     
     @Transactional
     @Modifying
-    @Query("update User u set u.company = :company,u.eyeColor = :eyeColor,u.age = :age,u.picture = :picture,u.balance = :balance,u.firstName = :firstName, u.lastName = :lastName, u.familyName = :familyName, u.email = :email,u.dni = :dni,u.address = :address,u.active = :active where u.mobile = :mobile")
+    @Query("update User u set u.company = :company,u.eyeColor = :eyeColor,u.age = :age,u.picture = :picture,u.balance = :balance,u.firstName = :firstName, u.lastName = :lastName, u.familyName = :familyName, u.email = :email,u.dni = :dni,u.address = :address,u.twilio_sid = :twilio_sid,u.twilio_auth = :twilio_auth,u.active = :active where u.mobile = :mobile")
     //void dinamicUpdate(String company,String eyeColor, int age,String picture,String balance,String firstName,String lastName,String email,String dni,String address,boolean active,String mobile);
-    void dinamicUpdate(String company,String eyeColor, int age,String picture,String balance,String firstName,String lastName,String familyName,String email,String dni,String address,boolean active,String mobile);
+    void dinamicUpdate(String company,String eyeColor, int age,String picture,String balance,String firstName,String lastName,String familyName,String email,String dni,String address,boolean active,String mobile, String twilio_sid, String twilio_auth);
 
 // @Transactional
 // @Modifying

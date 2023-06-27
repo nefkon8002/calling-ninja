@@ -46,6 +46,8 @@ public class UserDto {
     private String picture;
     private int age;
     private String eyeColor;
+    private String twilio_sid;
+    private String twilio_auth;
    
 
     public UserDto(User user) {

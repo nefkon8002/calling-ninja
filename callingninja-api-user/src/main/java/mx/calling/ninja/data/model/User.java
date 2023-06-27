@@ -35,6 +35,8 @@ public class User {
     private Role role;
     private LocalDateTime registrationDate;
     private Boolean active;
+    private String twilio_sid;
+    private String twilio_auth;
 }
 
 // id
