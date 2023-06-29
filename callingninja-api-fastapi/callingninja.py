@@ -272,7 +272,10 @@ async def upload_numbers_s3(
             )
             # sets key to "fake" folder name. Where the folder name is the current_user's name.
             await s3_client.upload_file(
-                uploaded_numbers.filename, bucket_name, file_key
+                uploaded_numbers.filename,
+                bucket_name,
+                file_key,
+                ExtraArgs={"ContentType": uploaded_numbers.content_type},
             )
             file_url = "https://" + bucket_name + ".s3.amazonaws.com/" + file_key
             # request.session["audio_url"] = file_url
@@ -353,6 +356,8 @@ async def call(request: Request):
         "https://38e6-2806-106e-13-1995-449d-2bda-4b68-8f23.ngrok-free.app"
         + "/call_status"
     )
+    # create TwiML string
+    twiml = f"<Response><Play>{audio_url}</Play></Response>"
     for to_number in to_numbers:
         client.calls.create(
             method="GET",
@@ -370,7 +375,7 @@ async def call(request: Request):
                 "failed",
             ],
             status_callback_method="POST",
-            url=audio_url,
+            twiml=twiml,
             to=to_number,
             from_=from_numbers[
                 0
@@ -410,15 +415,9 @@ async def call_manual(
         "https://7fab-2806-106e-13-1995-9d69-29b2-442f-7389.ngrok-free.app"
         + "/call_status"
     )
-    response = requests.head(audio_url)
-    content_type = response.headers.get("Content-Type")
 
-    # Create TwiML string with the specified Content-Type
-    twiml = f"<Response><Play>http://demo.twilio.com/docs/classic.mp3</Play></Response>"
     # create TwiML string
-    # twiml = f"<Response><Play>{audio_url}</Play></Response>"
-    # twiml = "<Response><Say>HALLO OIDA</Say></Response>"
-    print(twiml)
+    twiml = f"<Response><Play>{audio_url}</Play></Response>"
     # send call request to twilio api
     client.calls.create(
         method="GET",
@@ -432,7 +431,6 @@ async def call_manual(
             "completed",
         ],
         status_callback_method="POST",
-        # url=audio_url,
         to=to_number,
         from_=from_number,
     )
