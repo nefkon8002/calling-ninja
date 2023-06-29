@@ -25,6 +25,7 @@ import os
 import uuid
 import requests
 import urllib.parse
+import httpx
 
 
 from dotenv import load_dotenv, find_dotenv
@@ -48,6 +49,7 @@ app.add_middleware(SessionMiddleware, secret_key=session_secret_key)
 origins = [
     "http://localhost:4200",  # Replace with the actual origin of your Angular application
     "http://localhost",
+    "localhost:4200",
 ]
 app.add_middleware(
     CORSMiddleware,
@@ -140,15 +142,34 @@ async def custom_token(username: str, password: str):
 
 # works
 @app.get("/get_from_numbers/")
-async def get_from_numbers(request: Request):
+async def get_from_numbers(
+    request: Request,
+    current_user=Depends(JWTBearer(["ADMIN", "MANAGER", "OPERATOR", "CUSTOMER"])),
+):
+    # get user details from api-user
+    async with httpx.AsyncClient() as client:
+        headers = {"Authorization": f"Bearer {current_user['token']}"}
+        endpoint_users_mobile = "http://localhost:8081/users/" + str(
+            current_user["mobile"]
+        )
+        user_data = await client.get(endpoint_users_mobile, headers=headers)
+        user_data = dict(user_data.json())
+    # extract current users' twilio credentials from former request
+    sid = user_data["twilio_sid"]
+    auth = user_data["twilio_auth"]
+    # init twilio client with current users' credentials
+    client = Client(sid, auth)
+
+    # get all available from numbers for current user from twilio
     from_numbers_list = []
     incoming_phone_numbers = client.incoming_phone_numbers.list()
     # limit returned numbers?
     # ... .list(limit=20)
 
+    # create a list of fully qualified from numbers
     for record in incoming_phone_numbers:
         from_numbers_list.append(record.phone_number)
-    request.session["from_numbers"] = from_numbers_list
+    # request.session["from_numbers"] = from_numbers_list
     return {"from_numbers": from_numbers_list}
 
 
@@ -209,7 +230,7 @@ async def upload_audio_async(
                     uploaded_audio.filename, bucket_name, file_key
                 )
                 file_url = "https://" + bucket_name + ".s3.amazonaws.com/" + file_key
-                request.session["audio_url"] = file_url
+                # request.session["audio_url"] = file_url
                 return {"file_key": file_key, "file_url": file_url}
         else:
             raise HTTPException(
@@ -276,8 +297,8 @@ async def upload_numbers(
             # to_number = row[0]
             # await call(to_number, from_number, audio, request)
             # numbers.append(to_number)
-        request.session["to_numbers"] = numbers
-        return {"numbers": numbers}
+        # request.session["to_numbers"] = numbers
+        return {"to_numbers": numbers}
 
 
 @app.get("/a")

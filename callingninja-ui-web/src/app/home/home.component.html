@@ -42,11 +42,12 @@
       <span>{{username}}</span>
       <span>Test1</span>
     </button> -->
-
+    <!-- comment out shopping cart in menubar
     <button (click)="cart()" mat-button>
       <mat-icon matBadge="3" matBadgeColor="accent" matBadgeOverlap="false" matBadgeSize="medium">shopping_cart
       </mat-icon>
     </button>
+    -->
   </div>
 </mat-toolbar>
 
@@ -94,7 +95,19 @@
     <span>Caller</span>
   </button>
 </mat-toolbar>
-<app-uploadaudio></app-uploadaudio>
+<div id="queryfromnumbers" *ngIf="isAuthenticated()">
+  <h1>Query your available from numbers and choose one:</h1>
+  <app-queryfrom></app-queryfrom>
+</div>
+<div id="uploadnumbers" *ngIf="isAuthenticated()">
+  <h1>Please choose your number file:</h1>
+  <app-uploadaudio></app-uploadaudio>
+</div>
+<div id="audiouploader" *ngIf="isAuthenticated()">
+  <h1>Please choose your audio file:</h1>
+  <app-uploadaudio></app-uploadaudio>
+</div>
+<app-initcall></app-initcall>
 <router-outlet></router-outlet>
 
 <app-footer></app-footer>

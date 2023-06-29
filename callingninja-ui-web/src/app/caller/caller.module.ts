@@ -1,20 +1,24 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UploadaudioComponent } from './uploadaudio/uploadaudio.component';
-import { CallerComponent } from './initcall/initcall.component';
+import { InitcallComponent } from './initcall/initcall.component';
+import { QueryfromComponent } from './queryfrom/queryfrom.component';
 
 
 
 @NgModule({
   declarations: [
-    UploadaudioComponent
+    UploadaudioComponent,
+    QueryfromComponent,
+    InitcallComponent
   ],
   imports: [
     CommonModule
   ],
   exports: [
     UploadaudioComponent,
-    CallerComponent
+    QueryfromComponent,
+    InitcallComponent
   ]
 })
 export class CallerModule { }
