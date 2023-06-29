@@ -59,7 +59,7 @@ export class InitcallComponent {
         console.log(to_numbers);
         console.log(audio_url);
         for (let to of to_numbers) {
-            this.initcallservice.postCallManual(from_number, to, audio_url = audio_url).subscribe(response => {
+            this.initcallservice.postCallManual(from_number, to, audio_url).subscribe(response => {
                 console.log(`Response from the call endpoint: ${response}`)
             });
         }
