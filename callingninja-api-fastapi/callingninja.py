@@ -198,7 +198,12 @@ async def upload_audio(
         + "_"
         + uploaded_audio.filename
     )
-    s3.upload_file(uploaded_audio.filename, bucket_name, file_key)
+    s3.upload_file(
+        uploaded_audio.filename,
+        bucket_name,
+        file_key,
+        ExtraArgs={"ContentType": uploaded_audio.content_type},
+    )
     file_url = "https://" + bucket_name + ".s3.amazonaws.com/" + file_key
     return {"file_key": file_key, "file_url": file_url}
 
@@ -227,7 +232,10 @@ async def upload_audio_async(
                     + uploaded_audio.filename
                 )
                 await s3_client.upload_file(
-                    uploaded_audio.filename, bucket_name, file_key
+                    uploaded_audio.filename,
+                    bucket_name,
+                    file_key,
+                    ExtraArgs={"ContentType": uploaded_audio.content_type},
                 )
                 file_url = "https://" + bucket_name + ".s3.amazonaws.com/" + file_key
                 # request.session["audio_url"] = file_url
@@ -381,34 +389,50 @@ async def call_manual(
     from_number: str,
     to_number: str,
     audio_url: str,
-    customer=Depends(JWTBearer(["ADMIN", "OPERATOR", "MANAGER", "CUSTOMER"])),
+    current_user=Depends(JWTBearer(["ADMIN", "OPERATOR", "MANAGER", "CUSTOMER"])),
 ):
-    # init twilio client
-    # client = Client(customer.twilio_sid, customer.twilio_token)
-    client = Client(account_sid, auth_token)
+    # get user details from api-user
+    async with httpx.AsyncClient() as client:
+        headers = {"Authorization": f"Bearer {current_user['token']}"}
+        endpoint_users_mobile = "http://localhost:8081/users/" + str(
+            current_user["mobile"]
+        )
+        user_data = await client.get(endpoint_users_mobile, headers=headers)
+        user_data = dict(user_data.json())
+    # extract current users' twilio credentials from former request
+    sid = user_data["twilio_sid"]
+    auth = user_data["twilio_auth"]
+    # init twilio client with current users' credentials
+    client = Client(sid, auth)
+
     # set url for callbacks on call events
     status_callback_url = (
-        "https://38e6-2806-106e-13-1995-449d-2bda-4b68-8f23.ngrok-free.app"
+        "https://7fab-2806-106e-13-1995-9d69-29b2-442f-7389.ngrok-free.app"
         + "/call_status"
     )
+    response = requests.head(audio_url)
+    content_type = response.headers.get("Content-Type")
+
+    # Create TwiML string with the specified Content-Type
+    twiml = f"<Response><Play>http://demo.twilio.com/docs/classic.mp3</Play></Response>"
+    # create TwiML string
+    # twiml = f"<Response><Play>{audio_url}</Play></Response>"
+    # twiml = "<Response><Say>HALLO OIDA</Say></Response>"
+    print(twiml)
     # send call request to twilio api
     client.calls.create(
         method="GET",
+        twiml=twiml,
         status_callback=status_callback_url,
         status_callback_event=[
-            "queued",
             "initiated",
             "ringing",
             "answered",
             "in-progress",
             "completed",
-            "busy",
-            "no-answer",
-            "canceled",
-            "failed",
         ],
         status_callback_method="POST",
-        url=audio_url,
+        # url=audio_url,
         to=to_number,
         from_=from_number,
     )

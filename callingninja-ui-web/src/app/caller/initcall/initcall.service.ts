@@ -35,7 +35,7 @@ export class InitcallService {
         //params = params.append('to_number', to_number);
         //params = params.append('audio_url', audio_url);
         console.log(params)
-        return this.httpService.post(EndPoints.CALLER + "call_manual", { params });
+        return this.httpService.post(EndPoints.CALLER + "call_manual", { params: params });
 
     }
 
