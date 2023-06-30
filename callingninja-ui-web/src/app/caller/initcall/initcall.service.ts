@@ -31,12 +31,16 @@ export class InitcallService {
             .set('from_number', from_number)
             .set('to_number', to_number)
             .set('audio_url', audio_url);
-        let queryParams = { "from_number": from_number, "to_number": to_number, "audio_url": audio_url };
 
+        //as ? string directlty to endpoint
+        //const url = `${EndPoints.CALLER}call_manual?${params.toString()}`;
 
-        const url = `${EndPoints.CALLER}call_manual?${params.toString()}`;
+        //as formdata to endpoint using the params variable
+        //return this.httpService.post(EndPoints.CALLER + "call_manual", params)
 
-        return this.httpService.post(url, null);
+        // as json body
+        const requestBody = { from_number, to_number, audio_url };
+        return this.httpService.post(EndPoints.CALLER + 'call_manual', requestBody);
     }
 
 

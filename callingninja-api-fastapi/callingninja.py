@@ -99,6 +99,12 @@ class UserInDB(User):
     hashed_password: str
 
 
+class CallRequest(BaseModel):
+    from_number: str
+    to_number: str
+    audio_url: HttpUrl
+
+
 ###############################################################################
 ###############################################################################
 # endpoints
@@ -391,9 +397,7 @@ async def call(request: Request):
 
 @app.post("/call_manual")
 async def call_manual(
-    from_number: str,
-    to_number: str,
-    audio_url: str,
+    call_request: CallRequest,
     current_user=Depends(JWTBearer(["ADMIN", "OPERATOR", "MANAGER", "CUSTOMER"])),
 ):
     # get user details from api-user
@@ -414,7 +418,7 @@ async def call_manual(
     status_callback_url = "https://24ca-201-137-189-18.ngrok-free.app" + "/call_status"
 
     # create TwiML string
-    twiml = f"<Response><Play>{audio_url}</Play></Response>"
+    twiml = f"<Response><Play>{call_request.audio_url}</Play></Response>"
     # send call request to twilio api
     client.calls.create(
         method="GET",
@@ -428,14 +432,14 @@ async def call_manual(
             "completed",
         ],
         status_callback_method="POST",
-        to=to_number,
-        from_=from_number,
+        to=call_request.to_number,
+        from_=call_request.from_number,
     )
     return {
         "message": "Call initiated successfully",
-        "Recipients; to": to_number,
-        "Emitter; from": from_number,
-        "Played Audio Message; url": audio_url,
+        "Recipients; to": call_request.to_number,
+        "Emitter; from": call_request.from_number,
+        "Played Audio Message; url": call_request.audio_url,
     }
 
 
