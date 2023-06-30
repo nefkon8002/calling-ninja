@@ -86,6 +86,13 @@ client = Client(account_sid, auth_token)
 # select collection from mongodb
 # db = db_client.tpv
 
+# Auth types
+auth_all = Depends(JWTBearer(["ADMIN", "OPERATOR", "MANAGER", "CUSTOMER"]))
+auth_admin = Depends(JWTBearer(["ADMIN"]))
+auth_manager = Depends(JWTBearer(["MANAGER"]))
+auth_operator = Depends(JWTBearer(["OPERATOR"]))
+auth_customer = Depends(JWTBearer(["CUSTOMER"]))
+
 
 # pydantic Model
 class User(BaseModel):
@@ -103,6 +110,24 @@ class CallRequest(BaseModel):
     from_number: str
     to_number: str
     audio_url: HttpUrl
+
+
+###############################################################################
+###############################################################################
+# helper functions
+###############################################################################
+###############################################################################
+
+
+async def get_user_details(current_user):
+    async with httpx.AsyncClient() as client:
+        headers = {"Authorization": f"Bearer {current_user['token']}"}
+        endpoint_users_mobile = "http://localhost:8081/users/" + str(
+            current_user["mobile"]
+        )
+        user_data = await client.get(endpoint_users_mobile, headers=headers)
+        user_data = dict(user_data.json())
+        return user_data
 
 
 ###############################################################################
@@ -331,8 +356,20 @@ async def a(request: Request):
 
 
 @app.get("/query_audios/")
-async def query_audios():
-    return {"nada": "nada"}
+async def query_audios(current_user=auth_all):
+    session = asyncboto.Session()
+    try:
+        async with session.client("s3") as s3_client:
+            available_audios = await s3_client.list_objects(
+                Bucket=bucket_name, Prefix=f"public/{current_user['name']}"
+            )
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail="Failed to retrieve list of available audios",
+        )
+
+    return {"nada": available_audios}
 
 
 # works
