@@ -51,7 +51,6 @@ export class InitcallComponent {
 
 
     sendCall() {
-
         let from_number = sessionStorage.getItem('selected_number');
         let to_numbers = JSON.parse(sessionStorage.getItem('to_numbers'));
         let audio_url = JSON.parse(sessionStorage.getItem("audio_file")).file_url;
@@ -64,5 +63,7 @@ export class InitcallComponent {
             });
         }
     }
+
+
 
 }

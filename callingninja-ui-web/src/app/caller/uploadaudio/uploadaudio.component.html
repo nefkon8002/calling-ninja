@@ -7,4 +7,7 @@
     <button mat-mini-fab color="primary" class="upload-btn" (click)="fileUpload.click()">
         <mat-icon>attach_file</mat-icon>
     </button>
+
+    <div *ngIf="isUploading" class="spinner">Loading...</div>
+    <div *ngIf="uploadComplete" class="success">File successfully uploaded</div>
 </div>

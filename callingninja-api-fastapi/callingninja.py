@@ -363,13 +363,19 @@ async def query_audios(current_user=auth_all):
             available_audios = await s3_client.list_objects(
                 Bucket=bucket_name, Prefix=f"public/{current_user['name']}"
             )
+            audio_result = {}
+            for content in available_audios["Contents"]:
+                audio_result[content["Key"]] = {
+                    "originalName": content["Key"].split("_")[1],
+                    "lastModified": content["LastModified"],
+                    "full_url": f"https://{bucket_name}.s3.amazonaws.com/{content['Key']}",
+                }
+            return audio_result
     except Exception as e:
         raise HTTPException(
             status_code=400,
             detail="Failed to retrieve list of available audios",
         )
-
-    return {"nada": available_audios}
 
 
 # works
@@ -452,7 +458,10 @@ async def call_manual(
     client = Client(sid, auth)
 
     # set url for callbacks on call events
-    status_callback_url = "https://24ca-201-137-189-18.ngrok-free.app" + "/call_status"
+    status_callback_url = (
+        "https://094f-2806-106e-13-59a7-b821-d81e-1ddb-e500.ngrok-free.app"
+        + "/call_status"
+    )
 
     # create TwiML string
     twiml = f"<Response><Play>{call_request.audio_url}</Play></Response>"
@@ -465,7 +474,6 @@ async def call_manual(
             "initiated",
             "ringing",
             "answered",
-            "in-progress",
             "completed",
         ],
         status_callback_method="POST",
