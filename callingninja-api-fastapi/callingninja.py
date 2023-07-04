@@ -25,6 +25,7 @@ import os
 import uuid
 import requests
 import urllib.parse
+import httpx
 
 
 from dotenv import load_dotenv, find_dotenv
@@ -48,6 +49,7 @@ app.add_middleware(SessionMiddleware, secret_key=session_secret_key)
 origins = [
     "http://localhost:4200",  # Replace with the actual origin of your Angular application
     "http://localhost",
+    "localhost:4200",
 ]
 app.add_middleware(
     CORSMiddleware,
@@ -84,6 +86,13 @@ client = Client(account_sid, auth_token)
 # select collection from mongodb
 # db = db_client.tpv
 
+# Auth types
+auth_all = Depends(JWTBearer(["ADMIN", "OPERATOR", "MANAGER", "CUSTOMER"]))
+auth_admin = Depends(JWTBearer(["ADMIN"]))
+auth_manager = Depends(JWTBearer(["MANAGER"]))
+auth_operator = Depends(JWTBearer(["OPERATOR"]))
+auth_customer = Depends(JWTBearer(["CUSTOMER"]))
+
 
 # pydantic Model
 class User(BaseModel):
@@ -95,6 +104,30 @@ class User(BaseModel):
 
 class UserInDB(User):
     hashed_password: str
+
+
+class CallRequest(BaseModel):
+    from_number: str
+    to_number: str
+    audio_url: HttpUrl
+
+
+###############################################################################
+###############################################################################
+# helper functions
+###############################################################################
+###############################################################################
+
+
+async def get_user_details(current_user):
+    async with httpx.AsyncClient() as client:
+        headers = {"Authorization": f"Bearer {current_user['token']}"}
+        endpoint_users_mobile = "http://localhost:8081/users/" + str(
+            current_user["mobile"]
+        )
+        user_data = await client.get(endpoint_users_mobile, headers=headers)
+        user_data = dict(user_data.json())
+        return user_data
 
 
 ###############################################################################
@@ -140,15 +173,34 @@ async def custom_token(username: str, password: str):
 
 # works
 @app.get("/get_from_numbers/")
-async def get_from_numbers(request: Request):
+async def get_from_numbers(
+    request: Request,
+    current_user=Depends(JWTBearer(["ADMIN", "MANAGER", "OPERATOR", "CUSTOMER"])),
+):
+    # get user details from api-user
+    async with httpx.AsyncClient() as client:
+        headers = {"Authorization": f"Bearer {current_user['token']}"}
+        endpoint_users_mobile = "http://localhost:8081/users/" + str(
+            current_user["mobile"]
+        )
+        user_data = await client.get(endpoint_users_mobile, headers=headers)
+        user_data = dict(user_data.json())
+    # extract current users' twilio credentials from former request
+    sid = user_data["twilio_sid"]
+    auth = user_data["twilio_auth"]
+    # init twilio client with current users' credentials
+    client = Client(sid, auth)
+
+    # get all available from numbers for current user from twilio
     from_numbers_list = []
     incoming_phone_numbers = client.incoming_phone_numbers.list()
     # limit returned numbers?
     # ... .list(limit=20)
 
+    # create a list of fully qualified from numbers
     for record in incoming_phone_numbers:
         from_numbers_list.append(record.phone_number)
-    request.session["from_numbers"] = from_numbers_list
+    # request.session["from_numbers"] = from_numbers_list
     return {"from_numbers": from_numbers_list}
 
 
@@ -177,7 +229,12 @@ async def upload_audio(
         + "_"
         + uploaded_audio.filename
     )
-    s3.upload_file(uploaded_audio.filename, bucket_name, file_key)
+    s3.upload_file(
+        uploaded_audio.filename,
+        bucket_name,
+        file_key,
+        ExtraArgs={"ContentType": uploaded_audio.content_type},
+    )
     file_url = "https://" + bucket_name + ".s3.amazonaws.com/" + file_key
     return {"file_key": file_key, "file_url": file_url}
 
@@ -206,10 +263,13 @@ async def upload_audio_async(
                     + uploaded_audio.filename
                 )
                 await s3_client.upload_file(
-                    uploaded_audio.filename, bucket_name, file_key
+                    uploaded_audio.filename,
+                    bucket_name,
+                    file_key,
+                    ExtraArgs={"ContentType": uploaded_audio.content_type},
                 )
                 file_url = "https://" + bucket_name + ".s3.amazonaws.com/" + file_key
-                request.session["audio_url"] = file_url
+                # request.session["audio_url"] = file_url
                 return {"file_key": file_key, "file_url": file_url}
         else:
             raise HTTPException(
@@ -243,7 +303,10 @@ async def upload_numbers_s3(
             )
             # sets key to "fake" folder name. Where the folder name is the current_user's name.
             await s3_client.upload_file(
-                uploaded_numbers.filename, bucket_name, file_key
+                uploaded_numbers.filename,
+                bucket_name,
+                file_key,
+                ExtraArgs={"ContentType": uploaded_numbers.content_type},
             )
             file_url = "https://" + bucket_name + ".s3.amazonaws.com/" + file_key
             # request.session["audio_url"] = file_url
@@ -276,8 +339,8 @@ async def upload_numbers(
             # to_number = row[0]
             # await call(to_number, from_number, audio, request)
             # numbers.append(to_number)
-        request.session["to_numbers"] = numbers
-        return {"numbers": numbers}
+        # request.session["to_numbers"] = numbers
+        return {"to_numbers": numbers}
 
 
 @app.get("/a")
@@ -293,8 +356,26 @@ async def a(request: Request):
 
 
 @app.get("/query_audios/")
-async def query_audios():
-    return {"nada": "nada"}
+async def query_audios(current_user=auth_all):
+    session = asyncboto.Session()
+    try:
+        async with session.client("s3") as s3_client:
+            available_audios = await s3_client.list_objects(
+                Bucket=bucket_name, Prefix=f"public/{current_user['name']}"
+            )
+            audio_result = {}
+            for content in available_audios["Contents"]:
+                audio_result[content["Key"]] = {
+                    "originalName": content["Key"].split("_")[1],
+                    "lastModified": content["LastModified"],
+                    "full_url": f"https://{bucket_name}.s3.amazonaws.com/{content['Key']}",
+                }
+            return audio_result
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail="Failed to retrieve list of available audios",
+        )
 
 
 # works
@@ -324,6 +405,8 @@ async def call(request: Request):
         "https://38e6-2806-106e-13-1995-449d-2bda-4b68-8f23.ngrok-free.app"
         + "/call_status"
     )
+    # create TwiML string
+    twiml = f"<Response><Play>{audio_url}</Play></Response>"
     for to_number in to_numbers:
         client.calls.create(
             method="GET",
@@ -341,7 +424,7 @@ async def call(request: Request):
                 "failed",
             ],
             status_callback_method="POST",
-            url=audio_url,
+            twiml=twiml,
             to=to_number,
             from_=from_numbers[
                 0
@@ -357,45 +440,48 @@ async def call(request: Request):
 
 @app.post("/call_manual")
 async def call_manual(
-    from_number: str,
-    to_number: str,
-    audio_url: str,
-    customer=Depends(JWTBearer(["ADMIN", "OPERATOR", "MANAGER", "CUSTOMER"])),
+    call_request: CallRequest,
+    current_user=Depends(JWTBearer(["ADMIN", "OPERATOR", "MANAGER", "CUSTOMER"])),
 ):
-    # init twilio client
-    # client = Client(customer.twilio_sid, customer.twilio_token)
-    client = Client(account_sid, auth_token)
+    # get user details from api-user
+    async with httpx.AsyncClient() as client:
+        headers = {"Authorization": f"Bearer {current_user['token']}"}
+        endpoint_users_mobile = "http://localhost:8081/users/" + str(
+            current_user["mobile"]
+        )
+        user_data = await client.get(endpoint_users_mobile, headers=headers)
+        user_data = dict(user_data.json())
+    # extract current users' twilio credentials from former request
+    sid = user_data["twilio_sid"]
+    auth = user_data["twilio_auth"]
+    # init twilio client with current users' credentials
+    client = Client(sid, auth)
+
     # set url for callbacks on call events
-    status_callback_url = (
-        "https://38e6-2806-106e-13-1995-449d-2bda-4b68-8f23.ngrok-free.app"
-        + "/call_status"
-    )
+    status_callback_url = "https://94f0-187-202-216-18.ngrok-free.app" + "/call_status"
+
+    # create TwiML string
+    twiml = f"<Response><Play>{call_request.audio_url}</Play></Response>"
     # send call request to twilio api
     client.calls.create(
         method="GET",
+        twiml=twiml,
         status_callback=status_callback_url,
         status_callback_event=[
-            "queued",
             "initiated",
             "ringing",
             "answered",
-            "in-progress",
             "completed",
-            "busy",
-            "no-answer",
-            "canceled",
-            "failed",
         ],
         status_callback_method="POST",
-        url=audio_url,
-        to=to_number,
-        from_=from_number,
+        to=call_request.to_number,
+        from_=call_request.from_number,
     )
     return {
         "message": "Call initiated successfully",
-        "Recipients; to": to_number,
-        "Emitter; from": from_number,
-        "Played Audio Message; url": audio_url,
+        "Recipients; to": call_request.to_number,
+        "Emitter; from": call_request.from_number,
+        "Played Audio Message; url": call_request.audio_url,
     }
 
 

@@ -27,12 +27,20 @@ export class InitcallService {
     }
 
     postCallManual(from_number: string, to_number: string, audio_url: string): Observable<void> {
-        let params = new HttpParams();
-        params = params.append('from_number', from_number);
-        params = params.append('to_number', to_number);
-        params = params.append('audio_url', audio_url);
-        return this.httpService.post(EndPoints.CALLER, { params: params })
+        let params = new HttpParams()
+            .set('from_number', from_number)
+            .set('to_number', to_number)
+            .set('audio_url', audio_url);
 
+        //as ? string directlty to endpoint
+        //const url = `${EndPoints.CALLER}call_manual?${params.toString()}`;
+
+        //as formdata to endpoint using the params variable
+        //return this.httpService.post(EndPoints.CALLER + "call_manual", params)
+
+        // as json body
+        const requestBody = { from_number, to_number, audio_url };
+        return this.httpService.post(EndPoints.CALLER + 'call_manual', requestBody);
     }
 
 
