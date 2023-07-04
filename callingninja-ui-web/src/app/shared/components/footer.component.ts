@@ -1,5 +1,6 @@
 import {Component} from '@angular/core';
 import {environment} from '@env';
+import { initTE } from 'tw-elements';
 
 @Component({
   selector: 'app-footer',
@@ -20,6 +21,9 @@ export class FooterComponent {
     this.backEndUser = environment.REST_USER;
     this.backEndCore = environment.REST_CORE;
     this.backEndCustomerSupport = environment.REST_CUSTOMER_SUPPORT;
+  }
+  ngOnInit() {
+    initTE({  });
   }
 
 }

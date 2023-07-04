@@ -4,3 +4,4 @@ venv/
 settings.json
 callingninja-api-fastapi/htmxample.html
 callingninja-api-fastapi/output.mp3
+.angular

@@ -1,13 +1,12 @@
-import { NgModule } from '@angular/core';
-import { BrowserModule } from "@angular/platform-browser";
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {NgModule} from '@angular/core';
+import {BrowserModule} from "@angular/platform-browser";
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
-import { CoreModule } from '@core/core.module';
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
+import {CoreModule} from '@core/core.module';
+import {AppRoutingModule} from './app-routing.module';
+import {AppComponent} from './app.component';
 import { PasswordStrengthMeterModule } from 'angular-password-strength-meter';
 import { MatPasswordStrengthModule } from "@angular-material-extensions/password-strength";
-
 
 
 @NgModule({
@@ -23,7 +22,6 @@ import { MatPasswordStrengthModule } from "@angular-material-extensions/password
   ],
   declarations: [
     AppComponent,
-
   ],
   bootstrap: [AppComponent]
 })

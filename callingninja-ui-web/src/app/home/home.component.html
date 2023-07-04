@@ -9,11 +9,17 @@
     </button>
   </div>
   <div class='holder'>
-    <img alt="Calling Ninja" src="../../assets/images/logo2.png" />
+    <img alt="Calling Ninja" src="../../assets/images/logo.png" />
   </div>
 
-  <button mat-button routerLink="/home/adviser">
+  <button mat-button routerLink="/home/uploader">
     <span>Calling Ninja</span>
+  </button>
+  <button mat-button routerLink="/home/uploaderV2">
+    <span>Uploader</span>
+  </button>
+  <button mat-button routerLink="/home/renderPlaintext">
+    <span>Uploader_angular</span>
   </button>
   <div>
 
@@ -35,19 +41,17 @@
       <mat-icon>person_outline</mat-icon>
       <span>Logout</span>
     </button>
-
     <!--
     <button (click)="test1()"  *ngIf="isAuthenticated()" mat-button>
       <mat-icon>account_box</mat-icon>
       <span>{{username}}</span>
       <span>Test1</span>
     </button> -->
-    <!-- comment out shopping cart in menubar
+
     <button (click)="cart()" mat-button>
       <mat-icon matBadge="3" matBadgeColor="accent" matBadgeOverlap="false" matBadgeSize="medium">shopping_cart
       </mat-icon>
     </button>
-    -->
   </div>
 </mat-toolbar>
 
@@ -81,6 +85,7 @@
     <span>Technical Support</span>
   </button>
 </mat-menu>
+
 <mat-toolbar class="center">
   <button [matMenuTriggerFor]="adviser" mat-button>Adviser</button>
   <mat-menu #adviser="matMenu">
@@ -89,22 +94,12 @@
     <button mat-menu-item>New</button>
   </mat-menu>
   <button mat-button>Top 5</button>
-  <!-- <button (click)="caller()" *ngIf="isAuthenticated()" mat-button> -->
-  <button (click)="caller()" mat-button>
-    <mat-icon>phone</mat-icon>
-    <span>Caller</span>
-  </button>
 </mat-toolbar>
+
 <div id="queryfromnumbers" *ngIf="isAuthenticated()">
   <h1>Query your available from numbers and choose one:</h1>
   <app-queryfrom></app-queryfrom>
 </div>
-<!--
-<div id="uploadnumbers" *ngIf="isAuthenticated()">
-  <h1>Please choose your number file:</h1>
-  <app-uploadaudio></app-uploadaudio>
-</div>
--->
 <div id="uploadnumbers" *ngIf="isAuthenticated()">
   <h1>Please choose your number file:</h1>
   <app-uploadnumbers></app-uploadnumbers>
@@ -114,6 +109,7 @@
   <app-uploadaudio></app-uploadaudio>
 </div>
 <app-initcall></app-initcall>
+
 <router-outlet></router-outlet>
 
 <app-footer></app-footer>

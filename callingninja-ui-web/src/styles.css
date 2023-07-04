@@ -70,5 +70,13 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   @apply text-red-700;
 }
 
-
+.alert alert-primary{
+  color: blue;
+}
+.alert alert-success{
+  color: green;
+}
+.alert alert-danger{
+  color: red;
+}
 

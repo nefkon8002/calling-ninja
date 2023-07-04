@@ -18,7 +18,7 @@ export class EndPoints {
   static CUSTOMER_DISCOUNTS = environment.REST_CORE + '/customer-discounts';
   static GIFTTICKETS = environment.REST_CORE + '/giftTickets';
   static VOUCHERS = environment.REST_CORE + '/vouchers';
-  static USERS = environment.REST_USER + '/users'
+  static USERS = environment.REST_USER + '/users';
   static CALLER = environment.REST_FASTAPI + '/'
   static UPLOADAUDIO = environment.REST_FASTAPI + '/'
 

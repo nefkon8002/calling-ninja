@@ -84,17 +84,15 @@
       <input [(ngModel)]="profile.lastName" matInput type="text" />
     </mat-form-field>
     <mat-slide-toggle [(ngModel)]="profile.active">Active</mat-slide-toggle>
-
-    <mat-form-field class="long-width">
+    <mat-form-field class="large-width">
       <mat-label>Twilio SID</mat-label>
       <input [(ngModel)]="profile.twilio_sid" matInput type="text" />
     </mat-form-field>
     <br>
-    <mat-form-field class="long-width">
-      <mat-label>Twilio AUTH</mat-label>
+    <mat-form-field class="large-width">
+      <mat-label>Twilio Auth Token</mat-label>
       <input [(ngModel)]="profile.twilio_auth" matInput type="text" />
     </mat-form-field>
-
   </ng-container>
   <!-- </ng-container> -->
 

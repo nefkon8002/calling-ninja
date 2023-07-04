@@ -1,0 +1,9 @@
+.alert alert-primary{
+  color: blue;
+}
+.alert alert-success{
+  color: green;
+}
+.alert alert-danger{
+  color: red;
+}
