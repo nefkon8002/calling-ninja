@@ -37,6 +37,7 @@ public class User {
     private Boolean active;
     private String twilio_sid;
     private String twilio_auth;
+    private String test;
 }
 
 // id
