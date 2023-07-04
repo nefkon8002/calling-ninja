@@ -1,0 +1,82 @@
+/* You can add global styles to this file, and also import other style files */
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+/* ------------------------------------------------------------------------- */
+/*  Tailwind
+/* ------------------------------------------------------------------------- */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ------------------------------------------------------------------------- */
+/*  Snackbar
+/* ------------------------------------------------------------------------- */
+
+/* Info */
+.snackbar-type-fill-info {
+  @apply bg-gray-600;
+}
+
+/* Success */
+.snackbar-type-fill-success {
+  @apply bg-green-600;
+}
+
+/* Error */
+.snackbar-type-fill-error {
+  @apply bg-red-600;
+}
+
+.snackbar-type-fill-info, .snackbar-type-fill-success, .snackbar-type-fill-error {
+  @apply text-white;
+}
+
+/* Appearance Outline: */
+/* Info */
+.snackbar-type-outline-info {
+  @apply bg-gray-100 ring-1 ring-gray-400 ring-inset;
+  @apply text-gray-700;
+}
+
+/* Success */
+.snackbar-type-outline-success {
+  @apply bg-green-50 ring-1 ring-green-400 ring-inset;
+  @apply text-green-700;
+}
+
+/* Error */
+.snackbar-type-outline-error {
+  @apply bg-red-50 ring-1 ring-red-400 ring-inset;
+  @apply text-red-700;
+}
+
+/* Appearance Soft: */
+/* Info */
+.snackbar-type-soft-info {
+  @apply bg-gray-100;
+  @apply text-gray-700;
+}
+
+/* Success */
+.snackbar-type-soft-success {
+  @apply bg-green-50;
+  @apply text-green-700;
+}
+
+/* Error */
+.snackbar-type-soft-error {
+  @apply bg-red-50;
+  @apply text-red-700;
+}
+
+.alert alert-primary{
+  color: blue;
+}
+.alert alert-success{
+  color: green;
+}
+.alert alert-danger{
+  color: red;
+}
+
