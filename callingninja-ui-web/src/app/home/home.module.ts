@@ -13,6 +13,7 @@ import { PasswordStrengthMeterModule } from 'angular-password-strength-meter';
 import { UploadaudioComponent } from 'app/caller/uploadaudio/uploadaudio.component';
 import { InitcallComponent } from 'app/caller/initcall/initcall.component';
 import { QueryfromComponent } from 'app/caller/queryfrom/queryfrom.component';
+import { UploadnumbersComponent } from 'app/caller/uploadnumbers/uploadnumbers.component';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { QueryfromComponent } from 'app/caller/queryfrom/queryfrom.component';
     ProfileComponent,
     UploadaudioComponent,
     QueryfromComponent,
-    InitcallComponent
+    InitcallComponent,
+    UploadnumbersComponent
 
   ],
   imports: [

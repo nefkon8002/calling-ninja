@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { UploadaudioComponent } from './uploadaudio/uploadaudio.component';
 import { InitcallComponent } from './initcall/initcall.component';
 import { QueryfromComponent } from './queryfrom/queryfrom.component';
+import { UploadnumbersComponent } from './uploadnumbers/uploadnumbers.component';
 
 
 
@@ -10,7 +11,9 @@ import { QueryfromComponent } from './queryfrom/queryfrom.component';
   declarations: [
     UploadaudioComponent,
     QueryfromComponent,
-    InitcallComponent
+    InitcallComponent,
+    UploadnumbersComponent,
+
   ],
   imports: [
     CommonModule
@@ -18,7 +21,8 @@ import { QueryfromComponent } from './queryfrom/queryfrom.component';
   exports: [
     UploadaudioComponent,
     QueryfromComponent,
-    InitcallComponent
+    InitcallComponent,
+    UploadnumbersComponent
   ]
 })
 export class CallerModule { }

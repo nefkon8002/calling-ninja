@@ -458,10 +458,7 @@ async def call_manual(
     client = Client(sid, auth)
 
     # set url for callbacks on call events
-    status_callback_url = (
-        "https://094f-2806-106e-13-59a7-b821-d81e-1ddb-e500.ngrok-free.app"
-        + "/call_status"
-    )
+    status_callback_url = "https://94f0-187-202-216-18.ngrok-free.app" + "/call_status"
 
     # create TwiML string
     twiml = f"<Response><Play>{call_request.audio_url}</Play></Response>"

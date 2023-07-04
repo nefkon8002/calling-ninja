@@ -99,9 +99,15 @@
   <h1>Query your available from numbers and choose one:</h1>
   <app-queryfrom></app-queryfrom>
 </div>
+<!--
 <div id="uploadnumbers" *ngIf="isAuthenticated()">
   <h1>Please choose your number file:</h1>
   <app-uploadaudio></app-uploadaudio>
+</div>
+-->
+<div id="uploadnumbers" *ngIf="isAuthenticated()">
+  <h1>Please choose your number file:</h1>
+  <app-uploadnumbers></app-uploadnumbers>
 </div>
 <div id="audiouploader" *ngIf="isAuthenticated()">
   <h1>Please choose your audio file:</h1>
