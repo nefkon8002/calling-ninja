@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Upload Indicator</title>
+
+</head>
+<body>
+
+	<label class="upload-btn" id="upload-btn">
+		upload
+		<input type="file" multiple accept="All/*" id="file-upload-input" style="display: none;">
+
+	</label>
+
+ <div id ="progressbox-tracker" class="upload-progress-tracker" style="display:block">
+  
+    <h3>Uploading 0 Files</h3>
+    <p class="upload-progress">
+      <span class="uploads-percentage">0%</span>
+      <span class="success-count">0</span>
+      <span class="failed-count">0</span>
+      <span class="paused-count">0</span>
+    </p>
+    <button type="button" class="maximize-btn">Maximize</button>
+    <div class="uploads-progress-bar" style="width: 0;"></div>
+    <div class="file-progress-wrapper"></div>
+
+      <div id="file-progress" style="display:block">
+        <!-- <div class="file-details" style="position: relative;"> -->
+          <div class="file-details" >
+
+          <p>
+            <span class="status"></span>
+            <span class="file-name" id="file-name"></span>
+            <span class="file-ext" id="file-ext"></span>
+          </p>
+          <div class="progress-bar" style="width: 0;"></div>
+        </div>
+        <div class="file-actions">
+          <button type="button" class="retry-btn"  style="display: none">Retry</button>
+          <button type="button" class="cancel-btn" style="display: none">Pause</button>
+          <button type="button" class="resume-btn" style="display: none">Resume</button>
+          <button type="button" class="clear-btn"  style="display: none">Clear</button>
+          <button type="button" class="resume-btn" style="display: none" id="file-">Call</button>
+        </div>
+      </div>
+
+  <div style="display: none" id= file-${file.fileId}-${file.name}>
+    <h3>Calling 0 Files</h3>
+    <p class="upload-progress">
+      <span class="uploads-percentage">0%</span>
+      <span class="success-count">0</span>
+      <span class="failed-count">0</span>
+      <span class="paused-count">0</span>
+    </p>
+    <button type="button" class="maximize-btn">Maximize</button>
+    <div class="uploads-progress-bar" style="width: 0;"></div>
+    <div class="file-progress-wrapper"></div>
+  </div>
+  <div style="display: none" id= file-${file.fileId}-${file.name}>
+
+    <div class="file-details" style="position: relative">
+        <p>
+          <span class="status"></span>
+          <span class="file-name"></span>
+
+        </p>
+        <div class="progress-bar" style="width: 0;"></div>
+    </div>
+
+    <div class="file-actions">
+        <button type="button" class="retry-btn" style="display:  block"></button>
+        <button type="button" class="clear-btn" style="display: none">Clear</button>
+        <button type="button" class="resume-btn" style="display: none" id=file-${file.fileId}-${file.name}>Call</button>
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+
+</div>
+
+
+
+</body>
+</html>
+
+
+
+
+
+  

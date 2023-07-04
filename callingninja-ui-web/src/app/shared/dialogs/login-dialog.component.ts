@@ -5,12 +5,21 @@ import {AuthService} from '@core/auth.service';
 import {MatDialog} from '@angular/material/dialog';
 
 import { MatSnackBar,MatSnackBarConfig } from '@angular/material/snack-bar';
+//import {User} from '../../core/user.model'
+import {
+  Input,
+  Ripple,
+  initTE,
+} from "tw-elements";
+
 
 @Component({
   templateUrl: 'login-dialog.component.html',
   styleUrls: ['./dialog.component.css']
 })
 export class LoginDialogComponent {
+
+  //User:User;
   // mobile: number;
   mobile: string;
   password: string;
@@ -50,11 +59,15 @@ export class LoginDialogComponent {
       this.snackBar.open(message, '', config);
       }
 
-
-
-
-
       onStrengthChanged():void{}
+
+      ngOnInit() {
+        initTE({ Input, Ripple });
+      }
+
+
+
+
 
 
 }

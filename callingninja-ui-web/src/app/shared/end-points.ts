@@ -1,4 +1,4 @@
-import { environment } from '@env';
+import {environment} from '@env';
 
 export class EndPoints {
   static PROVIDERS = environment.REST_CORE + '/providers';
@@ -14,12 +14,10 @@ export class EndPoints {
   static POINTS = environment.REST_USER + '/points'
   static QUARTER_TAXES = environment.REST_CORE + '/quarter-taxes'
   static BUDGETS = environment.REST_CORE + '/budgets';
-  static ADVERTISING = environment.REST_CORE + '/advertising';
-  static CUSTOMER_DISCOUNTS = environment.REST_CORE + '/customer-discounts';
-  static GIFTTICKETS = environment.REST_CORE + '/giftTickets';
-  static VOUCHERS = environment.REST_CORE + '/vouchers';
-  static USERS = environment.REST_USER + '/users'
-  static CALLER = environment.REST_FASTAPI + '/'
-  static UPLOADAUDIO = environment.REST_FASTAPI + '/'
+  static ADVERTISING = environment.REST_CORE+'/advertising';
+  static CUSTOMER_DISCOUNTS = environment.REST_CORE+'/customer-discounts';
+  static GIFTTICKETS = environment.REST_CORE+'/giftTickets';
+  static VOUCHERS = environment.REST_CORE+'/vouchers';
+  static USERS = environment.REST_USER+'/users'
 
 }

@@ -1,44 +1,46 @@
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import {NgModule} from '@angular/core';
+import {RouterModule, Routes} from '@angular/router';
 
-import { Role } from '@core/role.model';
-import { RoleGuardService } from '@core/role-guard.service';
-import { AdviserComponent } from './adviser/adviser.component';
-import { ComplaintsComponent } from './complaints/complaints.component';
-import { HomeComponent } from './home.component';
-import { ProfileComponent } from './profile/profile.component';
-import { PointsComponent } from "./points/points.component";
-import { InitcallComponent } from "../caller/initcall/initcall.component";
+import {Role} from '@core/role.model';
+import {RoleGuardService} from '@core/role-guard.service';
+import {AdviserComponent} from './adviser/adviser.component';
+import {ComplaintsComponent} from './complaints/complaints.component';
+import {HomeComponent} from './home.component';
+import {ProfileComponent} from './profile/profile.component';
+import {PointsComponent} from "./points/points.component";
+import {UploaderMultifileComponent} from "./uploader/uploader-multifile-component";
+import {UploaderComponent} from "./uploaderV2/uploader-component";
+// import {AlertComponent} from "./plaintText/plaint-component";
+import {AppComponent} from "./plaintText/app-component";
+
 
 const routes: Routes = [
   {
     path: '',
     component: HomeComponent,
     children: [
-      { path: 'adviser', component: AdviserComponent }, // public
+      {path: 'adviser', component: AdviserComponent}, // public
+      {path: 'uploader', component: UploaderMultifileComponent}, // public
+      {path: 'uploaderV2', component: UploaderComponent}, // public
+      {path: 'renderPlaintext', component: AppComponent}, // public
+      
       {
         path: 'profile-user',
         component: ProfileComponent,
         canActivate: [RoleGuardService],
-        data: { roles: [Role.CUSTOMER, Role.ADMIN] }
+        data: {roles: [Role.CUSTOMER,Role.ADMIN ]}
       },
       {
         path: 'complaints',
         component: ComplaintsComponent,
         canActivate: [RoleGuardService],
-        data: { roles: [Role.CUSTOMER] }
+        data: {roles: [Role.CUSTOMER]}
       },
       {
         path: 'points',
         component: PointsComponent,
         canActivate: [RoleGuardService],
-        data: { roles: [Role.CUSTOMER] }
-      },
-      {
-        path: 'initcall',
-        component: InitcallComponent,
-        canActivate: [RoleGuardService],
-        data: { roles: [Role.CUSTOMER] }
+        data: {roles: [Role.CUSTOMER]}
       }
     ]
   }
