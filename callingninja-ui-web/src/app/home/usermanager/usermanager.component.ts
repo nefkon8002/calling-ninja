@@ -3,6 +3,7 @@ import { HttpService } from '@core/http.service';
 import { UsermanagerService } from './usermanager.service';
 import { ProfileService } from '../profile/profile.service';
 import { UserDto } from '../profile/profile.model';
+import { Role } from '@core/role.model';
 
 @Component({
   selector: 'app-usermanager',
@@ -16,8 +17,10 @@ export class UsermanagerComponent implements OnInit {
     private httpService: HttpService,
     private profileService: ProfileService) { }
   usersList: any[] = [];
+  roles: string[];
 
   ngOnInit(): void {
+    this.roles = Object.values(Role);
     this.usermanagerService.fetchAllUsers().subscribe((users: any[]) => {
       this.usersList = users;
     });
@@ -28,6 +31,7 @@ export class UsermanagerComponent implements OnInit {
     });
   }
   updateUser(user: UserDto): void {
+    console.log(user);
     this.profileService.updateProfile(user).subscribe(() => {
       console.log('User updated successfully.');
     });

@@ -29,7 +29,13 @@
                 <td class="px-6 py-4 whitespace-nowrap">{{ user.lastName }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">{{ user.email }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">{{ user.registrationDate }}</td>
-                <td class="px-6 py-4 whitespace-nowrap">{{ user.role }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <mat-select [(ngModel)]="user.role" (selectionChange)="updateUser(user)">
+                        <mat-option *ngFor="let r of roles" [value]="r">
+                            {{ r }}
+                        </mat-option>
+                    </mat-select>
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap"><mat-slide-toggle [(ngModel)]="user.active"
                         (change)="updateUser(user)">Active</mat-slide-toggle></td>
             </tr>
