@@ -1,4 +1,59 @@
 <h1>USERMANAGER</h1>
+<div>
+    <table mat-table [dataSource]="dataSource">
+        <!-- Column definitions -->
+        <ng-container matColumnDef="id">
+            <mat-header-cell *matHeaderCellDef>id</mat-header-cell>
+            <mat-cell *matCellDef="let user">{{ user.id }}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="mobile">
+            <mat-header-cell *matHeaderCellDef>mobile</mat-header-cell>
+            <mat-cell *matCellDef="let user">{{ user.mobile }}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="firstName">
+            <mat-header-cell *matHeaderCellDef>First Name</mat-header-cell>
+            <mat-cell *matCellDef="let user">{{ user.firstName }}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="lastName">
+            <mat-header-cell *matHeaderCellDef>Last Name</mat-header-cell>
+            <mat-cell *matCellDef="let user">{{ user.lastName }}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="email">
+            <mat-header-cell *matHeaderCellDef>E-Mail</mat-header-cell>
+            <mat-cell *matCellDef="let user">{{ user.email }}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="registrationDate">
+            <mat-header-cell *matHeaderCellDef>registrationDate</mat-header-cell>
+            <mat-cell *matCellDef="let user">{{ user.registrationDate }}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="role">
+            <mat-header-cell *matHeaderCellDef>role</mat-header-cell>
+            <mat-cell *matCellDef="let user">
+                <!-- <mat-select [(ngModel)]="user.role" (selectionChange)="updateUser(user)">
+                        <mat-option *ngFor="let r of roles" [value]="r">
+                            {{ r }}
+                        </mat-option>
+                    </mat-select> -->
+                {{ user.role }}
+            </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="active">
+            <mat-header-cell *matHeaderCellDef>active</mat-header-cell>
+            <mat-cell *matCellDef="let user">
+                <mat-slide-toggle [(ngModel)]="user.active" (change)="updateUser(user)"></mat-slide-toggle>
+            </mat-cell>
+        </ng-container>
+
+
+        <!-- Table header -->
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+
+        <!-- Table rows -->
+        <mat-row *matRowDef="let user; columns: displayedColumns"></mat-row>
+    </table>
+    <mat-paginator #paginator [pageSizeOptions]="pageSizes" showFirstLastButtons></mat-paginator>
+</div>
+
 <div class="overflow-x-auto">
     <table class="min-w-full">
         <thead>
