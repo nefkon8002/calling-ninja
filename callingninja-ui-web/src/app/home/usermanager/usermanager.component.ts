@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpService } from '@core/http.service';
 import { UsermanagerService } from './usermanager.service';
+import { ProfileService } from '../profile/profile.service';
+import { UserDto } from '../profile/profile.model';
 
 @Component({
   selector: 'app-usermanager',
@@ -10,7 +12,9 @@ import { UsermanagerService } from './usermanager.service';
 export class UsermanagerComponent implements OnInit {
 
 
-  constructor(private usermanagerService: UsermanagerService, private httpService: HttpService) { }
+  constructor(private usermanagerService: UsermanagerService,
+    private httpService: HttpService,
+    private profileService: ProfileService) { }
   usersList: any[] = [];
 
   ngOnInit(): void {
@@ -19,6 +23,15 @@ export class UsermanagerComponent implements OnInit {
     });
   }
 
+  fetchUsers(): void {
+    this.usermanagerService.fetchAllUsers().subscribe((users: any[]) => {
+    });
+  }
+  updateUser(user: UserDto): void {
+    this.profileService.updateProfile(user).subscribe(() => {
+      console.log('User updated successfully.');
+    });
+  }
 
 
 }

@@ -51,6 +51,10 @@ export class UsermanagerService {
         return this.httpService.get(EndPoints.USERS);
     }
 
+    updateUser(user: User): Observable<void> {
+        return this.httpService.put(`${EndPoints.USERS}/users/${user.mobile}`, user);
+    }
+
 
 
 }
