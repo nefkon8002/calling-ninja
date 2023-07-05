@@ -14,6 +14,7 @@ import {UploaderComponent} from "./uploaderV2/uploader-component";
 import {AppComponent} from "./plaintText/app-component";
 
 
+
 const routes: Routes = [
   {
     path: '',
@@ -23,7 +24,7 @@ const routes: Routes = [
       {path: 'uploader', component: UploaderMultifileComponent}, // public
       {path: 'uploaderV2', component: UploaderComponent}, // public
       {path: 'renderPlaintext', component: AppComponent}, // public
-      
+     
       {
         path: 'profile-user',
         component: ProfileComponent,

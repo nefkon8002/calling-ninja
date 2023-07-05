@@ -13,7 +13,6 @@ import { UploadnumbersComponent } from './uploadnumbers/uploadnumbers.component'
     QueryfromComponent,
     InitcallComponent,
     UploadnumbersComponent,
-
   ],
   imports: [
     CommonModule
@@ -22,7 +21,7 @@ import { UploadnumbersComponent } from './uploadnumbers/uploadnumbers.component'
     UploadaudioComponent,
     QueryfromComponent,
     InitcallComponent,
-    UploadnumbersComponent
+    UploadnumbersComponent,
   ]
 })
 export class CallerModule { }

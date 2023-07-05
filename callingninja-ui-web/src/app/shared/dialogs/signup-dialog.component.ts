@@ -3,23 +3,25 @@ import {Router} from '@angular/router';
 
 import {AuthService} from '@core/auth.service';
 import {MatDialog} from '@angular/material/dialog';
+import {LoginDialogComponent} from '@shared/dialogs/login-dialog.component';
 
 import { MatSnackBar,MatSnackBarConfig } from '@angular/material/snack-bar';
-import { SignUPDialogComponent } from './signup-dialog.component';
-
 //import {User} from '../../core/user.model'
+
 import {
   Input,
   Ripple,
   initTE,
 } from "tw-elements";
 
+// initTE({ Input, Ripple });
+
 
 @Component({
-  templateUrl: 'login-dialog.component.html',
-  styleUrls: ['./dialog.component.css']
+  templateUrl: 'signup-dialog.component.html',
+  //styleUrls: ['./dialog.component.css']
 })
-export class LoginDialogComponent {
+export class SignUPDialogComponent {
 
   //User:User;
   // mobile: number;
@@ -34,7 +36,7 @@ export class LoginDialogComponent {
   constructor(private auth: AuthService, private router: Router, private dialog: MatDialog,private snackBar: MatSnackBar) {
   }
 
-  login(): void {
+  signup(): void {
     console.log("MOBILE " +this.mobile + " PASSWORD " + this.password );
     this.auth.login(this.mobile, this.password).subscribe(
       () => {
@@ -47,42 +49,22 @@ export class LoginDialogComponent {
     );
   }
 
-  signup(): void {
-    // console.log("MOBILE " +this.mobile + " PASSWORD " + this.password );
+  login(): void {
+    //console.log("MOBILE " +this.mobile + " PASSWORD " + this.password );
+    this.dialog.open(LoginDialogComponent)
+    .afterClosed()
+    .subscribe(
+      () => {}
+      );
 
-       this.dialog.open(SignUPDialogComponent)
-         .afterClosed()
-         .subscribe(
+    //this.dialog.closeAll();
 
-           //() => this.mobile = this.authService.getName()
-
-           );
-
-   }
-
-  openSnackBar(message: string,
-    duration: number = 5000,
-    appearance: 'fill' | 'outline' | 'soft' = 'fill',
-    type: 'info' | 'success' | 'error' = 'info'): void {
-
-      const config: MatSnackBarConfig = {
-      duration: duration,
-      verticalPosition: 'top',
-      horizontalPosition: 'center',
-      panelClass: [`alert-type-${appearance}-${type}`]
-      };
-      this.snackBar.open(message, '', config);
-      }
-
-      onStrengthChanged():void{}
-
-      ngOnInit() {
-        initTE({ Input, Ripple });
-      }
+  }
 
 
 
-
-
+ngOnInit() {
+  initTE({ Input, Ripple });
+}
 
 }

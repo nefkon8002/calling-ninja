@@ -6,9 +6,6 @@ import { Observable, from } from 'rxjs';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { InitcallService } from './initcall.service';
 import { HomeComponent } from 'app/home/home.component';
-
-// import {User} from '@core/user.model';
-//import { UserDto } from './caller.model';
 import { User } from '@core/user.model';
 
 
