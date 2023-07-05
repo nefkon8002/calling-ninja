@@ -1,17 +1,38 @@
 <h1>USERMANAGER</h1>
-<table>
-    <thead>
-        <tr>
-            <th>mobile</th>
-            <th>firstName</th>
-            <th>id</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr *ngFor="let user of usersList">
-            <td>{{ user.mobile }}</td>
-            <td>{{ user.firstName }}</td>
-            <td>{{ user.id }}</td>
-        </tr>
-    </tbody>
-</table>
+<div class="overflow-x-auto">
+    <table class="min-w-full">
+        <thead>
+            <tr>
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">id
+                </th>
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    mobile</th>
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    lastName</th>
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    firstName</th>
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    email</th>
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    registrationDate</th>
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    role</th>
+                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    active</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let user of usersList" class="bg-white">
+                <td class="px-6 py-4 whitespace-nowrap">{{ user.id }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ user.mobile }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ user.firstName }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ user.lastName }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ user.email }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ user.registrationDate }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ user.role }}</td>
+                <td class="px-6 py-4 whitespace-nowrap"><mat-slide-toggle
+                        [(ngModel)]="user.active">Active</mat-slide-toggle></td>
+            </tr>
+        </tbody>
+    </table>
+</div>

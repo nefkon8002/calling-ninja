@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { HttpService } from '@core/http.service';
 import { UsermanagerService } from './usermanager.service';
 
 @Component({
@@ -8,7 +9,8 @@ import { UsermanagerService } from './usermanager.service';
 })
 export class UsermanagerComponent implements OnInit {
 
-  constructor(private usermanagerService: UsermanagerService) { }
+
+  constructor(private usermanagerService: UsermanagerService, private httpService: HttpService) { }
   usersList: any[] = [];
 
   ngOnInit(): void {
