@@ -1,0 +1,17 @@
+<h1>USERMANAGER</h1>
+<table>
+    <thead>
+        <tr>
+            <th>mobile</th>
+            <th>firstName</th>
+            <th>id</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let user of usersList">
+            <td>{{ user.mobile }}</td>
+            <td>{{ user.firstName }}</td>
+            <td>{{ user.id }}</td>
+        </tr>
+    </tbody>
+</table>

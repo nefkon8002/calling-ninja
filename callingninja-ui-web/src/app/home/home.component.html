@@ -21,7 +21,12 @@
   <button mat-button routerLink="/home/renderPlaintext">
     <span>Uploader_angular</span>
   </button>
+  <button *ngIf="authService.untilManager()" mat-button routerLink="/home/usermanager">
+    <mat-icon>supervisor_account</mat-icon>
+    <span>Usermanager</span>
+  </button>
   <div>
+
 
 
     <button (click)="login()" *ngIf="!isAuthenticated()" mat-button>

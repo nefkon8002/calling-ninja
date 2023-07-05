@@ -1,10 +1,10 @@
-import {Component} from '@angular/core';
-import {MatDialog} from '@angular/material/dialog';
+import { Component } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 
-import {LoginDialogComponent} from '@shared/dialogs/login-dialog.component';
-import {ProfileComponent} from './profile/profile.component';
+import { LoginDialogComponent } from '@shared/dialogs/login-dialog.component';
+import { ProfileComponent } from './profile/profile.component';
 
-import {AuthService} from '@core/auth.service';
+import { AuthService } from '@core/auth.service';
 
 @Component({
   templateUrl: 'home.component.html',
@@ -14,7 +14,7 @@ export class HomeComponent {
   title = 'Calling Ninja';
   username = undefined;
 
-  constructor(private dialog: MatDialog, private authService: AuthService) {
+  constructor(private dialog: MatDialog, public authService: AuthService) {
   }
 
   login(): void {
