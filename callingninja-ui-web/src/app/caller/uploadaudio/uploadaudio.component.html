@@ -8,6 +8,7 @@
         <mat-icon>attach_file</mat-icon><mat-icon>audiotrack</mat-icon>
     </button>
 
-    <div *ngIf="isUploading" class="spinner">Loading...</div>
-    <div *ngIf="uploadComplete" class="success">File successfully uploaded</div>
+    <div *ngIf="isUploading" class="spinner">Loading...<mat-spinner [diameter]="20"></mat-spinner></div>
+    <div *ngIf="uploadComplete" class="success"><mat-icon>check_circle_outline</mat-icon>File successfully uploaded
+    </div>
 </div>

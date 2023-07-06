@@ -19,6 +19,9 @@ export class InitcallComponent {
     completenessCheck = false;
     missingData = [];
     homeComponent: HomeComponent;
+    total_to_count = JSON.parse(sessionStorage.getItem('to_numbers')).length;
+    current_to_count = 0;
+
 
     constructor(private initcallservice: InitcallService, homeComponent: HomeComponent) {
         this.homeComponent = homeComponent;
@@ -57,6 +60,7 @@ export class InitcallComponent {
         for (let to of to_numbers) {
             this.initcallservice.postCallManual(from_number, to, audio_url).subscribe(response => {
                 console.log(`Response from the call endpoint: ${response}`)
+                this.current_to_count++
             });
         }
     }

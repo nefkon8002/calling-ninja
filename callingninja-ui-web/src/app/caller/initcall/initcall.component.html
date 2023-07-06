@@ -1,7 +1,10 @@
 <div id="initcall" *ngIf="homeComponent.isAuthenticated()">
   <div id="initcallbutton">
 
-        <button (click)="sendCall()" color="primary" mat-raised-button>Initiate
-            Call(s)</button>
-    </div>
+    <button (click)="sendCall()" color="primary" mat-raised-button>Initiate
+      Call(s)</button>
+    <div *ngIf="total_to_count">Total numbers to be called: {{ total_to_count }}</div>
+    <div *ngIf="current_to_count > 0; else elseBlock">Currently queuing call: {{ current_to_count }}</div>
+    <ng-template #elseBlock>Waiting...! <mat-spinner [diameter]="20"></mat-spinner></ng-template>
+  </div>
 </div>

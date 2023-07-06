@@ -16,11 +16,12 @@ import { UploaderComponent } from './uploaderV2/uploader-component';
 import { AlertComponent } from './plaintText/plaint-component';
 import { AppComponent } from './plaintText/app-component';
 //import { InjectHTMLDirective } from './plaintText/injecthtml.directive';
-import { UploadaudioComponent } from 'app/caller/uploadaudio/uploadaudio.component';
-import { InitcallComponent } from 'app/caller/initcall/initcall.component';
-import { QueryfromComponent } from 'app/caller/queryfrom/queryfrom.component';
-import { UploadnumbersComponent } from 'app/caller/uploadnumbers/uploadnumbers.component';
+//import { UploadaudioComponent } from 'app/caller/uploadaudio/uploadaudio.component';
+//import { InitcallComponent } from 'app/caller/initcall/initcall.component';
+//import { QueryfromComponent } from 'app/caller/queryfrom/queryfrom.component';
+//import { UploadnumbersComponent } from 'app/caller/uploadnumbers/uploadnumbers.component';
 import { UsermanagerComponent } from './usermanager/usermanager.component';
+import { CallerModule } from 'app/caller/caller.module';
 
 
 @NgModule({
@@ -34,11 +35,8 @@ import { UsermanagerComponent } from './usermanager/usermanager.component';
     UploaderComponent,
     AlertComponent,
     AppComponent,
-    UploadaudioComponent,
-    QueryfromComponent,
-    InitcallComponent,
-    UploadnumbersComponent,
-    UsermanagerComponent
+    UsermanagerComponent,
+
 
   ],
   imports: [
@@ -46,6 +44,7 @@ import { UsermanagerComponent } from './usermanager/usermanager.component';
     HomeRoutingModule,
     SharedModule,
     ReactiveFormsModule,
+    CallerModule
     //MatIconModule,
   ],
   providers: [
