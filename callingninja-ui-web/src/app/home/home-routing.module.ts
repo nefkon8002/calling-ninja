@@ -15,6 +15,7 @@ import { AppComponent } from "./plaintText/app-component";
 import { UsermanagerComponent } from './usermanager/usermanager.component';
 
 
+
 const routes: Routes = [
   {
     path: '',
@@ -30,6 +31,7 @@ const routes: Routes = [
         canActivate: [RoleGuardService],
         data: { roles: [Role.MANAGER, Role.ADMIN] }
       },
+
       {
         path: 'profile-user',
         component: ProfileComponent,

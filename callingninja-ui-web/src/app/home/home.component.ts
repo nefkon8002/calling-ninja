@@ -1,10 +1,13 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-
-import { LoginDialogComponent } from '@shared/dialogs/login-dialog.component';
-import { ProfileComponent } from './profile/profile.component';
-
-import { AuthService } from '@core/auth.service';
+import {LoginDialogComponent} from '@shared/dialogs/login-dialog.component';
+import {ProfileComponent} from './profile/profile.component';
+import {SignUPDialogComponent} from '@shared/dialogs/signup-dialog.component';
+import {AuthService} from '@core/auth.service';
+import {
+  Collapse,
+  initTE,
+} from "tw-elements";
 
 @Component({
   templateUrl: 'home.component.html',
@@ -22,7 +25,11 @@ export class HomeComponent {
       .afterClosed()
       .subscribe(() => this.username = this.authService.getName());
   }
-
+  signup(): void {
+    this.dialog.open(SignUPDialogComponent)
+      .afterClosed()
+      .subscribe(() => this.username = this.authService.getName());
+  }
   profiler(): void {
     this.dialog.open(ProfileComponent).afterClosed().subscribe(() => this.dialog.closeAll());
   }
@@ -45,6 +52,9 @@ export class HomeComponent {
   }
 
   search(value): void {
+  }
+  ngOnInit() {
+    initTE({ Collapse });
   }
 
 }
