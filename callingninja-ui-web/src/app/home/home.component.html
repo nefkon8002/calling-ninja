@@ -1,4 +1,5 @@
 
+
 <!-- Main navigation container -->
 <nav
   class="relative flex w-full flex-wrap items-center justify-between bg-[#FBFBFB] py-2 text-neutral-500 shadow-lg hover:text-neutral-700 focus:text-neutral-700 dark:bg-neutral-600 lg:py-4"
@@ -16,6 +17,7 @@
           loading="lazy" />
       </a>
     </div>
+
 
     <!-- Hamburger button for mobile view -->
     <button
@@ -98,6 +100,10 @@
       </ul>
 
       <div class="flex items-center">
+          <button *ngIf="authService.untilManager()" mat-button routerLink="/home/usermanager">
+    <mat-icon>supervisor_account</mat-icon>
+    <span>Usermanager</span>
+  </button>
         <button
           type="button"
           (click)="login()" *ngIf="!isAuthenticated()"

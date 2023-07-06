@@ -1,6 +1,5 @@
-import {Component} from '@angular/core';
-import {MatDialog} from '@angular/material/dialog';
-
+import { Component } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import {LoginDialogComponent} from '@shared/dialogs/login-dialog.component';
 import {ProfileComponent} from './profile/profile.component';
 import {SignUPDialogComponent} from '@shared/dialogs/signup-dialog.component';
@@ -9,6 +8,7 @@ import {
   Collapse,
   initTE,
 } from "tw-elements";
+
 @Component({
   templateUrl: 'home.component.html',
   styleUrls: ['home.component.css'],
@@ -17,7 +17,7 @@ export class HomeComponent {
   title = 'Calling Ninja';
   username = undefined;
 
-  constructor(private dialog: MatDialog, private authService: AuthService) {
+  constructor(private dialog: MatDialog, public authService: AuthService) {
   }
 
   login(): void {
