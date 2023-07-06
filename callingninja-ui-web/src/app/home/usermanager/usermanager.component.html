@@ -1,15 +1,21 @@
 <h1>Click to toggle the active status for users</h1>
+<div>
+    <mat-form-field>
+        <input matInput #filterInput (keyup)="applyFilter(filterInput.value)" placeholder="Filter">
+    </mat-form-field>
+</div>
+
 <div class="overflow-x-auto">
-    <table mat-table [dataSource]="dataSource" class="min-w-full">
+    <table mat-table [dataSource]="dataSource" matSort (matSortChange)="announceSortChange($event)" class="min-w-full">
         <!-- Column definitions -->
         <ng-container matColumnDef="id">
-            <mat-header-cell *matHeaderCellDef
+            <mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by id"
                 class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">id</mat-header-cell>
             <mat-cell *matCellDef="let user" class="px-6 py-4 whitespace-nowrap">{{ user.id }}</mat-cell>
         </ng-container>
         <ng-container matColumnDef="mobile">
-            <mat-header-cell *matHeaderCellDef
-                class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">mobile</mat-header-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by mobile number" class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase
+                tracking-wider">mobile</mat-header-cell>
             <mat-cell *matCellDef="let user" class="px-6 py-4 whitespace-nowrap">{{ user.mobile }}</mat-cell>
         </ng-container>
         <ng-container matColumnDef="firstName">
@@ -30,9 +36,11 @@
             <mat-cell *matCellDef="let user" class="px-6 py-4 whitespace-nowrap">{{ user.email }}</mat-cell>
         </ng-container>
         <ng-container matColumnDef="registrationDate">
-            <mat-header-cell *matHeaderCellDef
-                class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">registrationDate</mat-header-cell>
-            <mat-cell *matCellDef="let user" class="px-6 py-4 whitespace-nowrap">{{ user.registrationDate }}</mat-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by registration date" class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase
+                tracking-wider">registrationDate
+                <br> DD.MM.YYYY</mat-header-cell>
+            <mat-cell *matCellDef="let user" class="px-6 py-4 whitespace-nowrap">{{ user.registrationDate |
+                date:'dd.MM.yy HH:mm:ss':'UTC' }} UTC</mat-cell>
         </ng-container>
         <ng-container matColumnDef="role">
             <mat-header-cell *matHeaderCellDef
@@ -47,8 +55,8 @@
             </mat-cell>
         </ng-container>
         <ng-container matColumnDef="active">
-            <mat-header-cell *matHeaderCellDef
-                class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">active</mat-header-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by active status" class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase
+                tracking-wider">active</mat-header-cell>
             <mat-cell *matCellDef="let user" class="px-6 py-4 whitespace-nowrap">
                 <mat-slide-toggle [(ngModel)]="user.active" (change)="updateUser(user)"></mat-slide-toggle>
             </mat-cell>
