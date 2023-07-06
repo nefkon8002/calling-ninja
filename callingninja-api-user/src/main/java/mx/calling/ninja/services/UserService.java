@@ -34,7 +34,11 @@ public class UserService {
     }
 
     public void createUser(User user, Role roleClaim) {
+        
+        System.out.println("CREANDO USUARIO 2 -> " + user );
+
         if (!authorizedRoles(roleClaim).contains(user.getRole())) {
+            System.out.println("ERROR EXCEPTION -> Insufficient role to create this user: " + user );
             throw new ForbiddenException("Insufficient role to create this user: " + user);
         }
         this.assertNoExistByMobile(user.getMobile());

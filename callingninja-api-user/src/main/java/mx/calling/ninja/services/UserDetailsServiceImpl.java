@@ -39,16 +39,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         System.out.println("BASIC AUTHENTICATION " + mobile);
         if (mdnRegex(mobile)){
+            System.out.println("BASIC AUTHENTICATION 1 " + mobile);
             User user = userRepository.findByMobile(mobile)
             .orElseThrow(() -> new UsernameNotFoundException("mobile not found. " + mobile));
             return this.userBuilder(user.getMobile(), user.getPassword(), new Role[]{Role.AUTHENTICATED}, user.getActive());
-        }else if (emailRegex(mobile)){
+        }else {
+            System.out.println("BASIC AUTHENTICATION 2 " + mobile);
             User user = userRepository.findByEmail(mobile)
             .orElseThrow(() -> new UsernameNotFoundException("email not found. " + mobile));
             return this.userBuilder(user.getMobile(), user.getPassword(), new Role[]{Role.AUTHENTICATED}, user.getActive());
-        }else{
-            // lanzy ar excepcion input excepcion solo se permiten numeros telefonicos 
-            throw new UsernameNotFoundException("ERROR InputException - Solo se permiten numeros moviles y email. " + mobile); 
         }
     
     }

@@ -61,6 +61,15 @@ export class HttpService {
         catchError(error => this.handleError(error))
       );
   }
+  postSR(endpoint: string, body?: object, token?:string): Observable<any> {
+    this.resetOptionsSecureRequest(token);
+    return this.http
+      .post(endpoint, body ,this.createOptionsSR() )
+      .pipe(
+        map(response => this.extractData(response)),
+        catchError(error => this.handleError(error))
+      );
+  }
 
   get(endpoint: string): Observable<any> {
     return this.http
@@ -103,10 +112,22 @@ export class HttpService {
   authBasic(mobile: string, password: string): HttpService {
     return this.header('Authorization', 'Basic ' + btoa(mobile + ':' + password));
   }
+  authRequestHeaderContent(): HttpService {
 
+    this.header('accept','*/*');
+    return this.header('Content-Type','application/json')
+
+  }
+  authRequestHeaders(jsonToken: string): HttpService {
+    this.header('accept','*/*');
+    this.header('Content-Type','application/json')
+    return this.header('Authorization',`Bearer ${jsonToken}`)
+
+  }
+//HttpService
   header(key: string, value: string): HttpService {
     if (value != null) {
-      this.headers = this.headers.append(key, value); // This class is immutable
+       this.headers = this.headers.append(key, value); // This class is immutable
     }
     return this;
   }
@@ -116,7 +137,6 @@ export class HttpService {
     this.params = new HttpParams();
     this.responseType = 'json';
   }
-
   private createOptions(): any {
     const options: any = {
       headers: this.headers,
@@ -128,7 +148,29 @@ export class HttpService {
     return options;
   }
 
+  private resetOptionsSecureRequest(jsonToken: string): void {
+    this.headers = new HttpHeaders({
+      'accept':'*/*',
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${jsonToken}`
+    });
+    this.params = new HttpParams();
+    this.responseType = 'json';
+  }
+  private createOptionsSR(): any {
+    const options: any = {
+      headers: this.headers,
+      params: this.params,
+      responseType: this.responseType,
+      observe: 'response'
+    };
+    //this.resetOptions();
+    return options;
+  }
+
+
   private extractData(response): any {
+    console.log("RESPONSE => JSON0 1" + response);
     if (this.successfulNotification) {
       this.snackBar.open(this.successfulNotification, '', {
         duration: 2000
@@ -141,9 +183,11 @@ export class HttpService {
         const blob = new Blob([response.body], {type: 'application/pdf'});
         window.open(window.URL.createObjectURL(blob));
       } else if (contentType.indexOf('application/json') !== -1) {
+        console.log("RESPONSE => JSON0 " + response.body);
         return response.body; // with 'text': JSON.parse(response.body);
       }
     } else {
+      console.log("RESPONSE => NO JSON0 " + response);
       return response;
     }
   }
@@ -160,18 +204,24 @@ export class HttpService {
   private handleError(response): any {
     let error: Error;
     if (response.status === HttpService.UNAUTHORIZED) {
+      console.log("HttpService.UNAUTHORIZED => JSON0 " + response);
       this.showError('Unauthorized');
       this.router.navigate(['']).then();
+      console.log("HttpService.UNAUTHORIZED +++++> JSON0 " + response);
       return EMPTY;
     } else if (response.status === HttpService.CONNECTION_REFUSE) {
+      console.log("HttpService.CONNECTION_REFUSE +++++++++++++=> JSON0 " + response.status);
+
       this.showError('Connection Refuse');
       return EMPTY;
     } else {
+      console.log("HttpServiceERRRROR ============> JSON0 " + response.status);
       try {
         error = response.error; // with 'text': JSON.parse(response.error);
         this.showError(error.error + ' (' + response.status + '): ' + error.message);
         return throwError(() => error);
       } catch (e) {
+        console.log("HttpService.CONNECTION_REFUSE => Not response " + response.status);
         this.showError('Not response');
         return throwError(() => response.error);
       }

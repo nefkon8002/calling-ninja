@@ -18,6 +18,7 @@ import {FooterComponent} from '@shared/components/footer.component';
 import {SearchComponent} from '@shared/components/search.component';
 import { PasswordStrengthMeterModule } from 'angular-password-strength-meter';
 import { MatPasswordStrengthModule } from "@angular-material-extensions/password-strength";
+import {SignUPDialogComponent} from '@shared/dialogs/signup-dialog.component';
 
 @NgModule({
   imports: [
@@ -40,6 +41,7 @@ import { MatPasswordStrengthModule } from "@angular-material-extensions/password
     ReadDetailDialogComponent,
     SearchComponent,
     UppercaseWords,
+    SignUPDialogComponent,
 
   ],
   exports: [
@@ -57,6 +59,7 @@ import { MatPasswordStrengthModule } from "@angular-material-extensions/password
     ReadDetailDialogComponent,
     SearchComponent,
     UppercaseWords,
+    SignUPDialogComponent,
   ]
 })
 export class SharedModule {

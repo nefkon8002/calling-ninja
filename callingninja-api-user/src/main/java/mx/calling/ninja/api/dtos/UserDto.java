@@ -25,7 +25,7 @@ import java.util.UUID;
 public class UserDto {
     @NotNull
     @NotBlank
-    @Pattern(regexp = Validations.NINE_DIGITS)
+    @Pattern(regexp = Validations.TEN_DIGITS)
     private String mobile;
     @NotNull
     @NotBlank

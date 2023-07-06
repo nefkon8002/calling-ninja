@@ -28,6 +28,7 @@ public class UserResource {
     public static final String TOKEN = "/token";
     public static final String MOBILE_ID = "/{mobile}";
     public static final String SEARCH = "/search";
+    public static final String SIGNUP = "/signup";
 
     private final UserService userService;
 
@@ -35,14 +36,6 @@ public class UserResource {
     public UserResource(UserService userService) {
         this.userService = userService;
     }
-
-    // @SecurityRequirement(name = "basicAuth")
-    // @PreAuthorize("authenticated")
-    // @PostMapping(value = TOKEN)
-    // public Optional< TokenDto > login(@AuthenticationPrincipal User activeUser) {
-    // return userService.login(activeUser.getUsername())
-    // .map(TokenDto::new);
-    // }
 
     @SecurityRequirement(name = "basicAuth")
     @CrossOrigin(origins = "*") //
@@ -56,6 +49,7 @@ public class UserResource {
     @SecurityRequirement(name = "bearerAuth")
     @PostMapping
     public void createUser(@Valid @RequestBody UserDto creationUserDto) {
+        System.out.println("CREANDO USUARIO -> " + creationUserDto.toString() );
         this.userService.createUser(creationUserDto.toUser(), this.extractRoleClaims());
     }
 
@@ -93,5 +87,11 @@ public class UserResource {
     public void updateUser(@Valid @RequestBody UserDto updateUserDto) {
         this.userService.updateUser(updateUserDto.toUser(), this.extractRoleClaims());
     }
+
+    // @SecurityRequirement(name = "bearerAuth")
+    // @PostMapping(SIGNUP)
+    // public void signupUser(@Valid @RequestBody UserDto creationUserDto) {
+    //     this.userService.createUser(creationUserDto.toUser(), this.extractRoleClaims());
+    // }
 
 }

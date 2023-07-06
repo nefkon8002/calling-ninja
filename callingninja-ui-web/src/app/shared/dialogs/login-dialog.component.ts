@@ -7,7 +7,6 @@ import {MatDialog} from '@angular/material/dialog';
 import { MatSnackBar,MatSnackBarConfig } from '@angular/material/snack-bar';
 import { SignUPDialogComponent } from './signup-dialog.component';
 
-//import {User} from '../../core/user.model'
 import {
   Input,
   Ripple,
