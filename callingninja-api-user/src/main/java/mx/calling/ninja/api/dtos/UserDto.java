@@ -56,7 +56,7 @@ public class UserDto {
     }
 
     public static UserDto ofMobileFirstName(User user) {
-        return UserDto.builder().mobile(user.getMobile()).firstName(user.getFirstName()).build();
+        return UserDto.builder().mobile(user.getMobile()).firstName(user.getFirstName()).lastName(user.getLastName()).active(user.getActive()).email(user.getEmail()).registrationDate(user.getRegistrationDate()).role(user.getRole()).build();
     }
 
     public void doDefault() {

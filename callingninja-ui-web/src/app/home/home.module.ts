@@ -20,6 +20,7 @@ import { UploadaudioComponent } from 'app/caller/uploadaudio/uploadaudio.compone
 import { InitcallComponent } from 'app/caller/initcall/initcall.component';
 import { QueryfromComponent } from 'app/caller/queryfrom/queryfrom.component';
 import { UploadnumbersComponent } from 'app/caller/uploadnumbers/uploadnumbers.component';
+import { UsermanagerComponent } from './usermanager/usermanager.component';
 
 
 @NgModule({
@@ -36,7 +37,8 @@ import { UploadnumbersComponent } from 'app/caller/uploadnumbers/uploadnumbers.c
     UploadaudioComponent,
     QueryfromComponent,
     InitcallComponent,
-    UploadnumbersComponent
+    UploadnumbersComponent,
+    UsermanagerComponent
 
   ],
   imports: [
