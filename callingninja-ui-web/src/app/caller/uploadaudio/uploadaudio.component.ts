@@ -20,7 +20,7 @@ export class UploadaudioComponent {
   constructor(private audioUploadService: AudioUploadService, private sessionStorageService: SessionStorageService) { }
 
   ngOnInit() {
-    //this.queryFromNumbers();
+    this.audioUploadService.queryAudios();
   }
 
   onFileSelected(event) {
