@@ -22,6 +22,7 @@ export class InitcallComponent {
     total_to_count = 0;
     current_to_count = 0;
     private intervalId: any;
+    response: any;
 
 
     constructor(private initcallservice: InitcallService, homeComponent: HomeComponent) {
@@ -72,7 +73,8 @@ export class InitcallComponent {
         console.log(audio_url);
         for (let to of to_numbers) {
             this.initcallservice.postCallManual(from_number, to, audio_url).subscribe(response => {
-                console.log(`Response from the call endpoint: ${response}`)
+                //console.log('Response from the call endpoint:', response)
+                this.response = response;
                 this.current_to_count++
             });
             sessionStorage.clear()
