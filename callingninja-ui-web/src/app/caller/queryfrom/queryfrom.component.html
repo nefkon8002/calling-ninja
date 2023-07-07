@@ -1,5 +1,6 @@
 <button (click)="queryFromNumbers()" color="primary" mat-raised-button>Query From Numbers
 </button>
+<div *ngIf="isFetching"><mat-spinner [diameter]="20"></mat-spinner></div>
 <div *ngIf="numbersLoaded" id="radiogroupfromnumbers">
     <div *ngFor="let number of availableFromNumbers">
         <label>
@@ -8,4 +9,5 @@
             {{ number }}
         </label>
     </div>
+
 </div>
