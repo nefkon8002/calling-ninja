@@ -82,7 +82,8 @@ export class AuthService {
    }
    this.http
       .post(AuthService.END_POINT,this.account_dto,httpOptionsToken).subscribe( (jsonToken:any) =>{
-            console.log("TOKEN OK -> "+ jsonToken.token);
+            // console.log("TOKEN OK -> "+ jsonToken.token);
+            console.log("TOKEN OK -> ");
             let httpOptionsSR = {
               headers: new HttpHeaders({
                   'accept':'*/*',
