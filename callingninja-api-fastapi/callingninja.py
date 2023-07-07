@@ -363,14 +363,21 @@ async def query_audios(current_user=auth_all):
             available_audios = await s3_client.list_objects(
                 Bucket=bucket_name, Prefix=f"public/{current_user['name']}"
             )
+            print(available_audios)
             audio_result = {}
-            for content in available_audios["Contents"]:
-                audio_result[content["Key"]] = {
-                    "originalName": content["Key"].split("_")[1],
-                    "lastModified": content["LastModified"],
-                    "full_url": f"https://{bucket_name}.s3.amazonaws.com/{content['Key']}",
-                }
-            return audio_result
+            if available_audios.get("Contents") is not None:
+                audio_result["ContentCount"] = len(available_audios["Contents"])
+                for content in available_audios["Contents"]:
+                    audio_result[content["Key"]] = {
+                        "originalName": content["Key"].split("_")[1],
+                        "lastModified": content["LastModified"],
+                        "full_url": f"https://{bucket_name}.s3.amazonaws.com/{content['Key']}",
+                    }
+                return audio_result
+            else:
+                audio_result["ContentCount"] = 0
+                audio_result["detail"] = "No audio files found."
+                return audio_result
     except Exception as e:
         raise HTTPException(
             status_code=400,
