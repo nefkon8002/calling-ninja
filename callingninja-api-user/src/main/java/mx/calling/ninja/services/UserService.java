@@ -41,7 +41,7 @@ public class UserService {
             System.out.println("ERROR EXCEPTION -> Insufficient role to create this user: " + user );
             throw new ForbiddenException("Insufficient role to create this user: " + user);
         }
-        this.assertNoExistByMobile(user.getMobile());
+        //this.assertNoExistByMobile(user.getMobile());
         user.setRegistrationDate(LocalDateTime.now());
         this.userRepository.save(user);
     }

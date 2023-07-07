@@ -23,9 +23,9 @@ import java.util.UUID;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserDto {
-    @NotNull
-    @NotBlank
-    @Pattern(regexp = Validations.TEN_DIGITS)
+    //@NotNull
+    //@NotBlank
+    // @Pattern(regexp = Validations.TEN_DIGITS)
     private String mobile;
     @NotNull
     @NotBlank

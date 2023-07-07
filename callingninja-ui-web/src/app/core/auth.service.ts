@@ -44,6 +44,24 @@ export class AuthService {
 
   adminlogin(admin_login:string , admin_p:string,mobile: string, password: string): void {
 
+    const expression_email: RegExp = /^(?=.{1,254}$)(?=.{1,64}@)[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+(\.[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+)*@[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$/;
+    const email: string = mobile;
+    const result_email: boolean = expression_email.test(email);
+
+    console.log('e-mail is ' + (result_email ? 'correct' : 'incorrect'));
+
+    const expression_mdn: RegExp = /^[0-9]*$/;
+    const mdn: string = mobile;
+    const result_mdn: boolean = expression_mdn.test(mdn);
+
+    console.log('mdn is ' + (result_mdn ? 'correct' : 'incorrect'));
+
+    if ( !result_mdn && !result_email) {
+      //lazar exepciones
+      throw new Error('Solo puede ser un email o un numero movil a 10 digitos');
+    }
+
+
   let httpOptionsToken = {
     headers: new HttpHeaders({
       'Authorization':'Basic ' + btoa(admin_login + ':' + admin_p),
@@ -72,18 +90,14 @@ export class AuthService {
                   'Authorization': `Bearer ${jsonToken.token}`
                 })
               }
-              const expression: RegExp = /^(?=.{1,254}$)(?=.{1,64}@)[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+(\.[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+)*@[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$/;
-              const email: string = mobile;
-              const result: boolean = expression.test(email);
 
-              console.log('e-mail is ' + (result ? 'correct' : 'incorrect'));
 
               this.userDto ={
-                mobile: mobile,
+                mobile: (result_mdn ? mobile : 'Not Available'),
                 firstName: "TESTERBOT",
                 lastName: "string",
                 familyName: "string",
-                email:(result ? mobile : 'testerbot@plusnetwork.com.mx'),
+                email:(result_email ? mobile : 'testerbot@plusnetwork.com.mx'),
                 dni: "string",
                 address: "string",
                 password: password,
@@ -107,11 +121,7 @@ export class AuthService {
               console.log("RESONSE CRETE USERS " + homeworld)
             });
 
-
-
       })
-
-     // return this.header('Authorization', 'Basic ' + btoa(mobile + ':' + password));
   }
 
 
