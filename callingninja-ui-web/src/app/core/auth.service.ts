@@ -119,7 +119,7 @@ export class AuthService {
             this.http.post(AuthService.END_POINT_USERS,this.userDto,httpOptionsSR)
 
             .subscribe( (homeworld: any) => {
-              console.log("RESONSE CRETE USERS " + homeworld)
+              //console.log("RESONSE CRETE USERS " + homeworld)
             });
 
       })

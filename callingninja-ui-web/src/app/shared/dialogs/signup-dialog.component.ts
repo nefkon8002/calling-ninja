@@ -34,7 +34,7 @@ export class SignUPDialogComponent {
 
   token:string = '';
   signup(): void {
-    console.log("MOBILE " +this.mobile + " PASSWORD " + this.password );
+    console.log("MOBILE " +this.mobile );
 
     this.auth.adminlogin(environment.USER_A,environment.USER_P,this.mobile,this.password)
     // .subscribe(
