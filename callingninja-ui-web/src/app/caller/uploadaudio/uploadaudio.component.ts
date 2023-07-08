@@ -78,7 +78,7 @@ export class UploadaudioComponent {
   }
 
   selectqueriedAudio(file_key, full_url) {
-    let audio_file = JSON.stringify({ "file_key": file_key, "full_url": full_url });
+    let audio_file = JSON.stringify({ "file_key": file_key, "file_url": full_url });
     sessionStorage.setItem("audio_file", audio_file);
   }
 
