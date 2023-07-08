@@ -11,4 +11,21 @@
     <div *ngIf="isUploading" class="spinner"><mat-spinner [diameter]="20"></mat-spinner></div>
     <div *ngIf="uploadComplete" class="success"><mat-icon>check_circle_outline</mat-icon>File successfully uploaded
     </div>
+
+    <div *ngIf="queriedAudios['ContentCount'] > 0; else elseBlock">
+        <div>Please choose from your {{ queriedAudios['ContentCount'] }} available audio file(s):</div>
+        <mat-radio-group aria-labelledby="example-radio-group-label" class="example-radio-group">
+            <mat-radio-button class="example-radio-button" *ngFor="let file of toArray(queriedAudios['Contents'])"
+                [value]="file['full_url']" (click)="selectqueriedAudio(file['file_key'],file['full_url'] )">
+                {{file['originalName']}} from {{ file["lastModified"] | date:'dd.MM.yy HH:mm:ss':'UTC' }}
+                UTC
+            </mat-radio-button>
+        </mat-radio-group>
+    </div>
+    <ng-template #elseBlock>
+        <div>
+            <div>You have not yet uploaded any audio files! Please upload one.</div>
+            {{ queriedAudios['detail'] }}
+        </div>
+    </ng-template>
 </div>

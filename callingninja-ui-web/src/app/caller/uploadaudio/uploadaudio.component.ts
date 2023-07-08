@@ -4,6 +4,7 @@ import { environment } from '@env';
 import { EndPoints } from '@shared/end-points';
 import { SessionStorageService } from '@shared/services/sessionstorage.service';
 import { AudioUploadService } from './uploadaudio.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-uploadaudio',
@@ -16,11 +17,15 @@ export class UploadaudioComponent {
   selectedNumber: string = '';
   isUploading: boolean = false;
   uploadComplete: boolean = false;
+  queriedAudios: any = {};
 
   constructor(private audioUploadService: AudioUploadService, private sessionStorageService: SessionStorageService) { }
 
   ngOnInit() {
-    this.audioUploadService.queryAudios();
+    this.audioUploadService.queryAudios().subscribe(response => {
+      this.queriedAudios = response;
+      console.log(this.queriedAudios)
+    });
   }
 
   onFileSelected(event) {
@@ -53,6 +58,28 @@ export class UploadaudioComponent {
     }
   }
 
+  queryAudios(): void {
+    setTimeout(() => {
+      this.audioUploadService.queryAudios().subscribe(response => {
+        this.queriedAudios = response;
+        console.log(this.queriedAudios)
+      });
+    }, 500);
+  }
 
+  toArray(obj: any): any[] {
+    if (Array.isArray(obj)) {
+      return obj;
+    } else if (obj && typeof obj === 'object') {
+      return Object.keys(obj).map(key => obj[key]);
+    } else {
+      return [];
+    }
+  }
+
+  selectqueriedAudio(file_key, full_url) {
+    let audio_file = JSON.stringify({ "file_key": file_key, "full_url": full_url });
+    sessionStorage.setItem("audio_file", audio_file);
+  }
 
 }

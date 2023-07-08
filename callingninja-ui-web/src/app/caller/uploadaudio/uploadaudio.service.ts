@@ -32,7 +32,7 @@ export class AudioUploadService {
         return this.http.put<ResponseData>(EndPoints.UPLOADAUDIO + 'upload_audio_async', formData);
     }
 
-    queryAudios() {
+    queryAudios(): Observable<any> {
         return this.http.get(EndPoints.UPLOADAUDIO + 'query_audios')
     }
 }

@@ -363,12 +363,15 @@ async def query_audios(current_user=auth_all):
             available_audios = await s3_client.list_objects(
                 Bucket=bucket_name, Prefix=f"public/{current_user['name']}"
             )
-            print(available_audios)
+
             audio_result = {}
             if available_audios.get("Contents") is not None:
                 audio_result["ContentCount"] = len(available_audios["Contents"])
+                audio_result["Contents"] = {}
+                print(audio_result)
                 for content in available_audios["Contents"]:
-                    audio_result[content["Key"]] = {
+                    audio_result["Contents"][content["Key"]] = {
+                        "file_key": content["Key"],
                         "originalName": content["Key"].split("_")[1],
                         "lastModified": content["LastModified"],
                         "full_url": f"https://{bucket_name}.s3.amazonaws.com/{content['Key']}",
