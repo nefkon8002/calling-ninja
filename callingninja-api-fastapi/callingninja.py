@@ -368,7 +368,7 @@ async def query_audios(current_user=auth_all):
             if available_audios.get("Contents") is not None:
                 audio_result["ContentCount"] = len(available_audios["Contents"])
                 audio_result["Contents"] = {}
-                print(audio_result)
+
                 for content in available_audios["Contents"]:
                     audio_result["Contents"][content["Key"]] = {
                         "file_key": content["Key"],
