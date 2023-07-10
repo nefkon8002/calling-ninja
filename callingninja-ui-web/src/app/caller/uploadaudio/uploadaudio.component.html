@@ -1,31 +1,35 @@
 <input type="file" class="file-input" (change)="onFileSelected($event)" #fileUpload>
 
+
 <div class="file-upload">
 
-    {{fileName || "No file uploaded yet."}}
+    <mat-radio-group #queriedClassRadioGroup aria-labelledby="example-radio-group-label" class="example-radio-group">
 
-    <button mat-icon-button color="primary" class="upload-btn" (click)="fileUpload.click()">
-        <mat-icon>attach_file</mat-icon><mat-icon>audiotrack</mat-icon>
-    </button>
-
-    <div *ngIf="isUploading" class="spinner"><mat-spinner [diameter]="20"></mat-spinner></div>
-    <div *ngIf="uploadComplete" class="success"><mat-icon>check_circle_outline</mat-icon>File successfully uploaded
-    </div>
-
-    <div *ngIf="queriedAudios['ContentCount'] > 0; else elseBlock">
-        <div>Please choose from your {{ queriedAudios['ContentCount'] }} available audio file(s):</div>
-        <mat-radio-group aria-labelledby="example-radio-group-label" class="example-radio-group">
-            <mat-radio-button class="example-radio-button" *ngFor="let file of toArray(queriedAudios['Contents'])"
-                [value]="file['full_url']" (click)="selectqueriedAudio(file['file_key'],file['full_url'] )">
+        <mat-radio-button id="firstButton" class="example-radio-button" [disabled]="disableAudioUploadRadioButton"
+            [checked]="false" (click)="selectqueriedAudio()">
+            Upload a new file</mat-radio-button>
+        <button class="example-radio-button" mat-icon-button color="primary" class="upload-btn"
+            (click)="fileUpload.click()">
+            <mat-icon>attach_file</mat-icon><mat-icon>audiotrack</mat-icon>
+        </button>
+        {{fileName || "No file uploaded yet."}}
+        <div *ngIf="isUploading" class="spinner"><mat-spinner [diameter]="20"></mat-spinner></div>
+        <div *ngIf="uploadComplete" class="success"><mat-icon>check_circle_outline</mat-icon>File successfully uploaded
+        </div>
+        <div *ngIf="queriedAudios['ContentCount'] > 0; else elseBlock" class="h-48 overflow-y-auto">
+            <div>Please choose from your {{ queriedAudios['ContentCount'] }} available audio file(s):</div>
+            <mat-radio-button class="example-radio-button queried-class"
+                *ngFor="let file of toArray(queriedAudios['Contents'])" [value]="file['full_url']"
+                (click)="selectqueriedAudio(file)">
                 {{file['originalName']}} from {{ file["lastModified"] | date:'dd.MM.yy HH:mm:ss':'UTC' }}
                 UTC
             </mat-radio-button>
-        </mat-radio-group>
-    </div>
-    <ng-template #elseBlock>
-        <div>
-            <div>You have not yet uploaded any audio files! Please upload one.</div>
-            {{ queriedAudios['detail'] }}
         </div>
-    </ng-template>
+        <ng-template #elseBlock>
+            <div>
+                <div>{{ queriedAudios['detail'] }} Please upload one.</div>
+
+            </div>
+        </ng-template>
+    </mat-radio-group>
 </div>

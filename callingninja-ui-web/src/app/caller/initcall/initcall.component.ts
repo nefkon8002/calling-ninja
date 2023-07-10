@@ -56,10 +56,12 @@ export class InitcallComponent {
 
     ngOnDestroy(): void {
         this.stopChecking();
-        sessionStorage.removeItem('selected_number')
-        sessionStorage.removeItem('to_numbers')
-        sessionStorage.removeItem("audio_file")
-        sessionStorage.removeItem('available_from_numbers')
+        sessionStorage.removeItem('selected_number');
+        sessionStorage.removeItem('to_numbers');
+        sessionStorage.removeItem("audio_file");
+        sessionStorage.removeItem("new_audio_file");
+        sessionStorage.removeItem('audio_url');
+        sessionStorage.removeItem('available_from_numbers');
     }
 
 
