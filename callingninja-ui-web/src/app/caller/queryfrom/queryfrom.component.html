@@ -1,7 +1,7 @@
 <button (click)="queryFromNumbers()" color="primary" mat-raised-button>Query From Numbers
 </button>
 <div *ngIf="isFetching"><mat-spinner [diameter]="20"></mat-spinner></div>
-<div *ngIf="numbersLoaded" id="radiogroupfromnumbers">
+<div *ngIf="numbersLoaded" id="radiogroupfromnumbers" class="h-48 overflow-y-auto">
     <div *ngFor="let number of availableFromNumbers">
         <label>
             <input type="radio" name="number" [value]="number" [checked]="number === selectedNumber"
