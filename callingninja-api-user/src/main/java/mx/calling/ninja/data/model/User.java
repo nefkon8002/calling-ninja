@@ -20,8 +20,8 @@ public class User {
     private int age;
     private String eyeColor;
     private String company;
-    // @NonNull
-    // @Column( nullable = false)
+    //@NonNull
+    @Column( unique = true, nullable = true)
     private String mobile;
     @NonNull
     private String firstName;

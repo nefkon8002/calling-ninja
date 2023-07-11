@@ -79,4 +79,30 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .alert alert-danger{
   color: red;
 }
+.blue-snackbar {
+  background: #2196F3;
+  color: white;
 
+}
+.red-snackbar {
+  background: red;
+  color: white;
+}
+.yellow-snackbar {
+  background: yellow;
+  color: red;
+}
+
+/* button, input, optgroup, select, textarea {
+      font-family: inherit;
+      font-size: 100%;
+      font-weight: inherit;
+      line-height: inherit;
+      color: inherit;
+      margin: 0;
+      padding: 12px;
+      padding-top: 12px;
+      padding-right: 12px;
+      padding-bottom: 12px;
+      padding-left: 12px;
+  } */

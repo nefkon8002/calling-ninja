@@ -1,6 +1,6 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
+import {FormsModule,ReactiveFormsModule } from '@angular/forms';
 import {FlexLayoutModule, FlexModule} from '@angular/flex-layout';
 
 import {MaterialModule} from '@shared/material.module';
@@ -24,12 +24,12 @@ import {SignUPDialogComponent} from '@shared/dialogs/signup-dialog.component';
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     MaterialModule,
     FlexLayoutModule,
     FlexModule,
     PasswordStrengthMeterModule,
     MatPasswordStrengthModule
-
   ],
   declarations: [
     CancelYesDialogComponent,
@@ -52,11 +52,13 @@ import {SignUPDialogComponent} from '@shared/dialogs/signup-dialog.component';
     FlexLayoutModule,
     FlexModule,
     FormsModule,
+    ReactiveFormsModule,
     FooterComponent,
     LoginDialogComponent,
     MaterialModule,
     NumberDialogComponent,
     ReadDetailDialogComponent,
+    MatPasswordStrengthModule,
     SearchComponent,
     UppercaseWords,
     SignUPDialogComponent,

@@ -1,6 +1,6 @@
 import { Injectable, Output } from '@angular/core';
 import {Router} from '@angular/router';
-import {Observable} from 'rxjs';
+import { Observable, of,throwError } from 'rxjs';
 // import {map} from 'rxjs/operators';
 import {JwtHelperService} from '@auth0/angular-jwt';
 
@@ -9,9 +9,14 @@ import {User,UserDto,account_dto} from '@core/user.model';
 
 import {HttpService} from '@core/http.service';
 import {Role} from '@core/role.model';
-import { HttpClient, HttpHeaders ,HttpResponse} from '@angular/common/http';
-import {catchError, map} from 'rxjs/operators';
-
+import { HttpClient, HttpHeaders ,HttpErrorResponse} from '@angular/common/http';
+import {catchError,map} from 'rxjs/operators';
+import {
+  MatSnackBar,
+  MatSnackBarHorizontalPosition,
+  MatSnackBarModule,
+  MatSnackBarVerticalPosition,
+} from '@angular/material/snack-bar';
 @Injectable({
   providedIn: 'root',
 })
@@ -22,7 +27,7 @@ export class AuthService {
   private user: User;
   private userDto: UserDto;
   private account_dto: account_dto;
-  constructor(private httpService: HttpService,private http:HttpClient, private router: Router) {
+  constructor(private httpService: HttpService,private http:HttpClient, private router: Router,private snackBar: MatSnackBar) {
   }
 
   login(mobile: string, password: string): Observable<User> {
@@ -40,18 +45,18 @@ export class AuthService {
       );
   }
 
-
-
-  adminlogin(admin_login:string , admin_p:string,mobile: string, password: string): void {
+  errorMsg: string;
+  loading: boolean = false;
+  adminlogin(admin_login:string , admin_p:string,mobile: number, password: string, mail: string): void {
 
     const expression_email: RegExp = /^(?=.{1,254}$)(?=.{1,64}@)[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+(\.[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+)*@[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$/;
-    const email: string = mobile;
+    const email: string = mail;
     const result_email: boolean = expression_email.test(email);
 
     console.log('e-mail is ' + (result_email ? 'correct' : 'incorrect'));
 
     const expression_mdn: RegExp = /^[0-9]*$/;
-    const mdn: string = mobile;
+    const mdn: string = mobile.toString();
     const result_mdn: boolean = expression_mdn.test(mdn);
 
     console.log('mdn is ' + (result_mdn ? 'correct' : 'incorrect'));
@@ -80,49 +85,107 @@ export class AuthService {
     credentialsNonExpired:true,
     enabled: true,
    }
-   this.http
-      .post(AuthService.END_POINT,this.account_dto,httpOptionsToken).subscribe( (jsonToken:any) =>{
-            // console.log("TOKEN OK -> "+ jsonToken.token);
-            console.log("TOKEN OK -> ");
-            let httpOptionsSR = {
-              headers: new HttpHeaders({
-                  'accept':'*/*',
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${jsonToken.token}`
-                })
-              }
+
+   try {
+
+    this.http
+    .post(AuthService.END_POINT,this.account_dto,httpOptionsToken).subscribe( (jsonToken:any) =>{
+          // console.log("TOKEN OK -> "+ jsonToken.token);
+          console.log("TOKEN OK -> ");
+          let httpOptionsSR = {
+            headers: new HttpHeaders({
+                'accept':'*/*',
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${jsonToken.token}`
+              })
+            }
 
 
-              this.userDto ={
-                mobile: (result_mdn ? mobile : 'Not Available'),
-                firstName: "TESTERBOT",
-                lastName: "string",
-                familyName: "string",
-                email:(result_email ? mobile : 'testerbot@plusnetwork.com.mx'),
-                dni: "string",
-                address: "string",
-                password: password,
-                role: Role.OPERATOR,
-                active: false,
-                registrationDate: new Date,
-                company: "string",
-                id: 0,
-                guid: "string",
-                balance: "string",
-                picture: "string",
-                age: 0,
-                eyeColor: "string",
-                twilio_sid: "string",
-                twilio_auth: "string",
-              };
+            this.userDto ={
+              mobile: (result_mdn ? mobile.toString() : ''),
+              firstName: "TESTERBOT",
+              lastName: "string",
+              familyName: "string",
+              email:(result_email ? mail : 'testerbot@plusnetwork.com.mx'),
+              dni: "string",
+              address: "string",
+              password: password,
+              role: Role.OPERATOR,
+              active: false,
+              registrationDate: new Date,
+              company: "string",
+              id: 0,
+              guid: "string",
+              balance: "string",
+              picture: "string",
+              age: 0,
+              eyeColor: "string",
+              twilio_sid: "string",
+              twilio_auth: "string",
+            };
+
+          // try {
+
+            // this.http.post(AuthService.END_POINT_USERS,this.userDto,httpOptionsSR)
+            // .subscribe( (homeworld: any) => {
+            //  console.log("RESONSE CRETE USERS " + homeworld)
+            // })
 
             this.http.post(AuthService.END_POINT_USERS,this.userDto,httpOptionsSR)
+            .subscribe(
+            (next: any) => {
+             console.log("RESONSE CRETE USERS OK")
+             this.openSnackBar();
+            },
+            (error) => {                              //Error callback
 
-            .subscribe( (homeworld: any) => {
-              //console.log("RESONSE CRETE USERS " + homeworld)
-            });
+              this.errorMsg = error;
+              this.loading = false;
+              if (error.error instanceof ErrorEvent) {
+                    this.errorMsg = `Error: ${error.error.message}`;
+                  } else {
+                    this.errorMsg = this.getServerErrorMessage(error);
+                  }
+                    console.error('error caught in component4' + this.errorMsg)
+                    return this.openSnackBarError(this.errorMsg);
+                    // return throwError(()=>{
 
-      })
+                    //   console.error("ERROR ++++++=> " + this.errorMsg);
+                    //   this.openSnackBarError(this.errorMsg);
+                    // });
+            }
+
+            )
+
+          //   this.http.post(AuthService.END_POINT_USERS,this.userDto,httpOptionsSR)
+          //   .pipe(
+          //     catchError(error => {
+          //       let errorMsg: string;
+          //               if (error.error instanceof ErrorEvent) {
+          //                   this.errorMsg = `Error: ${error.error.message}`;
+          //               } else {
+          //                   this.errorMsg = this.getServerErrorMessage(error);
+          //               }
+
+          //               return throwError(errorMsg);
+          //     })
+          // );
+
+          // } catch (error) {
+          //   console.log("-------------------------ERROR " + error.message);
+          //   throw new Error(error.message);
+          // }
+
+
+    })
+
+   } catch (error) {
+    throw new Error(error.message);
+
+   }
+
+
+
   }
 
 
@@ -167,7 +230,47 @@ export class AuthService {
   }
 
 
+  private getServerErrorMessage(error: HttpErrorResponse): string {
+    switch (error.status) {
+        case 404: {
+            return `Not Found: ${error.message}`;
+        }
+        case 409: {
+          return `API-USER : ${error.error.message}`;
+      }
+        case 403: {
+            return `Access Denied: ${error.message}`;
+        }
+        case 500: {
+            return `Internal Server Error: ${error.message}`;
+        }
+        default: {
+            return `Unknown Server Error: ${error.message}`;
+        }
 
+    }
+  }
+
+  horizontalPosition: MatSnackBarHorizontalPosition = 'center';
+  verticalPosition: MatSnackBarVerticalPosition = 'top';
+
+  openSnackBarError(error : string) {
+    this.snackBar.open(
+      'Account registration failed due to : '  + error + ' ', 'Close', {
+      horizontalPosition: this.horizontalPosition,
+      verticalPosition: this.verticalPosition,
+      panelClass: ['yellow-snackbar']
+    });
+  }
+
+  openSnackBar() {
+    this.snackBar.open(
+      'The registration of your account with the following cellphone number ' + this.userDto.mobile + ' and email  '+this.userDto.email + ' was successful', 'Close', {
+      horizontalPosition: this.horizontalPosition,
+      verticalPosition: this.verticalPosition,
+      panelClass: ['blue-snackbar']
+    });
+  }
 
   logout(): void {
     this.user = undefined;
@@ -238,4 +341,6 @@ export class AuthService {
     //   }
     // }
   }
+
+
 }

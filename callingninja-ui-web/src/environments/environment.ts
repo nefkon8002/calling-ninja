@@ -12,7 +12,7 @@ export const environment = {
   REST_CORE: 'http://localhost:8082',
   REST_CUSTOMER_SUPPORT: 'http://localhost:8083',
   REST_FASTAPI: 'http://localhost:8000',
-  USER_A: '666666000',
+  USER_A: '6666660000',
   USER_P: '6'
 
 };

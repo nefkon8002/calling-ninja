@@ -1,4 +1,10 @@
-import {Component} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  ViewEncapsulation,
+  ViewChild,
+} from "@angular/core";
 import {Router} from '@angular/router';
 
 import {AuthService} from '@core/auth.service';
@@ -13,12 +19,22 @@ import {
   initTE,
 } from "tw-elements";
 
+import { Title } from "@angular/platform-browser";
+import { MatSlideToggleChange } from "@angular/material/slide-toggle";
+import { MatPasswordStrengthComponent } from "@angular-material-extensions/password-strength";
+
+
+import { AbstractControl, FormBuilder, FormGroup, FormControl, Validators  } from '@angular/forms';
+import Validation from './utils/validation';
+
 
 @Component({
   templateUrl: 'login-dialog.component.html',
-  styleUrls: ['./dialog.component.css']
+  styleUrls: ['./dialog.component.css'],
+  encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LoginDialogComponent {
+export class LoginDialogComponent implements OnInit{
 
   //User:User;
   // mobile: number;
@@ -30,7 +46,35 @@ export class LoginDialogComponent {
   input:string;
   passwordComponent:{color:string};
 
-  constructor(private auth: AuthService, private router: Router, private dialog: MatDialog,private snackBar: MatSnackBar) {
+  form: FormGroup = new FormGroup({
+    // mobile: new FormControl(''),
+    mobile:  new FormControl('', [
+      Validators.required,
+      Validators.pattern("^[0-9]*$"),
+      Validators.minLength(10),
+      Validators.maxLength(10),
+    ]),
+
+    password: new FormControl(''),
+    email: new FormControl(''),
+  });
+
+
+  submitted = false;
+
+  // mobile: string;string
+  // mobile: number;
+  // password: string;
+  email: string;
+
+  @ViewChild('passwordComponent2', {static: true})
+  passwordComponent2: MatPasswordStrengthComponent;
+  constructor(private formBuilder: FormBuilder,private auth: AuthService, private router: Router, private dialog: MatDialog,private snackBar: MatSnackBar) {
+  }
+
+
+  onStrengthChanged(strength: number) {
+    console.log('password login strength = ', strength);
   }
 
   login(): void {
@@ -73,12 +117,79 @@ export class LoginDialogComponent {
       this.snackBar.open(message, '', config);
       }
 
-      onStrengthChanged():void{}
+
 
       ngOnInit() {
         initTE({ Input, Ripple });
+
+        console.log('home on init');
+
+      this.form = this.formBuilder.group(
+    {
+      //mobile: ['', Validators.required],
+      mobile: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(10),
+          Validators.maxLength(10)
+        ]
+      ],
+      email: ['', [ Validators.email]],
+      password: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(1),
+          Validators.maxLength(40)
+        ]
+      ],
+      //confirmPassword: ['', Validators.required],
+      //acceptTerms: [false, Validators.requiredTrue]
+    },
+    {
+      //validators: [Validation.match('password', 'confirmPassword')]
+    }
+  );
+
+
+
+
+
+
       }
 
+
+      get f(): { [key: string]: AbstractControl } {
+        return this.form.controls;
+      }
+
+      onSubmit(): void {
+
+        this.submitted = true;
+
+        if (this.form.invalid) {
+          console.log(" --------------------------------------------------------------------- INVALID FORM " + this.form.value.email);
+          return;
+        }else {
+          console.log(" --------------------------------------------------------------------- FORM OK " + this.form.value.password);
+          console.log(" --------------------------------------------------------------------- FORM OK " + this.form.value.mobile);
+          console.log(" --------------------------------------------------------------------- FORM OK " + this.form.value.email);
+          this.mobile = this.form.value.mobile;
+          this.password = this.form.value.password;
+          this.email = this.form.value.email;
+          this.login();
+          //this.signup();
+        }
+
+
+        console.log(JSON.stringify(this.form.value, null, 2));
+      }
+
+      onReset(): void {
+        this.submitted = false;
+        this.form.reset();
+      }
 
 
 
