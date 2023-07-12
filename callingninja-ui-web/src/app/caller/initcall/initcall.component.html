@@ -1,7 +1,31 @@
-<div id="initcall" *ngIf="homeComponent.isAuthenticated()">
-  <div id="initcallbutton">
-
-        <button (click)="sendCall()" color="primary" mat-raised-button>Initiate
-            Call(s)</button>
+<div class="grid grid-cols-2 grid-rows-3 gap-4">
+  <div class="col-span-2 flex justify-center">
+    <button [disabled]="!completenessCheck" (click)="sendCall()" color="primary" mat-raised-button>Initiate
+      Call(s)</button>
+  </div>
+  <div class="col-span-2 row-start-2 flex justify-center">
+    <div>
+      <div *ngIf="total_to_count > 0">Total numbers to be called: {{ total_to_count }}</div>
+      <br>
+      <div *ngIf="current_to_count > 0 && current_to_count <= total_to_count; then thenBlock; else elseBlock">Currently
+        queuing call: {{
+        current_to_count }} to {{
+        response["Recipients; to"] }}</div>
+      <ng-template #thenBlock>
+        <div class="col-span-2 row-start-2 flex justify-center">
+          All calls queued 🥷!
+        </div>
+      </ng-template>
+      <ng-template #elseBlock>
+        <div class="col-span-2 row-start-2 flex justify-center">Waiting for data...! <mat-spinner
+            [diameter]="20"></mat-spinner></div>
+      </ng-template>
     </div>
+  </div>
+  <div class="row-start-3">
+    <div *ngIf="missingData">
+      <p></p>
+    </div>
+  </div>
+  <div class="row-start-3">placeholder</div>
 </div>

@@ -18,15 +18,7 @@ export class AudioUploadService {
     static END_POINT = environment.REST_FASTAPI;
 
     constructor(private http: HttpClient) { }
-    /*
-    queryFromNumbers() {
 
-        interface ResponseData {
-            from_numbers: string;
-        }
-        return this.http.get<ResponseData>(EndPoints.UPLOADAUDIO + 'get_from_numbers');
-    }
-    */
 
     uploadAudio(file: File) {
         const formData = new FormData();
@@ -38,5 +30,9 @@ export class AudioUploadService {
         }
 
         return this.http.put<ResponseData>(EndPoints.UPLOADAUDIO + 'upload_audio_async', formData);
+    }
+
+    queryAudios(): Observable<any> {
+        return this.http.get(EndPoints.UPLOADAUDIO + 'query_audios')
     }
 }
