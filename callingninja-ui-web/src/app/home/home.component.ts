@@ -21,12 +21,12 @@ export class HomeComponent {
   }
 
   login(): void {
-    this.dialog.open(LoginDialogComponent)
+    this.dialog.open(LoginDialogComponent,{id:"loginDialog"})
       .afterClosed()
       .subscribe(() => this.username = this.authService.getName());
   }
   signup(): void {
-    this.dialog.open(SignUPDialogComponent)
+    this.dialog.open(SignUPDialogComponent,{id:"signupDialog"})
       .afterClosed()
       .subscribe(() => this.username = this.authService.getName());
   }

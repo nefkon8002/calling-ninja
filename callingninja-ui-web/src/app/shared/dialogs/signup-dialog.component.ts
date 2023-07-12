@@ -142,11 +142,11 @@ export class SignUPDialogComponent implements OnInit {
 
   login(): void {
     //console.log("MOBILE " +this.mobile + " PASSWORD " + this.password );
-    this.dialog.open(LoginDialogComponent)
-    .afterClosed()
-    .subscribe(
-      () => {}
-      );
+    this.dialog.open(LoginDialogComponent,{id:"loginDialog"});
+    // .afterClosed()
+    // .subscribe(
+    //   () => {}
+    //   );
 
 
   }

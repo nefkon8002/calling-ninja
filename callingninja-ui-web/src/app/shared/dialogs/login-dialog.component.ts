@@ -93,13 +93,8 @@ export class LoginDialogComponent implements OnInit{
   signup(): void {
     // console.log("MOBILE " +this.mobile + " PASSWORD " + this.password );
 
-       this.dialog.open(SignUPDialogComponent)
-         .afterClosed()
-         .subscribe(
+       let refDialog= this.dialog.open(SignUPDialogComponent,{id:"signupDialog"});
 
-           //() => this.mobile = this.authService.getName()
-
-           );
 
    }
 
