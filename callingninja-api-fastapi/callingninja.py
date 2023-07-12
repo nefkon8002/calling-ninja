@@ -1,5 +1,6 @@
 import asyncio
 import base64
+import io
 from typing import Union, Annotated
 from fastapi import (
     FastAPI,
@@ -287,11 +288,13 @@ async def upload_audio_async(
 async def upload_numbers_s3(
     request: Request,
     uploaded_numbers: UploadFile,
+    contents_str,
     current_user=Depends(JWTBearer(["ADMIN", "MANAGER", "OPERATOR", "CUSTOMER"])),
 ):
     try:
         # no file type check!
         session = asyncboto.Session()
+
         async with session.client("s3") as s3_client:
             file_key = (
                 "private/"
@@ -301,20 +304,20 @@ async def upload_numbers_s3(
                 + "_"
                 + uploaded_numbers.filename
             )
-            # sets key to "fake" folder name. Where the folder name is the current_user's name.
-            await s3_client.upload_file(
-                uploaded_numbers.filename,
-                bucket_name,
-                file_key,
-                ExtraArgs={"ContentType": uploaded_numbers.content_type},
+
+            await s3_client.put_object(
+                Body=contents_str,
+                Bucket=bucket_name,
+                Key=file_key,
+                ContentType=uploaded_numbers.content_type,
             )
             file_url = "https://" + bucket_name + ".s3.amazonaws.com/" + file_key
-            # request.session["audio_url"] = file_url
+
             return {"file_key": file_key, "file_url": file_url}
     except Exception as e:
         raise HTTPException(
             status_code=400,
-            detail="Failed to upload the file.",
+            detail=f"Failed to upload the file: {e}",
         )
 
 
@@ -325,22 +328,25 @@ async def upload_numbers(
     uploaded_numbers: UploadFile,
     current_user=Depends(JWTBearer(["ADMIN", "MANAGER", "OPERATOR", "CUSTOMER"])),
 ):
-    await upload_numbers_s3(
+    numbers = []
+
+    # read content of csv to str
+    contents = await uploaded_numbers.read()
+    contents_str = contents.decode()
+
+    bucket_response = await upload_numbers_s3(
         request,
         uploaded_numbers,
+        contents_str,
         current_user,
     )
-    numbers = []
-    # takes simple .csv with only one column and each number in the first cell of each row
-    with open(uploaded_numbers.filename, "r") as f:
-        csv_reader = csv.reader(f)
-        for row in csv_reader:
-            numbers.append(row[0])
-            # to_number = row[0]
-            # await call(to_number, from_number, audio, request)
-            # numbers.append(to_number)
-        # request.session["to_numbers"] = numbers
-        return {"to_numbers": numbers}
+
+    # Use csv.reader on the string contents
+    csv_reader = csv.reader(io.StringIO(contents_str))
+    for row in csv_reader:
+        numbers.append(row[0])
+
+    return {"to_numbers": numbers, "bucket_response": bucket_response}
 
 
 @app.get("/a")
@@ -363,14 +369,24 @@ async def query_audios(current_user=auth_all):
             available_audios = await s3_client.list_objects(
                 Bucket=bucket_name, Prefix=f"public/{current_user['name']}"
             )
+
             audio_result = {}
-            for content in available_audios["Contents"]:
-                audio_result[content["Key"]] = {
-                    "originalName": content["Key"].split("_")[1],
-                    "lastModified": content["LastModified"],
-                    "full_url": f"https://{bucket_name}.s3.amazonaws.com/{content['Key']}",
-                }
-            return audio_result
+            if available_audios.get("Contents") is not None:
+                audio_result["ContentCount"] = len(available_audios["Contents"])
+                audio_result["Contents"] = {}
+
+                for content in available_audios["Contents"]:
+                    audio_result["Contents"][content["Key"]] = {
+                        "file_key": content["Key"],
+                        "originalName": content["Key"].split("_")[1],
+                        "lastModified": content["LastModified"],
+                        "full_url": f"https://{bucket_name}.s3.amazonaws.com/{content['Key']}",
+                    }
+                return audio_result
+            else:
+                audio_result["ContentCount"] = 0
+                audio_result["detail"] = "No audio files found."
+                return audio_result
     except Exception as e:
         raise HTTPException(
             status_code=400,

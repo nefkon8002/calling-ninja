@@ -13,6 +13,7 @@ import { UploaderComponent } from "./uploaderV2/uploader-component";
 // import {AlertComponent} from "./plaintText/plaint-component";
 import { AppComponent } from "./plaintText/app-component";
 import { UsermanagerComponent } from './usermanager/usermanager.component';
+import { CallerComponent } from 'app/caller/caller.component';
 
 
 
@@ -30,6 +31,12 @@ const routes: Routes = [
         component: UsermanagerComponent,
         canActivate: [RoleGuardService],
         data: { roles: [Role.MANAGER, Role.ADMIN] }
+      },
+      {
+        path: 'caller',
+        component: CallerComponent,
+        canActivate: [RoleGuardService],
+        data: { roles: [Role.CUSTOMER, Role.ADMIN, Role.MANAGER] }
       },
 
       {

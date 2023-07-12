@@ -12,6 +12,7 @@ export class QueryfromComponent implements OnInit {
   availableFromNumbers: string;
   numbersLoaded: boolean = false;
   selectedNumber: string = '';
+  isFetching: boolean = false;
 
   constructor(private queryfromservice: QueryfromService) { }
 
@@ -34,10 +35,14 @@ export class QueryfromComponent implements OnInit {
   queryFromNumbers() {
     this.queryfromservice.queryFromNumbers()
       .subscribe(response => {
+        this.isFetching = true;
         this.availableFromNumbers = response.from_numbers;
         sessionStorage.setItem('available_from_numbers', JSON.stringify(this.availableFromNumbers));
         console.log('Response from querying numbers:', this.availableFromNumbers);
         this.numbersLoaded = true;
+        setTimeout(() => {
+          this.isFetching = false; // Hide the spinner after a slight delay
+        }, 100);
       });
   }
 
