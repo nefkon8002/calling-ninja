@@ -1,235 +1,7 @@
 ## <!-- Designed by Neftali Ramirez Chavez Junio 2023 nefkon80@gmail.com -->
 version: '3'
 services:
-  # Kafka Stack
-  # zookeeper:
-  #   # image: confluentinc/cp-zookeeper:5.0.0
-  #   # image: confluentinc/cp-zookeeper:5.4.0
-  #   image: confluentinc/cp-zookeeper:6.1.8
-  #   container_name: zookeeper
-  #   ports:
-  #     - 2181:2181
-  #   hostname: zookeeper
-  #   environment:
-  #     ZOOKEEPER_CLIENT_PORT: 2181
-  #     ZOOKEEPER_TICK_TIME: 2000
-  #   networks:
-  #     - back
-  # kafka01.internal:
-  #   # image: confluentinc/cp-kafka:5.0.0
-  #   # image: confluentinc/cp-enterprise-kafka:5.4.0
-  #   image: confluentinc/cp-enterprise-kafka:6.1.8
-  #   container_name: kafka01
-  #   depends_on:
-  #     - zookeeper
-  #   ports:
-  #     - 9092:9092
-  #   environment:
-  #     KAFKA_BROKER_ID: 0
-  #     # KAFKA_ZOOKEEPER_CONNECT: zookeeper.internal:2181
-  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka01.internal:9092
-  #     KAFKA_JMX_PORT: 9999
-  #     KAFKA_JMX_HOSTNAME: kafka01.internal
-  #   networks:
-  #     - back
-  # kafka02.internal:
-  #   # image: confluentinc/cp-kafka:5.0.0
-  #   # image: confluentinc/cp-enterprise-kafka:5.4.0
-  #   image: confluentinc/cp-enterprise-kafka:6.1.8
-  #   container_name: kafka02
-  #   depends_on:
-  #     - zookeeper
-  #   ports:
-  #     - 9093:9093
-  #   environment:
-  #     KAFKA_BROKER_ID: 1
-  #     # KAFKA_ZOOKEEPER_CONNECT: zookeeper.internal:2181
-  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka02.internal:9093
-  #     KAFKA_JMX_PORT: 9999
-  #     KAFKA_JMX_HOSTNAME: kafka02.internal
-  #   networks:
-  #     - back
-  # kafka03.internal:
-  #   # image: confluentinc/cp-kafka:5.0.0
-  #   # image: confluentinc/cp-enterprise-kafka:5.4.0
-  #   image: confluentinc/cp-enterprise-kafka:6.1.8
-    
-  #   container_name: kafka03
-  #   depends_on:
-  #     - zookeeper
-  #   ports:
-  #     - 9094:9094
-  #   environment:
-  #     KAFKA_BROKER_ID: 2
-  #     # KAFKA_ZOOKEEPER_CONNECT: zookeeper.internal:2181
-  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka03.internal:9094
-  #     KAFKA_JMX_PORT: 9999
-  #     KAFKA_JMX_HOSTNAME: kafka03.internal
-  #   networks:
-  #     - back
-
-  # schema-registry:
-  #   # image: confluentinc/cp-schema-registry:5.0.0
-  #   image: confluentinc/cp-schema-registry:5.4.0
-  #   container_name: schema-registry
-  #   depends_on:
-  #     - zookeeper
-  #     - kafka01.internal
-  #     - kafka02.internal
-  #     - kafka03.internal
-  #   ports:
-  #     - 8081:8081
-  #   environment:
-  #     SCHEMA_REGISTRY_HOST_NAME: schema-registry
-  #     # SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: zookeeper.internal:2181
-  #     SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: zookeeper:2181
-  #   networks:
-  #     - back
-
-  # kafka-connect:
-  #   # image: confluentinc/cp-kafka-connect:5.0.0
-  #   # image: confluentinc/cp-kafka-connect:5.4.0
-  #   # image: confluentinc/cp-kafka-connect:5.4.9
-  #   image: confluentinc/cp-kafka-connect:6.1.8
-  #   container_name: kafka-connect
-  #   ports:
-  #     - 8083:8083
-  #   volumes:
-  #   # plugin.path=/usr/share/java/kafka-connect/jars,/etc/kafka-connect/jars
-  #   - ./kafka/jars:/etc/kafka-connect/jars
-  #   - ./kafka/jars:/usr/share/java/kafka-connect/jars
-  #   - ./kafka/file.txt:/Users/cemalturkoglu/kafka/shared-folder/file.txt
-  #   - ./kafka/kafka-connect.properties:/etc/kafka-connect/kafka-connect.properties
-  #     # - $PWD/kafka-connect/jars:/etc/kafka-connect/jars
-  #   environment:
-  #     CONNECT_BOOTSTRAP_SERVERS: kafka01.internal:9092,kafka02.internal:9093,kafka03.internal:9094
-  #     CONNECT_REST_ADVERTISED_PORT: 8083
-  #     # CONNECT_BOOTSTRAP_SERVERS: kafka01.internal:9092,kafka02.internal:9093,kafka03.internal:9094
-  #     CONNECT_GROUP_ID: connect
-  #     CONNECT_CONFIG_STORAGE_TOPIC: connect-config
-  #     CONNECT_OFFSET_STORAGE_TOPIC: connect-offset
-  #     CONNECT_STATUS_STORAGE_TOPIC: connect-status
-  #     # CONNECT_KEY_CONVERTER: "io.confluent.connect.avro.AvroConverter"
-  #     CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.storage.StringConverter"
-  #     # CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-  #     CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: "true"
-  #     # CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.storage.StringConverter"
-  #     CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-  #     # CONNECT_VALUE_CONVERTER: "io.confluent.connect.avro.JsonConverter"
-  #     CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "true"
-  #     CONNECT_VALUE_CONVERTER_SCHEMA_IGNORE: "true"
-  #     CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
-  #     CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
-  #     CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-  #     CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-  #     CONNECT_REST_ADVERTISED_HOST_NAME: "kafka-connect"
-  #     CONNECT_LOG4J_LOGGERS: org.reflections=ERROR
-  #     CONNECT_PLUGIN_PATH: "/usr/share/java/kafka-connect/jars,/etc/kafka-connect/jars"
-  #     KAFKA_JMX_OPTS: -Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=kafka-connect -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.rmi.port=5555 -Dcom.sun.management.jmxremote.port=5555
-
-  #     #CONNECT_LOG4J_ROOT_LOGLEVEL: DEBUG
-  #     # CONNECT_PLUGIN_PATH: "/usr/share/java,/etc/kafka-connect/jars"
-
-  #   depends_on:
-  #     - kafka01.internal
-  #     - schema-registry
-  #     - mysqldb
-  #     # - exasol-db
-  #   networks:
-  #     - back
-
-  #     KSQL_KSQL_SCHEMA_REGISTRY_URL: http://schema-registry:8081
-  #   networks:
-  #     - back
-
-  # ksqldb-cli:
-  #   image: confluentinc/ksqldb-cli:0.6.0
-  #   container_name: ksqldb-cli
-  #   depends_on:
-  #     - ksqldb-server
-  #   entrypoint: /bin/sh
-  #   tty: true
-  #   networks:
-  #     - back
-
-  # kafka-manager:
-  #   image: sheepkiller/kafka-manager
-  #   container_name: kafka-manager
-  #   ports:
-  #     - 9000:9000
-  #   hostname: kafka-manager.internal
-  #   environment:
-  #     # ZK_HOSTS: zookeeper.internal:2181
-  #     ZK_HOSTS: zookeeper:2181
-  #     APPLICATION_SECRET: littlepig-letmein
-  #     KM_VERSION: 1.3.3.17
-  #   depends_on:
-  #     - zookeeper
-  #     - kafka01.internal
-  #   networks:
-  #     - back
-
-  # kafka-ui:
-  #   image: provectuslabs/kafka-ui
-  #   container_name: kafka-ui
-  #   ports:
-  #     - "8080:8080"
-  #   restart: always
-  #   environment:
-  #     - KAFKA_CLUSTERS_0_NAME=kafka01.internal:9092,kafka02.internal:9093,kafka03.internal:9094
-  #     - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka01.internal:9092,kafka02.internal:9093,kafka03.internal:9094
-  #   networks:
-  #     - back
-
-  # kafka-connect-ui:
-  #   image: landoop/kafka-connect-ui:0.9.5
-  #   container_name: kafka-connect-ui
-  #   hostname: kafka-connect-ui
-  #   ports:
-  #     - 8003:8000
-  #   environment:
-  #     CONNECT_URL: "http://kafka-connect:8083/"
-  #     PROXY: "true"
-  #   depends_on:
-  #     - kafka-connect
-  #   networks:
-  #     - back
-
-  # redisdb:
-  #   image: redis:alpine
-  #   command: ["$REDIS_COMMAND"] 
-  #   volumes:
-  #    - redis_data:/var/lib/redis
-  #   ports:
-  #     - "6379:6379"
-  #   networks:
-  #      back :
-  #         ipv4_address: "172.24.2.20"   
-
-
-  # rabbitmq:
-  #   image: rabbitmq:3.11.3-management-alpine
-  #   container_name: 'rabbitmq'
-  #   environment:
-  #       - RABBITMQ_DEFAULT_USER=guest
-  #       - RABBITMQ_DEFAULT_PASS=guest
-  #       - RABBITMQ_ERLANG_COOKIE="SWQOKODSQALRPCLNMEQG"
-  #   ports:
-  #       # AMQP protocol port
-  #       - '5672:5672'
-  #       # HTTP management UI
-  #       - '15672:15672'
-  #   volumes:
-  #       - ./rabbitmq/data/:/var/lib/rabbitmq/data
-  #       - ./rabbitmq/log/:/var/log/rabbitmq/log
-  #       # - ./rabbitmq/rabbitmq.config:/etc/rabbitmq/rabbitmq.config
-  #   networks:
-  #       back :
-  #         ipv4_address: "172.24.2.9"   
-          
+           
   callingninja-mysqldb:
     image: mysql:5.7
     # build: 
@@ -252,24 +24,8 @@ services:
       - "3306"
     networks:
       back :
-        ipv4_address: "174.24.2.1"
-      # reverse-proxy:     
-
-  # zero-postgres:
-  #   image: postgres:15.3-alpine
-  #   container_name: zero-postgres
-  #   restart: always
-  #   ports:
-  #     - '5432:5432'
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
-  #     - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
-  #   environment:
-  #     - POSTGRES_USER=postgres1
-  #     - POSTGRES_PASSWORD=postgres
-  #   networks:
-  #     back :
-  #       ipv4_address: "193.24.2.34"
+        ipv4_address: "192.168.2.1"
+      reverse-proxy: 
 
   callingninja-mongodb:
     # image: mongo:3.4
@@ -289,47 +45,169 @@ services:
       - mongo_data:/var/lib/mongo
     networks:
        back : 
-          ipv4_address: "174.24.2.6" 
+          ipv4_address: "192.168.2.2" 
+       reverse-proxy:
 
-      #  reverse-proxy:
-
-  # kafka-scheduler-01:
-  #   build:
-  #     context: ./kafka-workers
-  #     network: host
-  #     dockerfile: Dockerfile-scheduler-01
-  #   container_name: kafka-scheduler-01
-  #   ports:
-  #     - "8087:8084"  
-  #   environment:
-  #     - NODE_ENV=${NODE_ENV}
-  #     - MONGODB_URL_CONNECTION=${MONGODB_URL_CONNECTION}
-  #     - MONGO_EXECUTION_COLLECTION_NAME=${MONGO_EXECUTION_COLLECTION_NAME}
-  #     - MONGO_TASK_COLLECTION_NAME=${MONGO_TASK_COLLECTION_NAME}
-  #     - MONGO_TASK_DB_NAME=${MONGO_TASK_DB_NAME}
-  #     - KAFKA_TOPIC_NAME=${KAFKA_TOPIC_NAME_WORKER_02}
-  #     - KAFKA_CONSUMER_GROUP_ID=${KAFKA_WORKER_02_GROUP_ID}
-  #     - KAFKA_HOST=${KAFKA_HOST}
-  #     - KAFKA_TOPIC_NAME_WORKER_02=${KAFKA_TOPIC_NAME_WORKER_02}
-  #     - KAFKA_TOPIC_NAME_WORKER_03=${KAFKA_TOPIC_NAME_WORKER_03}
-  #     - KAFKA_TOPIC_NAME_WORKER_04=${KAFKA_TOPIC_NAME_WORKER_04}
-  #   depends_on:
-  #   #   - zookeeper
-  #   #   - kafka01.internal
-  #     # - kafka02.internal
-  #     # - kafka03.internal
-  #     - mongodb
-  #     # - mysqldb
-  #     # - rabbitmq
-  #   command: ["/wait-for-it.sh  mongodb:27017 --timeout=30", "--", "/start-kafka-scheduler.sh"]
-  #   # command: ["/wait-for-it.sh  schema-registry:8081 --timeout=80", "--", "/start-kafka-workers.sh"]
-  #   # command: ["/wait-for-it.sh  kafka-manager:9000 --timeout=80", "--", "/start-kafka-workers.sh"]
+  callingninja-api-user:
+    build:
+      context: ./callingninja-api-user
+      network: host
+      dockerfile: Dockerfile
+    container_name: callingninja-api-user
+    ports:
+      - "8081:8081"  
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - MONGODB_URL_CONNECTION=${MONGODB_URL_CONNECTION}
+      - MONGO_EXECUTION_COLLECTION_NAME=${MONGO_EXECUTION_COLLECTION_NAME}
+      - MONGO_TASK_COLLECTION_NAME=${MONGO_TASK_COLLECTION_NAME}
+      - MONGO_TASK_DB_NAME=${MONGO_TASK_DB_NAME}
+      - KAFKA_TOPIC_NAME=${KAFKA_TOPIC_NAME_WORKER_02}
+      - KAFKA_CONSUMER_GROUP_ID=${KAFKA_WORKER_02_GROUP_ID}
+      - KAFKA_HOST=${KAFKA_HOST}
+      - KAFKA_TOPIC_NAME_WORKER_02=${KAFKA_TOPIC_NAME_WORKER_02}
+      - KAFKA_TOPIC_NAME_WORKER_03=${KAFKA_TOPIC_NAME_WORKER_03}
+      - KAFKA_TOPIC_NAME_WORKER_04=${KAFKA_TOPIC_NAME_WORKER_04}
+    # depends_on:
+    #   - callingninja-mysqldb
+    #   - callingninja-mongodb
+      
+    command: ["/wait-for-it.sh  callingninja-mongodb:27017 --timeout=30", "--", "/start-api-user.sh"]
+    volumes:
+      - ./callingninja-api-user/src:/usr/src/app/deployment/callingninja-api-user/src
+      - ~/.m2/:/root/.m2/
+    networks:
+      back :
+        ipv4_address: "192.168.2.10"
+      reverse-proxy:  
   
+  callingninja-ui-web:
+    build:
+      context: ./callingninja-ui-web
+      network: host
+      dockerfile: Dockerfile
+    container_name: callingninja-ui-web
+    ports:
+      - "8080:8080"  
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - MONGODB_URL_CONNECTION=${MONGODB_URL_CONNECTION}
+      - MONGO_EXECUTION_COLLECTION_NAME=${MONGO_EXECUTION_COLLECTION_NAME}
+      - MONGO_TASK_COLLECTION_NAME=${MONGO_TASK_COLLECTION_NAME}
+      - MONGO_TASK_DB_NAME=${MONGO_TASK_DB_NAME}
+      - KAFKA_TOPIC_NAME=${KAFKA_TOPIC_NAME_WORKER_02}
+      - KAFKA_CONSUMER_GROUP_ID=${KAFKA_WORKER_02_GROUP_ID}
+      - KAFKA_HOST=${KAFKA_HOST}
+      - KAFKA_TOPIC_NAME_WORKER_02=${KAFKA_TOPIC_NAME_WORKER_02}
+      - KAFKA_TOPIC_NAME_WORKER_03=${KAFKA_TOPIC_NAME_WORKER_03}
+      - KAFKA_TOPIC_NAME_WORKER_04=${KAFKA_TOPIC_NAME_WORKER_04}
+
+    command: ["/wait-for-it.sh  callingninja-mongodb:27017 --timeout=30", "--", "/start-ui-web.sh"]
+    volumes:
+      - ./callingninja-ui-web/src:/usr/src/app/deployment/callingninja-ui-web/src
+    networks:
+      back :
+        ipv4_address: "192.168.2.20"
+      reverse-proxy:
+  
+  callingninja-api-multifile-uploader:
+    build:
+      context: ./callingninja-api-multifile-uploader
+      network: host
+      dockerfile: Dockerfile
+    container_name: callingninja-api-multifile-uploader
+    ports:
+      - "1234:1234"  
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - MONGODB_URL_CONNECTION=${MONGODB_URL_CONNECTION}
+      - MONGO_EXECUTION_COLLECTION_NAME=${MONGO_EXECUTION_COLLECTION_NAME}
+      - MONGO_TASK_COLLECTION_NAME=${MONGO_TASK_COLLECTION_NAME}
+      - MONGO_TASK_DB_NAME=${MONGO_TASK_DB_NAME}
+      - KAFKA_TOPIC_NAME=${KAFKA_TOPIC_NAME_WORKER_02}
+      - KAFKA_CONSUMER_GROUP_ID=${KAFKA_WORKER_02_GROUP_ID}
+      - KAFKA_HOST=${KAFKA_HOST}
+      - KAFKA_TOPIC_NAME_WORKER_02=${KAFKA_TOPIC_NAME_WORKER_02}
+      - KAFKA_TOPIC_NAME_WORKER_03=${KAFKA_TOPIC_NAME_WORKER_03}
+      - KAFKA_TOPIC_NAME_WORKER_04=${KAFKA_TOPIC_NAME_WORKER_04}
+
+    command: ["/wait-for-it.sh  callingninja-mongodb:27017 --timeout=30", "--", "/start-api-multifile-uploader.sh"]
+    volumes:
+      - ./callingninja-api-multifile-uploader:/usr/src/app/deployment/callingninja-api-multifile-uploader
+    networks:
+      back :
+        ipv4_address: "192.168.2.30"
+      reverse-proxy:  
+
+  callingninja-api-fastapi:
+    build:
+      context: ./callingninja-api-fastapi
+      network: host
+      dockerfile: Dockerfile
+    container_name: callingninja-api-fastapi
+    ports:
+      - "80:80"  
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - MONGODB_URL_CONNECTION=${MONGODB_URL_CONNECTION}
+      - MONGO_EXECUTION_COLLECTION_NAME=${MONGO_EXECUTION_COLLECTION_NAME}
+      - MONGO_TASK_COLLECTION_NAME=${MONGO_TASK_COLLECTION_NAME}
+      - MONGO_TASK_DB_NAME=${MONGO_TASK_DB_NAME}
+      - KAFKA_TOPIC_NAME=${KAFKA_TOPIC_NAME_WORKER_02}
+      - KAFKA_CONSUMER_GROUP_ID=${KAFKA_WORKER_02_GROUP_ID}
+      - KAFKA_HOST=${KAFKA_HOST}
+      - KAFKA_TOPIC_NAME_WORKER_02=${KAFKA_TOPIC_NAME_WORKER_02}
+      - KAFKA_TOPIC_NAME_WORKER_03=${KAFKA_TOPIC_NAME_WORKER_03}
+      - KAFKA_TOPIC_NAME_WORKER_04=${KAFKA_TOPIC_NAME_WORKER_04}
+
+    command: ["/wait-for-it.sh  callingninja-mongodb:27017 --timeout=30", "--", "/start-api-fastapi.sh"]
+    volumes:
+      - ./callingninja-api-fastapi:/usr/src/app/deployment/callingninja-api-fastapi
+    networks:
+      back :
+        ipv4_address: "192.168.2.40"
+      reverse-proxy:  
+  
+volumes:
+    mysql_data:
+    postgres_data:
+    postgres:
+    mongo_data:
+
+networks:
+    reverse-proxy:
+      external:
+        name: reverse-proxy
+    back:
+      driver: bridge 
+      ipam:
+        driver: default
+        config:
+          - subnet: "192.168.0.0/16" 
+   
+
+  
+
+
+
+  # zero-postgres:
+  #   image: postgres:15.3-alpine
+  #   container_name: zero-postgres
+  #   restart: always
+  #   ports:
+  #     - '5432:5432'
   #   volumes:
-  #     - ./kafka-workers/src:/usr/src/app/kafka-workers/src/
+  #     - postgres_data:/var/lib/postgresql/data
+  #     - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+  #   environment:
+  #     - POSTGRES_USER=postgres1
+  #     - POSTGRES_PASSWORD=postgres
   #   networks:
   #     back :
-  #       ipv4_address: "172.24.2.15"
+  #       ipv4_address: "193.24.2.34"
+     
+
+
 
 
   # sms-api-task:
@@ -706,26 +584,236 @@ services:
   #   networks:
   #     back :
   #       ipv4_address: "172.24.2.8"
+
+   # Kafka Stack
+  # zookeeper:
+  #   # image: confluentinc/cp-zookeeper:5.0.0
+  #   # image: confluentinc/cp-zookeeper:5.4.0
+  #   image: confluentinc/cp-zookeeper:6.1.8
+  #   container_name: zookeeper
+  #   ports:
+  #     - 2181:2181
+  #   hostname: zookeeper
+  #   environment:
+  #     ZOOKEEPER_CLIENT_PORT: 2181
+  #     ZOOKEEPER_TICK_TIME: 2000
+  #   networks:
+  #     - back
+  # kafka01.internal:
+  #   # image: confluentinc/cp-kafka:5.0.0
+  #   # image: confluentinc/cp-enterprise-kafka:5.4.0
+  #   image: confluentinc/cp-enterprise-kafka:6.1.8
+  #   container_name: kafka01
+  #   depends_on:
+  #     - zookeeper
+  #   ports:
+  #     - 9092:9092
+  #   environment:
+  #     KAFKA_BROKER_ID: 0
+  #     # KAFKA_ZOOKEEPER_CONNECT: zookeeper.internal:2181
+  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka01.internal:9092
+  #     KAFKA_JMX_PORT: 9999
+  #     KAFKA_JMX_HOSTNAME: kafka01.internal
+  #   networks:
+  #     - back
+  # kafka02.internal:
+  #   # image: confluentinc/cp-kafka:5.0.0
+  #   # image: confluentinc/cp-enterprise-kafka:5.4.0
+  #   image: confluentinc/cp-enterprise-kafka:6.1.8
+  #   container_name: kafka02
+  #   depends_on:
+  #     - zookeeper
+  #   ports:
+  #     - 9093:9093
+  #   environment:
+  #     KAFKA_BROKER_ID: 1
+  #     # KAFKA_ZOOKEEPER_CONNECT: zookeeper.internal:2181
+  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka02.internal:9093
+  #     KAFKA_JMX_PORT: 9999
+  #     KAFKA_JMX_HOSTNAME: kafka02.internal
+  #   networks:
+  #     - back
+  # kafka03.internal:
+  #   # image: confluentinc/cp-kafka:5.0.0
+  #   # image: confluentinc/cp-enterprise-kafka:5.4.0
+  #   image: confluentinc/cp-enterprise-kafka:6.1.8
+    
+  #   container_name: kafka03
+  #   depends_on:
+  #     - zookeeper
+  #   ports:
+  #     - 9094:9094
+  #   environment:
+  #     KAFKA_BROKER_ID: 2
+  #     # KAFKA_ZOOKEEPER_CONNECT: zookeeper.internal:2181
+  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka03.internal:9094
+  #     KAFKA_JMX_PORT: 9999
+  #     KAFKA_JMX_HOSTNAME: kafka03.internal
+  #   networks:
+  #     - back
+
+  # schema-registry:
+  #   # image: confluentinc/cp-schema-registry:5.0.0
+  #   image: confluentinc/cp-schema-registry:5.4.0
+  #   container_name: schema-registry
+  #   depends_on:
+  #     - zookeeper
+  #     - kafka01.internal
+  #     - kafka02.internal
+  #     - kafka03.internal
+  #   ports:
+  #     - 8081:8081
+  #   environment:
+  #     SCHEMA_REGISTRY_HOST_NAME: schema-registry
+  #     # SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: zookeeper.internal:2181
+  #     SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: zookeeper:2181
+  #   networks:
+  #     - back
+
+  # kafka-connect:
+  #   # image: confluentinc/cp-kafka-connect:5.0.0
+  #   # image: confluentinc/cp-kafka-connect:5.4.0
+  #   # image: confluentinc/cp-kafka-connect:5.4.9
+  #   image: confluentinc/cp-kafka-connect:6.1.8
+  #   container_name: kafka-connect
+  #   ports:
+  #     - 8083:8083
+  #   volumes:
+  #   # plugin.path=/usr/share/java/kafka-connect/jars,/etc/kafka-connect/jars
+  #   - ./kafka/jars:/etc/kafka-connect/jars
+  #   - ./kafka/jars:/usr/share/java/kafka-connect/jars
+  #   - ./kafka/file.txt:/Users/cemalturkoglu/kafka/shared-folder/file.txt
+  #   - ./kafka/kafka-connect.properties:/etc/kafka-connect/kafka-connect.properties
+  #     # - $PWD/kafka-connect/jars:/etc/kafka-connect/jars
+  #   environment:
+  #     CONNECT_BOOTSTRAP_SERVERS: kafka01.internal:9092,kafka02.internal:9093,kafka03.internal:9094
+  #     CONNECT_REST_ADVERTISED_PORT: 8083
+  #     # CONNECT_BOOTSTRAP_SERVERS: kafka01.internal:9092,kafka02.internal:9093,kafka03.internal:9094
+  #     CONNECT_GROUP_ID: connect
+  #     CONNECT_CONFIG_STORAGE_TOPIC: connect-config
+  #     CONNECT_OFFSET_STORAGE_TOPIC: connect-offset
+  #     CONNECT_STATUS_STORAGE_TOPIC: connect-status
+  #     # CONNECT_KEY_CONVERTER: "io.confluent.connect.avro.AvroConverter"
+  #     CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.storage.StringConverter"
+  #     # CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+  #     CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: "true"
+  #     # CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.storage.StringConverter"
+  #     CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+  #     # CONNECT_VALUE_CONVERTER: "io.confluent.connect.avro.JsonConverter"
+  #     CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "true"
+  #     CONNECT_VALUE_CONVERTER_SCHEMA_IGNORE: "true"
+  #     CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+  #     CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+  #     CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+  #     CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+  #     CONNECT_REST_ADVERTISED_HOST_NAME: "kafka-connect"
+  #     CONNECT_LOG4J_LOGGERS: org.reflections=ERROR
+  #     CONNECT_PLUGIN_PATH: "/usr/share/java/kafka-connect/jars,/etc/kafka-connect/jars"
+  #     KAFKA_JMX_OPTS: -Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=kafka-connect -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.rmi.port=5555 -Dcom.sun.management.jmxremote.port=5555
+
+  #     #CONNECT_LOG4J_ROOT_LOGLEVEL: DEBUG
+  #     # CONNECT_PLUGIN_PATH: "/usr/share/java,/etc/kafka-connect/jars"
+
+  #   depends_on:
+  #     - kafka01.internal
+  #     - schema-registry
+  #     - mysqldb
+  #     # - exasol-db
+  #   networks:
+  #     - back
+
+  #     KSQL_KSQL_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+  #   networks:
+  #     - back
+
+  # ksqldb-cli:
+  #   image: confluentinc/ksqldb-cli:0.6.0
+  #   container_name: ksqldb-cli
+  #   depends_on:
+  #     - ksqldb-server
+  #   entrypoint: /bin/sh
+  #   tty: true
+  #   networks:
+  #     - back
+
+  # kafka-manager:
+  #   image: sheepkiller/kafka-manager
+  #   container_name: kafka-manager
+  #   ports:
+  #     - 9000:9000
+  #   hostname: kafka-manager.internal
+  #   environment:
+  #     # ZK_HOSTS: zookeeper.internal:2181
+  #     ZK_HOSTS: zookeeper:2181
+  #     APPLICATION_SECRET: littlepig-letmein
+  #     KM_VERSION: 1.3.3.17
+  #   depends_on:
+  #     - zookeeper
+  #     - kafka01.internal
+  #   networks:
+  #     - back
+
+  # kafka-ui:
+  #   image: provectuslabs/kafka-ui
+  #   container_name: kafka-ui
+  #   ports:
+  #     - "8080:8080"
+  #   restart: always
+  #   environment:
+  #     - KAFKA_CLUSTERS_0_NAME=kafka01.internal:9092,kafka02.internal:9093,kafka03.internal:9094
+  #     - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka01.internal:9092,kafka02.internal:9093,kafka03.internal:9094
+  #   networks:
+  #     - back
+
+  # kafka-connect-ui:
+  #   image: landoop/kafka-connect-ui:0.9.5
+  #   container_name: kafka-connect-ui
+  #   hostname: kafka-connect-ui
+  #   ports:
+  #     - 8003:8000
+  #   environment:
+  #     CONNECT_URL: "http://kafka-connect:8083/"
+  #     PROXY: "true"
+  #   depends_on:
+  #     - kafka-connect
+  #   networks:
+  #     - back
+
+  # redisdb:
+  #   image: redis:alpine
+  #   command: ["$REDIS_COMMAND"] 
+  #   volumes:
+  #    - redis_data:/var/lib/redis
+  #   ports:
+  #     - "6379:6379"
+  #   networks:
+  #      back :
+  #         ipv4_address: "172.24.2.20"   
+
+
+  # rabbitmq:
+  #   image: rabbitmq:3.11.3-management-alpine
+  #   container_name: 'rabbitmq'
+  #   environment:
+  #       - RABBITMQ_DEFAULT_USER=guest
+  #       - RABBITMQ_DEFAULT_PASS=guest
+  #       - RABBITMQ_ERLANG_COOKIE="SWQOKODSQALRPCLNMEQG"
+  #   ports:
+  #       # AMQP protocol port
+  #       - '5672:5672'
+  #       # HTTP management UI
+  #       - '15672:15672'
+  #   volumes:
+  #       - ./rabbitmq/data/:/var/lib/rabbitmq/data
+  #       - ./rabbitmq/log/:/var/log/rabbitmq/log
+  #       # - ./rabbitmq/rabbitmq.config:/etc/rabbitmq/rabbitmq.config
+  #   networks:
+  #       back :
+  #         ipv4_address: "172.24.2.9"   
+
   
-volumes:
-    #config:
-  mysql_data:
-  postgres_data:
-  postgres:
-  mongo_data:
-    # ldap_data:
-    # ldap_config:
-    # redis_data:
-    # freegeoip_data:
-    # tsdb_path:
-networks:
-  reverse-proxy:
-    external:
-      name: reverse-proxy
-  back:
-    driver: bridge 
-    ipam:
-        driver: default
-        config:
-          - subnet: "174.24.2.0/16" 
+
  

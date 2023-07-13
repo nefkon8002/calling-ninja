@@ -1,9 +1,9 @@
 const uploadFiles = (() => {
 	const fileRequests = new WeakMap();
 	const ENDPOINTS = {
-		UPLOAD: 'http://localhost:1234/upload',
-		UPLOAD_STATUS: 'http://localhost:1234/upload-status',
-		UPLOAD_REQUEST: 'http://localhost:1234/upload-request'
+		UPLOAD: 'http://callingninja-api-multifile-uploader:1234/upload',
+		UPLOAD_STATUS: 'http://callingninja-api-multifile-uploader:1234/upload-status',
+		UPLOAD_REQUEST: 'http://callingninja-api-multifile-uploader:1234/upload-request'
 	}
 	const defaultOptions = {
 		url: ENDPOINTS.UPLOAD,

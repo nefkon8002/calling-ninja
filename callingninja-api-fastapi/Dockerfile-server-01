@@ -1,0 +1,12 @@
+FROM node:14.19.3
+WORKDIR /usr/src/app/kafka-workers
+COPY . ./
+COPY start-kafka-server.sh /start-kafka-server.sh
+COPY wait-for-it.sh /wait-for-it.sh
+RUN chmod +x /start-kafka-server.sh
+RUN chmod +x /wait-for-it.sh
+RUN npm install && npm run-script build 
+
+EXPOSE 8084
+
+ENTRYPOINT ["/wait-for-it.sh"]

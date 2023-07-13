@@ -1,13 +1,14 @@
 {
-  "name": "tuts",
+  "name": "callingninja-api-multifile-uploader",
   "version": "0.0.0",
   "description": "",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js"
+    "start": "nodemon server.js",
+    "start_production_server": "node server.js"
   },
-  "author": "e.c",
+  "author": "Neftali Ramirez Chavez",
   "license": "ISC",
   "dependencies": {
     "busboy": "^0.3.1",

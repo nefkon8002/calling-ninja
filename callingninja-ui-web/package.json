@@ -4,7 +4,12 @@
   "scripts": {
     "heroku-postbuild": "ng build --prod",
     "build-prod": "ng build",
-    "start": "node server.js"
+    "start": "node server.js",
+    "start.dev": "ng serve",
+    "start.build.dev": "ng build --configuration=development",
+    "start.build.prod": "ng build --configuration=production"
+
+
   },
   "private": true,
   "dependencies": {
