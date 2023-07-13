@@ -1,0 +1,19 @@
+# 
+FROM python:3.10.12
+
+# 
+WORKDIR /deployment
+
+# 
+COPY ./requirements.txt /deployment/requirements.txt
+
+# 
+RUN pip install --no-cache-dir --upgrade -r /deployment/requirements.txt
+
+# 
+COPY ./callingninja.py /deployment/callingninja.py
+COPY ./src /deployment/src
+COPY .env /deployment/.env
+COPY config.env /deployment/config.env
+# 
+CMD ["python", "-m", "uvicorn", "callingninja:app", "--host", "0.0.0.0", "--port", "8000"]

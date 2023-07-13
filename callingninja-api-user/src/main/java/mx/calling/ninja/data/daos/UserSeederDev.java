@@ -69,7 +69,7 @@ public class UserSeederDev {
 
 
         User[] users = {
-                User.builder().guid("eab0324c-75ef-49a1-9c49-be2d68f50b16").balance("$3,585.69").picture("http://localhost:4200/assets/images/eddie.png").age(30).eyeColor("blue").company("GEEKNET").mobile("666666000").firstName("adm").password(pass).dni(null).address("121 National Drive, Cotopaxi, Michigan, 8240")
+                User.builder().guid("eab0324c-75ef-49a1-9c49-be2d68f50b16").balance("$3,585.69").picture("http://localhost:4200/assets/images/eddie.png").age(30).eyeColor("blue").company("GEEKNET").mobile("6666660000").firstName("adm").password(pass).dni(null).address("121 National Drive, Cotopaxi, Michigan, 8240")
                         .email("adm@gmail.com").role(Role.ADMIN).registrationDate(LocalDateTime.now()).active(true)
                         .build(),
                 User.builder().guid("eab0324c-75ef-49a1-9c49-be2d68f50w96").balance("$3,585.69").picture("http://localhost:4200/assets/images/eddie.png").age(30).eyeColor("blue").company("GEEKNET").mobile("666666001").firstName("man").password(pass).dni("66666601C").address("C/TPV, 1")
