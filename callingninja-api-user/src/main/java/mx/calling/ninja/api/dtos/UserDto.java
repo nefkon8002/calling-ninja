@@ -56,7 +56,7 @@ public class UserDto {
     }
 
     public static UserDto ofMobileFirstName(User user) {
-        return UserDto.builder().mobile(user.getMobile()).firstName(user.getFirstName()).lastName(user.getLastName()).active(user.getActive()).email(user.getEmail()).registrationDate(user.getRegistrationDate()).role(user.getRole()).build();
+        return UserDto.builder().mobile(user.getMobile()).firstName(user.getFirstName()).lastName(user.getLastName()).active(user.getActive()).email(user.getEmail()).registrationDate(user.getRegistrationDate()).twilio_sid(user.getTwilio_sid()).twilio_auth(user.getTwilio_auth()).role(user.getRole()).build();
     }
 
     public void doDefault() {
