@@ -31,8 +31,11 @@ export class ProfileComponent implements OnInit {
 
   balance: string;
 
+  public authorizer: AuthService;
+
   constructor(private tokensService: AuthService, private httpService: HttpService) {
     this.profilesrv = new ProfileService(httpService);
+    this.authorizer = tokensService;
 
   }
 
