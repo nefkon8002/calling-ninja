@@ -15,7 +15,7 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
   styleUrls: ['./usermanager.component.css']
 })
 export class UsermanagerComponent implements OnInit {
-  displayedColumns: string[] = ['id', 'mobile', 'firstName', 'lastName', 'email', 'registrationDate', 'role', 'active', 'twilio_sid'];
+  displayedColumns: string[] = ['id', 'mobile', 'firstName', 'lastName', 'email', 'registrationDate', 'role', 'active', 'twilio_sid', 'twilio_auth'];
   pageSizes = [5, 10, 100];
   usersList: UserDto[];
   roles: string[];

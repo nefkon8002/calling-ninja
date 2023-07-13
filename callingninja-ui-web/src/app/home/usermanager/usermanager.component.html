@@ -63,10 +63,25 @@
         </ng-container>
         <ng-container matColumnDef="twilio_sid">
             <mat-header-cell *matHeaderCellDef
-                class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">twilio_sid</mat-header-cell>
+                class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Twilio
+                Sid</mat-header-cell>
             <mat-cell *matCellDef="let user" class="px-6 py-4 whitespace-nowrap">
                 <ng-container *ngIf="!editMode; else editableCell">{{ user.twilio_sid }}</ng-container>
                 <ng-template #editableCell><input type="text" [(ngModel)]="user.twilio_sid"
+                        (blur)="updateUser(user)"></ng-template>
+                <button mat-icon-button (click)="toggleEditMode(user)">
+                    <mat-icon>{{ editMode ? 'save' : 'edit' }}</mat-icon>
+                </button>
+            </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="twilio_auth">
+            <mat-header-cell *matHeaderCellDef
+                class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Twilio
+                Auth Token</mat-header-cell>
+            <mat-cell *matCellDef="let user" class="px-6 py-4 whitespace-nowrap">
+
+                <ng-container *ngIf="!editMode; else editableCell">{{ user.twilio_auth }}</ng-container>
+                <ng-template #editableCell><input type="text" [(ngModel)]="user.twilio_auth"
                         (blur)="updateUser(user)"></ng-template>
                 <button mat-icon-button (click)="toggleEditMode(user)">
                     <mat-icon>{{ editMode ? 'save' : 'edit' }}</mat-icon>
