@@ -15,11 +15,12 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
   styleUrls: ['./usermanager.component.css']
 })
 export class UsermanagerComponent implements OnInit {
-  displayedColumns: string[] = ['id', 'mobile', 'firstName', 'lastName', 'email', 'registrationDate', 'role', 'active'];
+  displayedColumns: string[] = ['id', 'mobile', 'firstName', 'lastName', 'email', 'registrationDate', 'role', 'active', 'twilio_sid'];
   pageSizes = [5, 10, 100];
   usersList: UserDto[];
   roles: string[];
   dataSource: MatTableDataSource<UserDto>;
+  editMode: boolean = false;
 
   constructor(
     private usermanagerService: UsermanagerService,
@@ -67,6 +68,7 @@ export class UsermanagerComponent implements OnInit {
     this.profileService.updateProfile(user).subscribe(() => {
       console.log('User updated successfully.');
     });
+    this.editMode = false;
   }
 
   /** Announce the change in sort state for assistive technology. */
@@ -79,6 +81,13 @@ export class UsermanagerComponent implements OnInit {
       this._liveAnnouncer.announce(`Sorted ${sortState.direction}ending`);
     } else {
       this._liveAnnouncer.announce('Sorting cleared');
+    }
+  }
+
+  toggleEditMode(user: any) {
+    this.editMode = !this.editMode;
+    if (!this.editMode) {
+      this.updateUser(user);
     }
   }
 }
