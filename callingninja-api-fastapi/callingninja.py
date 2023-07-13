@@ -224,7 +224,7 @@ async def upload_audio(
     s3 = boto3.client("s3")
     file_key = (
         "public/"
-        + current_user["name"]
+        + str(current_user["mobile"])
         + "/"
         + str(uuid.uuid4())
         + "_"
@@ -257,7 +257,7 @@ async def upload_audio_async(
             async with session.client("s3") as s3_client:
                 file_key = (
                     "public/"
-                    + current_user["name"]
+                    + str(current_user["mobile"])
                     + "/"
                     + str(uuid.uuid4())
                     + "_"
@@ -298,7 +298,7 @@ async def upload_numbers_s3(
         async with session.client("s3") as s3_client:
             file_key = (
                 "private/"
-                + current_user["name"]
+                + str(current_user["mobile"])
                 + "/"
                 + str(uuid.uuid4())
                 + "_"
@@ -367,7 +367,7 @@ async def query_audios(current_user=auth_all):
     try:
         async with session.client("s3") as s3_client:
             available_audios = await s3_client.list_objects(
-                Bucket=bucket_name, Prefix=f"public/{current_user['name']}"
+                Bucket=bucket_name, Prefix=f"public/{current_user['mobile']}"
             )
 
             audio_result = {}
