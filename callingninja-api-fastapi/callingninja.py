@@ -70,13 +70,13 @@ load_dotenv(find_dotenv())
 
 # load env variables from env file
 ## twilio
-account_sid = os.getenv("ACCOUNT_SID2")
-auth_token = os.getenv("AUTH_TOKEN2")
+account_sid = os.getenv("ACCOUNT_SID2") or ""
+auth_token = os.getenv("AUTH_TOKEN2") or ""
 ##aws
-aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID")
-aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY")
-region_name = os.getenv("AWS_DEFAULT_REGION")
-bucket_name = os.getenv("AWS_BUCKET_NAME")
+aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID") or ""
+aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY") or ""
+region_name = os.getenv("AWS_DEFAULT_REGION") or ""
+bucket_name = os.getenv("AWS_BUCKET_NAME") or ""
 
 # init Client instance for twilio api
 client = Client(account_sid, auth_token)
