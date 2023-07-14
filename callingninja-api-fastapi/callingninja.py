@@ -79,7 +79,7 @@ region_name = os.getenv("AWS_DEFAULT_REGION") or ""
 bucket_name = os.getenv("AWS_BUCKET_NAME") or ""
 
 # init Client instance for twilio api
-client = Client(account_sid, auth_token)
+# client = Client(account_sid, auth_token)
 
 
 # connect to mongodb
