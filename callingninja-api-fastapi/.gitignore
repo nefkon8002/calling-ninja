@@ -2,7 +2,12 @@
 venv/
 *.pyc
 __pycache__/
-src/
+src/api/
+src/data/
+src/models/
+src/rest_client/
+src/services/
+src/main.py
 main.py
 config.env
 *.csv
