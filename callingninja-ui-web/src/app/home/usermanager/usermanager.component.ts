@@ -5,9 +5,15 @@ import { ProfileService } from '../profile/profile.service';
 import { UserDto } from '../profile/profile.model';
 import { Role } from '@core/role.model';
 import { MatPaginator } from '@angular/material/paginator';
+import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort, Sort, MatSortModule } from '@angular/material/sort';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
+import { ProfileComponent } from '../profile/profile.component';
+import { HomeComponent } from '../home.component';
+import { Observable } from 'rxjs';
+import { UsereditorComponent } from '../usereditor/usereditor.component';
+
 
 @Component({
   selector: 'app-usermanager',
@@ -15,7 +21,7 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
   styleUrls: ['./usermanager.component.css']
 })
 export class UsermanagerComponent implements OnInit {
-  displayedColumns: string[] = ['id', 'mobile', 'firstName', 'lastName', 'email', 'registrationDate', 'role', 'active', 'twilio_sid', 'twilio_auth'];
+  displayedColumns: string[] = ['id', 'mobile', 'firstName', 'lastName', 'email', 'registrationDate', 'role', 'active', 'editProfile', 'twilio_sid', 'twilio_auth'];
   pageSizes = [5, 10, 100];
   usersList: UserDto[];
   roles: string[];
@@ -26,7 +32,8 @@ export class UsermanagerComponent implements OnInit {
     private usermanagerService: UsermanagerService,
     private httpService: HttpService,
     private profileService: ProfileService,
-    private _liveAnnouncer: LiveAnnouncer
+    private _liveAnnouncer: LiveAnnouncer,
+    private dialog: MatDialog
   ) {
     this.dataSource = new MatTableDataSource(this.usersList);
   }
@@ -90,4 +97,9 @@ export class UsermanagerComponent implements OnInit {
       this.updateUser(user);
     }
   }
+
+  usermanagerProfiler(userprofile): void {
+    this.dialog.open(UsereditorComponent).afterClosed().subscribe(() => this.dialog.closeAll());
+  }
+
 }

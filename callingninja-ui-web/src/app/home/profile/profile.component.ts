@@ -82,8 +82,6 @@ export class ProfileComponent implements OnInit {
         console.log("Update user ok");
       }
     );
-
-
   }
 
   // login(): void {

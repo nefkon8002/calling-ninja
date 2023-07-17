@@ -22,6 +22,7 @@ import { AppComponent } from './plaintText/app-component';
 //import { UploadnumbersComponent } from 'app/caller/uploadnumbers/uploadnumbers.component';
 import { UsermanagerComponent } from './usermanager/usermanager.component';
 import { CallerModule } from 'app/caller/caller.module';
+import { UsereditorComponent } from './usereditor/usereditor.component';
 
 
 @NgModule({
@@ -36,6 +37,7 @@ import { CallerModule } from 'app/caller/caller.module';
     AlertComponent,
     AppComponent,
     UsermanagerComponent,
+    UsereditorComponent,
 
 
   ],
