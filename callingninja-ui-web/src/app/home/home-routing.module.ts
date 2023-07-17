@@ -36,7 +36,7 @@ const routes: Routes = [
         path: 'caller',
         component: CallerComponent,
         canActivate: [RoleGuardService],
-        data: { roles: [Role.CUSTOMER, Role.ADMIN, Role.MANAGER] }
+        data: { roles: [Role.CUSTOMER, Role.ADMIN, Role.MANAGER, Role.OPERATOR] }
       },
 
       {

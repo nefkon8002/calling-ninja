@@ -30,7 +30,7 @@ class UserRepositoryIT {
     @Test
     void testFindByMobileAndFirstNameAndFamilyNameAndEmailAndDniNullSafeWithMobile() {
         assertTrue(this.userRepository.findByMobileAndFirstNameAndFamilyNameAndEmailAndDniContainingNullSafe(
-                "1", null, null, ".com", null, Arrays.asList(MANAGER)).stream()
+                "1", null, null, ".com", null, null, null, Arrays.asList(MANAGER)).stream()
                 .anyMatch(user -> "666666001".equals(user.getMobile()))
         );
     }
@@ -38,7 +38,7 @@ class UserRepositoryIT {
     @Test
     void testFindByMobileAndFirstNameAndFamilyNameAndEmailAndDniNullSafeWithDni() {
         assertTrue(this.userRepository.findByMobileAndFirstNameAndFamilyNameAndEmailAndDniContainingNullSafe(
-                null, null, null, null, "kk",
+                null, null, null, null, null, null, "kk",
                 Arrays.asList(ADMIN, MANAGER, OPERATOR, CUSTOMER)).isEmpty()
         );
     }

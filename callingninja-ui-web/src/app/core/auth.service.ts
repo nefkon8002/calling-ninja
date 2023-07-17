@@ -1,16 +1,16 @@
 import { Injectable, Output } from '@angular/core';
-import {Router} from '@angular/router';
-import { Observable, of,throwError } from 'rxjs';
+import { Router } from '@angular/router';
+import { Observable, of, throwError } from 'rxjs';
 // import {map} from 'rxjs/operators';
-import {JwtHelperService} from '@auth0/angular-jwt';
+import { JwtHelperService } from '@auth0/angular-jwt';
 
-import {environment} from '@env';
-import {User,UserDto,account_dto} from '@core/user.model';
+import { environment } from '@env';
+import { User, UserDto, account_dto } from '@core/user.model';
 
-import {HttpService} from '@core/http.service';
-import {Role} from '@core/role.model';
-import { HttpClient, HttpHeaders ,HttpErrorResponse} from '@angular/common/http';
-import {catchError,map} from 'rxjs/operators';
+import { HttpService } from '@core/http.service';
+import { Role } from '@core/role.model';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+import { catchError, map } from 'rxjs/operators';
 import {
   MatSnackBar,
   MatSnackBarHorizontalPosition,
@@ -27,7 +27,7 @@ export class AuthService {
   private user: User;
   private userDto: UserDto;
   private account_dto: account_dto;
-  constructor(private httpService: HttpService,private http:HttpClient, private router: Router,private snackBar: MatSnackBar) {
+  constructor(private httpService: HttpService, private http: HttpClient, private router: Router, private snackBar: MatSnackBar) {
   }
 
   login(mobile: string, password: string): Observable<User> {
@@ -47,7 +47,7 @@ export class AuthService {
 
   errorMsg: string;
   loading: boolean = false;
-  adminlogin(admin_login:string , admin_p:string,mobile: number, password: string, mail: string): void {
+  adminlogin(admin_login: string, admin_p: string, mobile: number, password: string, mail: string): void {
 
     const expression_email: RegExp = /^(?=.{1,254}$)(?=.{1,64}@)[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+(\.[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+)*@[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$/;
     const email: string = mail;
@@ -61,99 +61,99 @@ export class AuthService {
 
     console.log('mdn is ' + (result_mdn ? 'correct' : 'incorrect'));
 
-    if ( !result_mdn && !result_email) {
+    if (!result_mdn && !result_email) {
       //lazar exepciones
       throw new Error('Solo puede ser un email o un numero movil a 10 digitos');
     }
 
 
-  let httpOptionsToken = {
-    headers: new HttpHeaders({
-      'Authorization':'Basic ' + btoa(admin_login + ':' + admin_p),
-    })
+    let httpOptionsToken = {
+      headers: new HttpHeaders({
+        'Authorization': 'Basic ' + btoa(admin_login + ':' + admin_p),
+      })
     }
-   this.account_dto={
-    password: admin_p,
-    username: admin_login,
-    authorities: [
-      {
-        authority: "ADMIN"
-      }
-    ],
-    accountNonExpired: true,
-    accountNonLocked: true,
-    credentialsNonExpired:true,
-    enabled: true,
-   }
+    this.account_dto = {
+      password: admin_p,
+      username: admin_login,
+      authorities: [
+        {
+          authority: "ADMIN"
+        }
+      ],
+      accountNonExpired: true,
+      accountNonLocked: true,
+      credentialsNonExpired: true,
+      enabled: true,
+    }
 
-   try {
+    try {
 
-    this.http
-    .post(AuthService.END_POINT,this.account_dto,httpOptionsToken).subscribe( (jsonToken:any) =>{
+      this.http
+        .post(AuthService.END_POINT, this.account_dto, httpOptionsToken).subscribe((jsonToken: any) => {
           // console.log("TOKEN OK -> "+ jsonToken.token);
           console.log("TOKEN OK -> ");
           let httpOptionsSR = {
             headers: new HttpHeaders({
-                'accept':'*/*',
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${jsonToken.token}`
-              })
-            }
+              'accept': '*/*',
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${jsonToken.token}`
+            })
+          }
 
 
-            this.userDto ={
-              mobile: (result_mdn ? mobile.toString() : ''),
-              firstName: "TESTERBOT",
-              lastName: "string",
-              familyName: "string",
-              email:(result_email ? mail : 'testerbot@plusnetwork.com.mx'),
-              dni: "string",
-              address: "string",
-              password: password,
-              role: Role.OPERATOR,
-              active: false,
-              registrationDate: new Date,
-              company: "string",
-              id: 0,
-              guid: "string",
-              balance: "string",
-              picture: "string",
-              age: 0,
-              eyeColor: "string",
-              twilio_sid: "string",
-              twilio_auth: "string",
-            };
+          this.userDto = {
+            mobile: (result_mdn ? mobile.toString() : ''),
+            firstName: "TESTERBOT",
+            lastName: "string",
+            familyName: "string",
+            email: (result_email ? mail : 'testerbot@plusnetwork.com.mx'),
+            dni: "string",
+            address: "string",
+            password: password,
+            role: Role.OPERATOR,
+            active: false,
+            registrationDate: new Date,
+            company: "string",
+            id: 0,
+            guid: "string",
+            balance: "string",
+            picture: "string",
+            age: 0,
+            eyeColor: "string",
+            twilio_sid: "string",
+            twilio_auth: "string",
+          };
 
           // try {
 
-            // this.http.post(AuthService.END_POINT_USERS,this.userDto,httpOptionsSR)
-            // .subscribe( (homeworld: any) => {
-            //  console.log("RESONSE CRETE USERS " + homeworld)
-            // })
+          // this.http.post(AuthService.END_POINT_USERS,this.userDto,httpOptionsSR)
+          // .subscribe( (homeworld: any) => {
+          //  console.log("RESONSE CRETE USERS " + homeworld)
+          // })
 
-            this.http.post(AuthService.END_POINT_USERS,this.userDto,httpOptionsSR)
+          this.http.post(AuthService.END_POINT_USERS, this.userDto, httpOptionsSR)
             .subscribe(
-            (next: any) => {
-             console.log("RESONSE CRETE USERS OK")
-             this.openSnackBar();
-            },
-            (error) => {                              //Error callback
+              (next: any) => {
+                console.log("RESONSE CRETE USERS OK")
+                this.openSnackBar();
+              },
+              (error) => {                              //Error callback
 
-              this.errorMsg = error;
-              this.loading = false;
-              if (error.error instanceof ErrorEvent) {
-                    this.errorMsg = `Error: ${error.error.message}`;
-                  } else {
-                    this.errorMsg = this.getServerErrorMessage(error);
-                  }
-                    console.error('error caught in component4' + this.errorMsg)
-                    return this.openSnackBarError(this.errorMsg);
-                    // return throwError(()=>{
+                this.errorMsg = error;
+                this.loading = false;
+                if (error.error instanceof ErrorEvent) {
+                  this.errorMsg = `Error: ${error.error.message}`;
+                } else {
+                  this.errorMsg = this.getServerErrorMessage(error);
+                }
+                console.error('error caught in component4' + this.errorMsg)
+                return this.openSnackBarError(this.errorMsg);
+                // return throwError(()=>{
 
-                    //   console.error("ERROR ++++++=> " + this.errorMsg);
-                    //   this.openSnackBarError(this.errorMsg);
-                    // });
-            }
+                //   console.error("ERROR ++++++=> " + this.errorMsg);
+                //   this.openSnackBarError(this.errorMsg);
+                // });
+              }
 
             )
 
@@ -177,12 +177,12 @@ export class AuthService {
           // }
 
 
-    })
+        })
 
-   } catch (error) {
-    throw new Error(error.message);
+    } catch (error) {
+      throw new Error(error.message);
 
-   }
+    }
 
 
 
@@ -193,9 +193,9 @@ export class AuthService {
 
 
 
-   signup(mobile: string, password: string,token: string): void {
+  signup(mobile: string, password: string, token: string): void {
 
-    this.userDto ={
+    this.userDto = {
       mobile: mobile,
       firstName: "TESTERBOT",
       lastName: "string",
@@ -225,28 +225,28 @@ export class AuthService {
     console.log("Creando user -> " + token);
 
     this.httpService
-    .postSR(AuthService.END_POINT_USERS,this.userDto,token)
+      .postSR(AuthService.END_POINT_USERS, this.userDto, token)
 
   }
 
 
   private getServerErrorMessage(error: HttpErrorResponse): string {
     switch (error.status) {
-        case 404: {
-            return `Not Found: ${error.message}`;
-        }
-        case 409: {
-          return `API-USER : ${error.error.message}`;
+      case 404: {
+        return `Not Found: ${error.message}`;
       }
-        case 403: {
-            return `Access Denied: ${error.message}`;
-        }
-        case 500: {
-            return `Internal Server Error: ${error.message}`;
-        }
-        default: {
-            return `Unknown Server Error: ${error.message}`;
-        }
+      case 409: {
+        return `API-USER : ${error.error.message}`;
+      }
+      case 403: {
+        return `Access Denied: ${error.message}`;
+      }
+      case 500: {
+        return `Internal Server Error: ${error.message}`;
+      }
+      default: {
+        return `Unknown Server Error: ${error.message}`;
+      }
 
     }
   }
@@ -254,9 +254,9 @@ export class AuthService {
   horizontalPosition: MatSnackBarHorizontalPosition = 'center';
   verticalPosition: MatSnackBarVerticalPosition = 'top';
 
-  openSnackBarError(error : string) {
+  openSnackBarError(error: string) {
     this.snackBar.open(
-      'Account registration failed due to : '  + error + ' ', 'Close', {
+      'Account registration failed due to : ' + error + ' ', 'Close', {
       horizontalPosition: this.horizontalPosition,
       verticalPosition: this.verticalPosition,
       panelClass: ['yellow-snackbar']
@@ -265,7 +265,7 @@ export class AuthService {
 
   openSnackBar() {
     this.snackBar.open(
-      'The registration of your account with the following cellphone number ' + this.userDto.mobile + ' and email  '+this.userDto.email + ' was successful', 'Close', {
+      'The registration of your account with the following cellphone number ' + this.userDto.mobile + ' and email  ' + this.userDto.email + ' was successful. Please wait until account activation by the admin.', 'Close', {
       horizontalPosition: this.horizontalPosition,
       verticalPosition: this.verticalPosition,
       panelClass: ['blue-snackbar']
