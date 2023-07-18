@@ -146,7 +146,7 @@ services:
       dockerfile: Dockerfile
     container_name: callingninja-api-fastapi
     ports:
-      - "80:80"  
+      - "8000:8000"  
     environment:
       - NODE_ENV=${NODE_ENV}
       - MONGODB_URL_CONNECTION=${MONGODB_URL_CONNECTION}

@@ -9,7 +9,7 @@ RUN chmod +x /start-api-fastapi.sh
 RUN chmod +x /wait-for-it.sh
 RUN pip install --no-cache-dir --upgrade -r /usr/src/app/deployment/callingninja-api-fastapi/requirements.txt
 
-EXPOSE 80
+EXPOSE 8000
 ENTRYPOINT ["/wait-for-it.sh"]
 
 # COPY ./requirements.txt /deployment/requirements.txt
