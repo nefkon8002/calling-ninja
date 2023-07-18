@@ -1,11 +1,11 @@
-import {Injectable} from '@angular/core';
-import {Router} from '@angular/router';
-import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
-import {EMPTY, Observable, throwError} from 'rxjs';
-import {catchError, map} from 'rxjs/operators';
-import {MatSnackBar} from '@angular/material/snack-bar';
+import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { EMPTY, Observable, throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
-import {Error} from '@core/error.model';
+import { Error } from '@core/error.model';
 
 @Injectable({
   providedIn: 'root',
@@ -61,10 +61,10 @@ export class HttpService {
         catchError(error => this.handleError(error))
       );
   }
-  postSR(endpoint: string, body?: object, token?:string): Observable<any> {
+  postSR(endpoint: string, body?: object, token?: string): Observable<any> {
     this.resetOptionsSecureRequest(token);
     return this.http
-      .post(endpoint, body ,this.createOptionsSR() )
+      .post(endpoint, body, this.createOptionsSR())
       .pipe(
         map(response => this.extractData(response)),
         catchError(error => this.handleError(error))
@@ -110,24 +110,25 @@ export class HttpService {
   //   return this.header('Authorization', 'Basic ' + btoa(mobile + ':' + password));
   // }
   authBasic(mobile: string, password: string): HttpService {
+    this.header('Access-Control-Allow-Origin', '*');
     return this.header('Authorization', 'Basic ' + btoa(mobile + ':' + password));
   }
   authRequestHeaderContent(): HttpService {
 
-    this.header('accept','*/*');
-    return this.header('Content-Type','application/json')
+    this.header('accept', '*/*');
+    return this.header('Content-Type', 'application/json')
 
   }
   authRequestHeaders(jsonToken: string): HttpService {
-    this.header('accept','*/*');
-    this.header('Content-Type','application/json')
-    return this.header('Authorization',`Bearer ${jsonToken}`)
+    this.header('accept', '*/*');
+    this.header('Content-Type', 'application/json')
+    return this.header('Authorization', `Bearer ${jsonToken}`)
 
   }
-//HttpService
+  //HttpService
   header(key: string, value: string): HttpService {
     if (value != null) {
-       this.headers = this.headers.append(key, value); // This class is immutable
+      this.headers = this.headers.append(key, value); // This class is immutable
     }
     return this;
   }
@@ -150,7 +151,7 @@ export class HttpService {
 
   private resetOptionsSecureRequest(jsonToken: string): void {
     this.headers = new HttpHeaders({
-      'accept':'*/*',
+      'accept': '*/*',
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${jsonToken}`
     });
@@ -180,7 +181,7 @@ export class HttpService {
     const contentType = response.headers.get('content-type');
     if (contentType) {
       if (contentType.indexOf('application/pdf') !== -1) {
-        const blob = new Blob([response.body], {type: 'application/pdf'});
+        const blob = new Blob([response.body], { type: 'application/pdf' });
         window.open(window.URL.createObjectURL(blob));
       } else if (contentType.indexOf('application/json') !== -1) {
         console.log("RESPONSE => JSON0 " + response.body);
@@ -194,10 +195,10 @@ export class HttpService {
 
   private showError(notification: string): void {
     if (this.errorNotification) {
-      this.snackBar.open(this.errorNotification, 'Error', {duration: 5000});
+      this.snackBar.open(this.errorNotification, 'Error', { duration: 5000 });
       this.errorNotification = undefined;
     } else {
-      this.snackBar.open(notification, 'Error - Verfica que REST API USER este online.', {duration: 5000});
+      this.snackBar.open(notification, 'Error - Verfica que REST API USER este online.', { duration: 5000 });
     }
   }
 
