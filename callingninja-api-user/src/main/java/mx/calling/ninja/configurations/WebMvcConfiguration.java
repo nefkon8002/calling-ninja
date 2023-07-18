@@ -9,7 +9,12 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**").allowedMethods("*").allowedOrigins("*").allowedHeaders("*").maxAge(3600);
+        registry.addMapping("/**")
+        .allowCredentials(true)
+        .allowedMethods("*")
+        .allowedOrigins("http://localhost:4200", "http://localhost:8080", "http://callingninja-ui-web:8080", "http://54.87.95.213:8080")
+        .allowedHeaders("*")
+        .maxAge(3600);
     }
 
 }
