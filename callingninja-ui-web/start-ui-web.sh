@@ -20,7 +20,7 @@ sleep 15
 # npm run build-prod
 # npm run start.build.dev
 # npm run start.dev
-npm run start.build.prod
+npm run producion
 #npm run start.build.dev
 npm run start
 

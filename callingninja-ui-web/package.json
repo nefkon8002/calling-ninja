@@ -7,9 +7,7 @@
     "start": "node server.js",
     "start.dev": "ng serve",
     "start.build.dev": "ng build --configuration=development",
-    "start.build.prod": "ng build --configuration=production"
-
-
+    "producion": "ng build --configuration=production"
   },
   "private": true,
   "dependencies": {
