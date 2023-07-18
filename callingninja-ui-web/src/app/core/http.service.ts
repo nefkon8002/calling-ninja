@@ -110,7 +110,7 @@ export class HttpService {
   //   return this.header('Authorization', 'Basic ' + btoa(mobile + ':' + password));
   // }
   authBasic(mobile: string, password: string): HttpService {
-    this.header('Access-Control-Allow-Origin', '*');
+    //this.header('Access-Control-Allow-Origin', '*');
     return this.header('Authorization', 'Basic ' + btoa(mobile + ':' + password));
   }
   authRequestHeaderContent(): HttpService {
