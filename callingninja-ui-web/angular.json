@@ -98,11 +98,10 @@
               "src/assets"
             ],
             "styles": [
-              "src/app/home/uploader_multifile/uploader-multifile.css",//<link rel="stylesheet" href="src/app/home/uploader/uploader-multifile.css">
-              "src/app/home/uploader_multifile/normalizer.css",//callingninja-ui-web/src/app/home/uploader_multifile
+              "src/app/home/uploader_multifile/uploader-multifile.css", //<link rel="stylesheet" href="src/app/home/uploader/uploader-multifile.css">
+              "src/app/home/uploader_multifile/normalizer.css", //callingninja-ui-web/src/app/home/uploader_multifile
               "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
               "src/styles.css",
-            
             ],
             "scripts": []
           }
