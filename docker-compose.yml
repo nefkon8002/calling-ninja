@@ -88,7 +88,8 @@ services:
       dockerfile: Dockerfile
     container_name: callingninja-ui-web
     ports:
-      - "8080:8080"  
+      # - "8080:8080"  
+      - "10446:8080"  
     environment:
       - NODE_ENV=${NODE_ENV}
       - MONGODB_URL_CONNECTION=${MONGODB_URL_CONNECTION}
@@ -101,6 +102,10 @@ services:
       - KAFKA_TOPIC_NAME_WORKER_02=${KAFKA_TOPIC_NAME_WORKER_02}
       - KAFKA_TOPIC_NAME_WORKER_03=${KAFKA_TOPIC_NAME_WORKER_03}
       - KAFKA_TOPIC_NAME_WORKER_04=${KAFKA_TOPIC_NAME_WORKER_04}
+      - VIRTUAL_PORT=10446
+      - VIRTUAL_HOST=plusnetwork.cloud
+      - LETSENCRYPT_HOST=plusnetwork.cloud
+      - LETSENCRYPT_EMAIL=nefkon@gmail.com
 
     command: ["/wait-for-it.sh  callingninja-mongodb:27017 --timeout=30", "--", "/start-ui-web.sh"]
     volumes:
@@ -146,7 +151,7 @@ services:
       dockerfile: Dockerfile
     container_name: callingninja-api-fastapi
     ports:
-      - "80:80"  
+      - "8000:8000"  
     environment:
       - NODE_ENV=${NODE_ENV}
       - MONGODB_URL_CONNECTION=${MONGODB_URL_CONNECTION}
