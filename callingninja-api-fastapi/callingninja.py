@@ -1,5 +1,6 @@
 import asyncio
 import base64
+from functools import lru_cache
 import io
 from typing import Union, Annotated
 from fastapi import (
@@ -19,6 +20,7 @@ from pydantic import BaseModel, HttpUrl
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.security import JWTBearer
+from src.config import get_config, Config, ProductionConfig, DevelopmentConfig
 
 import csv
 import os
@@ -41,11 +43,17 @@ import magic  # detects file type. python-magic
 app = FastAPI()
 # register MiddleWare
 ## CORS middleware
+### retrieve config variables temporarily to set in origins list
+init_config = get_config()
+### set origins list
 origins = [
-    "http://localhost:4200",  # Replace with the actual origin of your Angular application
+    f"{init_config.CN_FRONT}",  # Replace with the actual origin of your Angular application
     "http://localhost",
-    "localhost:4200",
+    f"{init_config.CN_USER}",
 ]
+### delete temporary config variables
+del init_config
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -60,7 +68,7 @@ app.add_middleware(
 # not needed bc custom jwt auth in security.py
 
 # get enviroment variable file
-load_dotenv(find_dotenv())
+# load_dotenv(find_dotenv())
 
 # load env variables from env file
 ## twilio
@@ -72,6 +80,17 @@ aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY") or ""
 region_name = os.getenv("AWS_DEFAULT_REGION") or ""
 bucket_name = os.getenv("AWS_BUCKET_NAME") or ""
 
+
+# pydantic settings instance from src/config.py
+@lru_cache()  # creates the config var on startup only. hot-reloading does not reload this variable! to turn this off comment this line and the same one in src/config.py
+def config_setter():
+    config = get_config()
+    return config
+
+
+# config = config_setter()
+
+
 # init Client instance for twilio api
 # client = Client(account_sid, auth_token)
 
@@ -81,12 +100,16 @@ bucket_name = os.getenv("AWS_BUCKET_NAME") or ""
 # select collection from mongodb
 # db = db_client.tpv
 
-# Auth types
+# helper variables for endpoint parameters
+## Auth types
 auth_all = Depends(JWTBearer(["ADMIN", "OPERATOR", "MANAGER", "CUSTOMER"]))
 auth_admin = Depends(JWTBearer(["ADMIN"]))
 auth_manager = Depends(JWTBearer(["MANAGER"]))
 auth_operator = Depends(JWTBearer(["OPERATOR"]))
 auth_customer = Depends(JWTBearer(["CUSTOMER"]))
+## config
+### not working!
+config = Annotated[Config, Depends(config_setter)]
 
 
 # pydantic Model
@@ -114,10 +137,12 @@ class CallRequest(BaseModel):
 ###############################################################################
 
 
-async def get_user_details(current_user):
+async def get_user_details(
+    current_user, config: Annotated[Config, Depends(config_setter)]
+):
     async with httpx.AsyncClient() as client:
         headers = {"Authorization": f"Bearer {current_user['token']}"}
-        endpoint_users_mobile = "http://localhost:8081/users/" + str(
+        endpoint_users_mobile = f"http://{config.CN_USER}/users/" + str(
             current_user["mobile"]
         )
         user_data = await client.get(endpoint_users_mobile, headers=headers)
@@ -135,8 +160,10 @@ async def get_user_details(current_user):
 # works
 # used to manually obtain a token from api-user, copy from response to JWTBearer login in fastapi swagger ui
 @app.post("/custom_token")
-async def custom_token(username: str, password: str):
-    url = "http://localhost:8081/users/token"
+async def custom_token(
+    username: str, password: str, config: Annotated[Config, Depends(config_setter)]
+):
+    url = f"{config.CN_USER}/users/token"
     auth_base64_base = username + ":" + password
     auth_base64_encoded = base64.b64encode(auth_base64_base.encode("utf-8")).decode(
         "utf-8"
@@ -170,14 +197,13 @@ async def custom_token(username: str, password: str):
 @app.get("/get_from_numbers/")
 async def get_from_numbers(
     request: Request,
+    config: Annotated[Config, Depends(config_setter)],
     current_user=Depends(JWTBearer(["ADMIN", "MANAGER", "OPERATOR", "CUSTOMER"])),
 ):
     # get user details from api-user
     async with httpx.AsyncClient() as client:
         headers = {"Authorization": f"Bearer {current_user['token']}"}
-        endpoint_users_mobile = "http://localhost:8081/users/" + str(
-            current_user["mobile"]
-        )
+        endpoint_users_mobile = f"{config.CN_USER}/users/" + str(current_user["mobile"])
         user_data = await client.get(endpoint_users_mobile, headers=headers)
         user_data = dict(user_data.json())
     # extract current users' twilio credentials from former request
@@ -439,14 +465,13 @@ async def call(request: Request):
 @app.post("/call_manual")
 async def call_manual(
     call_request: CallRequest,
+    config: Annotated[Config, Depends(config_setter)],
     current_user=Depends(JWTBearer(["ADMIN", "OPERATOR", "MANAGER", "CUSTOMER"])),
 ):
     # get user details from api-user
     async with httpx.AsyncClient() as client:
         headers = {"Authorization": f"Bearer {current_user['token']}"}
-        endpoint_users_mobile = "http://localhost:8081/users/" + str(
-            current_user["mobile"]
-        )
+        endpoint_users_mobile = f"{config.CN_USER}/users/" + str(current_user["mobile"])
         user_data = await client.get(endpoint_users_mobile, headers=headers)
         user_data = dict(user_data.json())
     # extract current users' twilio credentials from former request
@@ -550,3 +575,8 @@ async def example_all(
 ):
     host = request.client.host
     return {"host": host, "current_user": user}
+
+
+@app.get("/info")
+async def info(config: Annotated[Config, Depends(config_setter)]):
+    return {"config": config}
