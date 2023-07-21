@@ -21,7 +21,7 @@ import { UsereditorComponent } from '../usereditor/usereditor.component';
   styleUrls: ['./usermanager.component.css']
 })
 export class UsermanagerComponent implements OnInit {
-  displayedColumns: string[] = ['id', 'mobile', 'firstName', 'lastName', 'email', 'registrationDate', 'role', 'active', 'editProfile', 'twilio_sid', 'twilio_auth'];
+  displayedColumns: string[] = ['id', 'mobile', 'firstName', 'lastName', 'email', 'registrationDate', 'role', 'active', 'twilio_sid', 'twilio_auth'];
   pageSizes = [5, 10, 100];
   usersList: UserDto[];
   roles: string[];
