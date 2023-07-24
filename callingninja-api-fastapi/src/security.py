@@ -2,7 +2,10 @@ import jwt
 from fastapi import HTTPException, status, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-from src.config import config
+# from src.config import config
+from src.config import get_config
+
+config = get_config()
 
 
 class JWTBearer(HTTPBearer):
