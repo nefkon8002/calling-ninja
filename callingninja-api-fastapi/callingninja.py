@@ -72,13 +72,13 @@ app.add_middleware(
 
 # load env variables from env file
 ## twilio
-account_sid = os.getenv("ACCOUNT_SID2") or ""
-auth_token = os.getenv("AUTH_TOKEN2") or ""
+# account_sid = os.getenv("ACCOUNT_SID2") or ""
+# auth_token = os.getenv("AUTH_TOKEN2") or ""
 ##aws
-aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID") or ""
-aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY") or ""
-region_name = os.getenv("AWS_DEFAULT_REGION") or ""
-bucket_name = os.getenv("AWS_BUCKET_NAME") or ""
+# aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID") or ""
+# aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY") or ""
+# region_name = os.getenv("AWS_DEFAULT_REGION") or ""
+# bucket_name = os.getenv("AWS_BUCKET_NAME") or ""
 
 
 # pydantic settings instance from src/config.py
@@ -309,6 +309,7 @@ async def upload_numbers_s3(
     request: Request,
     uploaded_numbers: UploadFile,
     contents_str,
+    config: Annotated[Config, Depends(config_setter)],
     current_user=Depends(JWTBearer(["ADMIN", "MANAGER", "OPERATOR", "CUSTOMER"])),
 ):
     try:
@@ -327,11 +328,13 @@ async def upload_numbers_s3(
 
             await s3_client.put_object(
                 Body=contents_str,
-                Bucket=bucket_name,
+                Bucket=config.AWS_BUCKET_NAME,
                 Key=file_key,
                 ContentType=uploaded_numbers.content_type,
             )
-            file_url = "https://" + bucket_name + ".s3.amazonaws.com/" + file_key
+            file_url = (
+                "https://" + config.AWS_BUCKET_NAME + ".s3.amazonaws.com/" + file_key
+            )
 
             return {"file_key": file_key, "file_url": file_url}
     except Exception as e:
