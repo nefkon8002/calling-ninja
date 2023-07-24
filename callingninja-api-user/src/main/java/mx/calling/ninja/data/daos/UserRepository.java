@@ -55,7 +55,9 @@ public interface UserRepository extends JpaRepository< User, Integer > {
             "(?3 is null or lower(u.familyName) like lower(concat('%',?3,'%'))) and" +
             "(?4 is null or lower(u.email) like lower(concat('%',?4,'%'))) and" +
             "(?5 is null or lower(u.dni) like lower(concat('%',?5,'%'))) and" +
-            "(u.role in ?6)")
+            "(?6 is null or lower(u.twilio_sid) like lower(concat('%',?6,'%'))) and" +
+            "(?7 is null or lower(u.twilio_auth) like lower(concat('%',?7,'%'))) and" +
+            "(u.role in ?8)")
     List< User > findByMobileAndFirstNameAndFamilyNameAndEmailAndDniContainingNullSafe(
-            String mobile, String firstName, String familyName, String email, String dni, Collection< Role > roles);
+            String mobile, String firstName, String familyName, String email, String dni, String twilio_sid, String twilio_auth, Collection< Role > roles);
 }

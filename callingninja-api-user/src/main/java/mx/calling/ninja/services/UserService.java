@@ -69,9 +69,9 @@ public class UserService {
     }
 
     public Stream< User > findByMobileAndFirstNameAndFamilyNameAndEmailAndDniContainingNullSafe(
-            String mobile, String firstName, String familyName, String email, String dni, Role roleClaim) {
+            String mobile, String firstName, String familyName, String email, String dni, String twilio_sid, String twilio_auth, Role roleClaim) {
         return this.userRepository.findByMobileAndFirstNameAndFamilyNameAndEmailAndDniContainingNullSafe(
-                mobile, firstName, familyName, email, dni, this.authorizedRoles(roleClaim)
+                mobile, firstName, familyName, email, dni, twilio_sid, twilio_auth, this.authorizedRoles(roleClaim)
         ).stream();
     }
 

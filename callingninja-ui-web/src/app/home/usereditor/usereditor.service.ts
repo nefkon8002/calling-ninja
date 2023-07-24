@@ -9,24 +9,21 @@ import { environment } from '@env';
 import { HttpService } from '@core/http.service';
 import { Role } from '@core/role.model';
 import { EndPoints } from '@shared/end-points';
-//import { UserDto } from './profile.model';
+import { UserDto } from './usereditor.models';
 import { User } from '@core/user.model';
-
 
 @Injectable({
     providedIn: 'root',
 })
-export class UsermanagerService {
+export class UsereditorService {
     static END_POINT = environment.REST_USER + '/users/token';
 
-    //private user: UserDto;
-    usersList: any[] = [];
-
+    private user: UserDto;
 
 
     constructor(private httpService: HttpService) {
     }
-    /*
+
     getProfilebyMDN(mobile: number): Observable<UserDto> {
         return this.httpService.get(EndPoints.USERS + '/' + mobile)
     }
@@ -46,14 +43,6 @@ export class UsermanagerService {
     updateProfile(user: UserDto): Observable<void> {
         return this.httpService
             .put(EndPoints.USERS + '/' + user.mobile, user)
-    }
-    */
-    fetchAllUsers(): Observable<any[]> {
-        return this.httpService.get(EndPoints.USERS);
-    }
-
-    updateUser(user: User): Observable<void> {
-        return this.httpService.put(`${EndPoints.USERS}/users/${user.mobile}`, user);
     }
 
 

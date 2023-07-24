@@ -9,7 +9,7 @@ cd /usr/src/app/deployment/callingninja-ui-web/
 #"npm run-script build && node out/src/server.js"
 
 
-sleep 15
+# sleep 15
 # npm run startWorker01
 # npm run startScheduler &
 # npm run startWorker &
@@ -20,9 +20,12 @@ sleep 15
 # npm run build-prod
 # npm run start.build.dev
 # npm run start.dev
-npm run start.build.prod
+
+# npm run start.build.prod
 # npm run start.build.dev
-npm run start
+npm run start.dev
+# npm run start
+# ng serve --ssl
 
 # node  out/src/start-worker.js &
 # node  out/src/start-scheduler.js &

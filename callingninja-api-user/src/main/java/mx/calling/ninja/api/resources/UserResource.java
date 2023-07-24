@@ -71,9 +71,10 @@ public class UserResource {
     public Stream<UserDto> findByMobileAndFirstNameAndFamilyNameAndEmailAndDniContainingNullSafe(
             @RequestParam(required = false) String mobile, @RequestParam(required = false) String firstName,
             @RequestParam(required = false) String familyName, @RequestParam(required = false) String email,
-            @RequestParam(required = false) String dni) {
+            @RequestParam(required = false) String dni, @RequestParam(required = false) String twilio_sid,
+            @RequestParam(required = false) String twilio_auth) {
         return this.userService.findByMobileAndFirstNameAndFamilyNameAndEmailAndDniContainingNullSafe(
-                mobile, firstName, familyName, email, dni, this.extractRoleClaims()).map(UserDto::ofMobileFirstName);
+                mobile, firstName, familyName, email, dni, twilio_sid, twilio_auth, this.extractRoleClaims()).map(UserDto::ofMobileFirstName);
     }
 
     private Role extractRoleClaims() {

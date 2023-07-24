@@ -16,7 +16,6 @@ from fastapi import (
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 import motor.motor_asyncio
 from pydantic import BaseModel, HttpUrl
-from starlette.middleware.sessions import SessionMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.security import JWTBearer
@@ -41,11 +40,6 @@ import magic  # detects file type. python-magic
 # init fastapi
 app = FastAPI()
 # register MiddleWare
-## session middleware
-session_secret_key = (
-    os.getenv("SESSION_SECRET_KEY") or "very-top-secret-key-for-sessions"
-)
-app.add_middleware(SessionMiddleware, secret_key=session_secret_key)
 ## CORS middleware
 origins = [
     "http://localhost:4200",  # Replace with the actual origin of your Angular application
@@ -79,7 +73,7 @@ region_name = os.getenv("AWS_DEFAULT_REGION") or ""
 bucket_name = os.getenv("AWS_BUCKET_NAME") or ""
 
 # init Client instance for twilio api
-client = Client(account_sid, auth_token)
+# client = Client(account_sid, auth_token)
 
 
 # connect to mongodb
@@ -224,7 +218,7 @@ async def upload_audio(
     s3 = boto3.client("s3")
     file_key = (
         "public/"
-        + current_user["name"]
+        + str(current_user["mobile"])
         + "/"
         + str(uuid.uuid4())
         + "_"
@@ -257,7 +251,7 @@ async def upload_audio_async(
             async with session.client("s3") as s3_client:
                 file_key = (
                     "public/"
-                    + current_user["name"]
+                    + str(current_user["mobile"])
                     + "/"
                     + str(uuid.uuid4())
                     + "_"
@@ -298,7 +292,7 @@ async def upload_numbers_s3(
         async with session.client("s3") as s3_client:
             file_key = (
                 "private/"
-                + current_user["name"]
+                + str(current_user["mobile"])
                 + "/"
                 + str(uuid.uuid4())
                 + "_"
@@ -349,25 +343,13 @@ async def upload_numbers(
     return {"to_numbers": numbers, "bucket_response": bucket_response}
 
 
-@app.get("/a")
-async def a(request: Request):
-    from_numbers = request.session.get("from_numbers", [])
-    to_numbers = request.session.get("to_numbers", [])
-    audio_url = request.session.get("audio_url", [])
-    return {
-        "from_numbers": from_numbers,
-        "to_numbers": to_numbers,
-        "audio_url": audio_url,
-    }
-
-
 @app.get("/query_audios/")
 async def query_audios(current_user=auth_all):
     session = asyncboto.Session()
     try:
         async with session.client("s3") as s3_client:
             available_audios = await s3_client.list_objects(
-                Bucket=bucket_name, Prefix=f"public/{current_user['name']}"
+                Bucket=bucket_name, Prefix=f"public/{current_user['mobile']}"
             )
 
             audio_result = {}

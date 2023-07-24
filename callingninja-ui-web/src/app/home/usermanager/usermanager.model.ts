@@ -6,5 +6,7 @@ export interface User {
     email: string;
     registrationDate: string;
     role: string;
-    active: boolean; // Add this property
+    active: boolean;
+    twilio_sid: string;
+    twilio_auth: string;
 }
