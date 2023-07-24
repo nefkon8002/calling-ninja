@@ -5,9 +5,9 @@
     "heroku-postbuild": "ng build --prod",
     "build-prod": "ng build",
     "start": "node server.js",
-    "start.dev": "ng serve",
+    "start.dev": "ng serve --host=0.0.0.0 --configuration=development --disableHostCheck=true",
     "start.build.dev": "ng build --configuration=development",
-    "start.build.production": "ng build --configuration=production"
+    "start.build.prod": "ng build --configuration=production"
   },
   "private": true,
   "dependencies": {

@@ -27,27 +27,6 @@ services:
         ipv4_address: "192.168.2.1"
       reverse-proxy: 
 
-  callingninja-mongodb:
-    # image: mongo:3.4
-    image: mongo:6.0
-    container_name: callingninja-mongodb
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
-      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
-      - MONGODB_USERNAME= ${MONGODB_USERNAME}
-      - MONGODB_PASSWORD= ${MONGODB_PASSWORD}
-      - MONGODB_DATABASE= ${MONGODB_DATABASE}
-    ports:
-      - 27017:27017
-    volumes:
-      - ./mongo/init-mongo.js:/docker-entrypoint-initdb.d/inzeroit-mongo.js:ro ##ro:readonly
-      - mongo_data:/var/lib/mongo
-    networks:
-       back : 
-          ipv4_address: "192.168.2.2" 
-       reverse-proxy:
-
   callingninja-api-user:
     build:
       context: ./callingninja-api-user
@@ -56,6 +35,7 @@ services:
     container_name: callingninja-api-user
     ports:
       - "8081:8081"  
+      - "10443:8081"  
     environment:
       - NODE_ENV=${NODE_ENV}
       - MONGODB_URL_CONNECTION=${MONGODB_URL_CONNECTION}
@@ -68,6 +48,15 @@ services:
       - KAFKA_TOPIC_NAME_WORKER_02=${KAFKA_TOPIC_NAME_WORKER_02}
       - KAFKA_TOPIC_NAME_WORKER_03=${KAFKA_TOPIC_NAME_WORKER_03}
       - KAFKA_TOPIC_NAME_WORKER_04=${KAFKA_TOPIC_NAME_WORKER_04}
+       # - VIRTUAL_PROTO=https
+      # - HTTPS_METHOD=nohttps
+      # - VIRTUAL_PROTO=http
+      - VIRTUAL_PORT=10443
+      # - VIRTUAL_HOST=api.user.plusnetwork.cloud
+      - VIRTUAL_HOST=api.user.callingninja.com
+      # - LETSENCRYPT_HOST=api.user.plusnetwork.cloud
+      # - LETSENCRYPT_EMAIL=nefkon@gmail.com
+
     # depends_on:
     #   - callingninja-mysqldb
     #   - callingninja-mongodb
@@ -88,8 +77,10 @@ services:
       dockerfile: Dockerfile
     container_name: callingninja-ui-web
     ports:
-      # - "8080:8080"  
-      - "10446:8080"  
+      - "8080:8080"  
+      - "10446:4200" 
+      - "4200:4200"  
+      # - "10446:4200"  
     environment:
       - NODE_ENV=${NODE_ENV}
       - MONGODB_URL_CONNECTION=${MONGODB_URL_CONNECTION}
@@ -102,10 +93,16 @@ services:
       - KAFKA_TOPIC_NAME_WORKER_02=${KAFKA_TOPIC_NAME_WORKER_02}
       - KAFKA_TOPIC_NAME_WORKER_03=${KAFKA_TOPIC_NAME_WORKER_03}
       - KAFKA_TOPIC_NAME_WORKER_04=${KAFKA_TOPIC_NAME_WORKER_04}
+
+      # - HTTPS_METHOD=nohttp
+      # - VIRTUAL_PROTO=https
+      # - HTTPS_METHOD=nohttps
+      # - VIRTUAL_PROTO=http
       - VIRTUAL_PORT=10446
-      - VIRTUAL_HOST=plusnetwork.cloud
-      - LETSENCRYPT_HOST=plusnetwork.cloud
-      - LETSENCRYPT_EMAIL=nefkon@gmail.com
+      # - VIRTUAL_HOST=web.ninja.plusnetwork.cloud
+      - VIRTUAL_HOST=www.callingninja.com
+      # - LETSENCRYPT_HOST=web.ninja.plusnetwork.cloud
+      # - LETSENCRYPT_EMAIL=nefkon@gmail.com
 
     command: ["/wait-for-it.sh  callingninja-mongodb:27017 --timeout=30", "--", "/start-ui-web.sh"]
     volumes:
@@ -123,6 +120,7 @@ services:
     container_name: callingninja-api-multifile-uploader
     ports:
       - "1234:1234"  
+      - "10448:1234"    
     environment:
       - NODE_ENV=${NODE_ENV}
       - MONGODB_URL_CONNECTION=${MONGODB_URL_CONNECTION}
@@ -135,7 +133,9 @@ services:
       - KAFKA_TOPIC_NAME_WORKER_02=${KAFKA_TOPIC_NAME_WORKER_02}
       - KAFKA_TOPIC_NAME_WORKER_03=${KAFKA_TOPIC_NAME_WORKER_03}
       - KAFKA_TOPIC_NAME_WORKER_04=${KAFKA_TOPIC_NAME_WORKER_04}
-
+      - VIRTUAL_HOST=api.uploader.callingninja.com
+      # - VIRTUAL_HOST=api.uploader.plusnetwork.cloud
+      - VIRTUAL_PORT=10448
     command: ["/wait-for-it.sh  callingninja-mongodb:27017 --timeout=30", "--", "/start-api-multifile-uploader.sh"]
     volumes:
       - ./callingninja-api-multifile-uploader:/usr/src/app/deployment/callingninja-api-multifile-uploader
@@ -151,7 +151,8 @@ services:
       dockerfile: Dockerfile
     container_name: callingninja-api-fastapi
     ports:
-      - "8000:8000"  
+      - "8000:8000"
+      - "10447:8000"    
     environment:
       - NODE_ENV=${NODE_ENV}
       - MONGODB_URL_CONNECTION=${MONGODB_URL_CONNECTION}
@@ -164,6 +165,11 @@ services:
       - KAFKA_TOPIC_NAME_WORKER_02=${KAFKA_TOPIC_NAME_WORKER_02}
       - KAFKA_TOPIC_NAME_WORKER_03=${KAFKA_TOPIC_NAME_WORKER_03}
       - KAFKA_TOPIC_NAME_WORKER_04=${KAFKA_TOPIC_NAME_WORKER_04}
+      - VIRTUAL_PORT=10447
+      # - VIRTUAL_HOST=api.caller.plusnetwork.cloud
+      - VIRTUAL_HOST=api.caller.callingninja.com
+      # - LETSENCRYPT_HOST=api.caller.plusnetwork.cloud
+      # - LETSENCRYPT_EMAIL=nefkon@gmail.com
 
     command: ["/wait-for-it.sh  callingninja-mongodb:27017 --timeout=30", "--", "/start-api-fastapi.sh"]
     volumes:
@@ -212,6 +218,26 @@ networks:
   #       ipv4_address: "193.24.2.34"
      
 
+  # callingninja-mongodb:
+  #   # image: mongo:3.4
+  #   image: mongo:6.0
+  #   container_name: callingninja-mongodb
+  #   environment:
+  #     - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+  #     - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+  #     - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
+  #     - MONGODB_USERNAME= ${MONGODB_USERNAME}
+  #     - MONGODB_PASSWORD= ${MONGODB_PASSWORD}
+  #     - MONGODB_DATABASE= ${MONGODB_DATABASE}
+  #   ports:
+  #     - 27017:27017
+  #   volumes:
+  #     - ./mongo/init-mongo.js:/docker-entrypoint-initdb.d/inzeroit-mongo.js:ro ##ro:readonly
+  #     - mongo_data:/var/lib/mongo
+  #   networks:
+  #      back : 
+  #         ipv4_address: "192.168.2.2" 
+  #      reverse-proxy:
 
 
 
