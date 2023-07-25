@@ -233,6 +233,7 @@ async def get_from_numbers(
 )
 async def upload_audio(
     uploaded_audio: UploadFile,
+    config: Annotated[Config, Depends(config_setter)],
     current_user=Depends(JWTBearer(["ADMIN", "MANAGER", "OPERATOR", "CUSTOMER"])),
 ):
     #########################################
@@ -241,7 +242,11 @@ async def upload_audio(
     # uses `upload_file`, which automagically splits big files
     # alternatively set up like this: `s3 = boto3.resource('s3')` and use function `put_object` --> no large file split, but more options
     # init aws sdk boto3 client
-    s3 = boto3.client("s3")
+    s3 = boto3.client(
+        "s3",
+        aws_secret_access_key=config.AWS_SECRET_ACCESS_KEY,
+        aws_access_key_id=config.AWS_ACCESS_KEY_ID,
+    )
     file_key = (
         "public/"
         + str(current_user["mobile"])
@@ -252,11 +257,11 @@ async def upload_audio(
     )
     s3.upload_file(
         uploaded_audio.filename,
-        bucket_name,
+        config.AWS_BUCKET_NAME,
         file_key,
         ExtraArgs={"ContentType": uploaded_audio.content_type},
     )
-    file_url = "https://" + bucket_name + ".s3.amazonaws.com/" + file_key
+    file_url = f"https://{config.AWS_BUCKET_NAME}.s3.amazonaws.com/{file_key}"
     return {"file_key": file_key, "file_url": file_url}
 
 
@@ -269,12 +274,17 @@ async def upload_audio(
 async def upload_audio_async(
     uploaded_audio: UploadFile,
     request: Request,
+    config: Annotated[Config, Depends(config_setter)],
     current_user=Depends(JWTBearer(["ADMIN", "CUSTOMER", "OPERATOR", "MANAGER"])),
 ):
     try:
         if magic.from_file(uploaded_audio.filename, mime=True).split("/")[0] == "audio":
             session = asyncboto.Session()
-            async with session.client("s3") as s3_client:
+            async with session.client(
+                "s3",
+                aws_secret_access_key=config.AWS_SECRET_ACCESS_KEY,
+                aws_access_key_id=config.AWS_ACCESS_KEY_ID,
+            ) as s3_client:
                 file_key = (
                     "public/"
                     + str(current_user["mobile"])
@@ -285,11 +295,13 @@ async def upload_audio_async(
                 )
                 await s3_client.upload_file(
                     uploaded_audio.filename,
-                    bucket_name,
+                    config.AWS_BUCKET_NAME,
                     file_key,
                     ExtraArgs={"ContentType": uploaded_audio.content_type},
                 )
-                file_url = "https://" + bucket_name + ".s3.amazonaws.com/" + file_key
+                file_url = (
+                    f"https://{config.AWS_BUCKET_NAME}.s3.amazonaws.com/{file_key}"
+                )
                 # request.session["audio_url"] = file_url
                 return {"file_key": file_key, "file_url": file_url}
         else:
@@ -300,7 +312,7 @@ async def upload_audio_async(
     except Exception as e:
         raise HTTPException(
             status_code=400,
-            detail="Failed to upload the file. Only audio files are allowed.",
+            detail=f"Failed to upload the file. Only audio files are allowed. Error-response: {e}",
         )
 
 
@@ -310,13 +322,17 @@ async def upload_numbers_s3(
     uploaded_numbers: UploadFile,
     contents_str,
     config: Annotated[Config, Depends(config_setter)],
-    current_user=Depends(JWTBearer(["ADMIN", "MANAGER", "OPERATOR", "CUSTOMER"])),
+    current_user=auth_all,
 ):
     try:
         # no file type check!
         session = asyncboto.Session()
 
-        async with session.client("s3") as s3_client:
+        async with session.client(
+            "s3",
+            aws_secret_access_key=config.AWS_SECRET_ACCESS_KEY,
+            aws_access_key_id=config.AWS_ACCESS_KEY_ID,
+        ) as s3_client:
             file_key = (
                 "private/"
                 + str(current_user["mobile"])
@@ -332,9 +348,7 @@ async def upload_numbers_s3(
                 Key=file_key,
                 ContentType=uploaded_numbers.content_type,
             )
-            file_url = (
-                "https://" + config.AWS_BUCKET_NAME + ".s3.amazonaws.com/" + file_key
-            )
+            file_url = f"https://{config.AWS_BUCKET_NAME}.s3.amazonaws.com/{file_key}"
 
             return {"file_key": file_key, "file_url": file_url}
     except Exception as e:
@@ -349,7 +363,8 @@ async def upload_numbers_s3(
 async def upload_numbers(
     request: Request,
     uploaded_numbers: UploadFile,
-    current_user=Depends(JWTBearer(["ADMIN", "MANAGER", "OPERATOR", "CUSTOMER"])),
+    config: Annotated[Config, Depends(config_setter)],
+    current_user=auth_all,
 ):
     numbers = []
 
@@ -358,10 +373,7 @@ async def upload_numbers(
     contents_str = contents.decode()
 
     bucket_response = await upload_numbers_s3(
-        request,
-        uploaded_numbers,
-        contents_str,
-        current_user,
+        request, uploaded_numbers, contents_str, config, current_user
     )
 
     # Use csv.reader on the string contents
@@ -373,12 +385,14 @@ async def upload_numbers(
 
 
 @app.get("/query_audios/")
-async def query_audios(current_user=auth_all):
+async def query_audios(
+    config: Annotated[Config, Depends(config_setter)], current_user=auth_all
+):
     session = asyncboto.Session()
     try:
         async with session.client("s3") as s3_client:
             available_audios = await s3_client.list_objects(
-                Bucket=bucket_name, Prefix=f"public/{current_user['mobile']}"
+                Bucket=config.AWS_BUCKET_NAME, Prefix=f"public/{current_user['mobile']}"
             )
 
             audio_result = {}
@@ -391,7 +405,7 @@ async def query_audios(current_user=auth_all):
                         "file_key": content["Key"],
                         "originalName": content["Key"].split("_")[1],
                         "lastModified": content["LastModified"],
-                        "full_url": f"https://{bucket_name}.s3.amazonaws.com/{content['Key']}",
+                        "full_url": f"https://{config.AWS_BUCKET_NAME}.s3.amazonaws.com/{content['Key']}",
                     }
                 return audio_result
             else:
@@ -401,7 +415,7 @@ async def query_audios(current_user=auth_all):
     except Exception as e:
         raise HTTPException(
             status_code=400,
-            detail="Failed to retrieve list of available audios",
+            detail=f"Failed to retrieve list of available audios Error-response: {e}",
         )
 
 
@@ -581,5 +595,8 @@ async def example_all(
 
 
 @app.get("/info")
-async def info(config: Annotated[Config, Depends(config_setter)]):
-    return {"config": config}
+async def info(
+    config: Annotated[Config, Depends(config_setter)], current_user=auth_all
+):
+    print(current_user)
+    return {"config": config, "current_user": current_user}
