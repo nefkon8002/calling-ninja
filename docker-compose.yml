@@ -53,7 +53,8 @@ services:
       # - VIRTUAL_PROTO=http
       - VIRTUAL_PORT=10443
       # - VIRTUAL_HOST=api.user.plusnetwork.cloud
-      - VIRTUAL_HOST=api.user.callingninja.com
+      # - VIRTUAL_HOST=api.user.callingninja.com
+      - VIRTUAL_HOST=api.user.callingninja.xyz
       # - LETSENCRYPT_HOST=api.user.plusnetwork.cloud
       # - LETSENCRYPT_EMAIL=nefkon@gmail.com
 
@@ -100,7 +101,8 @@ services:
       # - VIRTUAL_PROTO=http
       - VIRTUAL_PORT=10446
       # - VIRTUAL_HOST=web.ninja.plusnetwork.cloud
-      - VIRTUAL_HOST=www.callingninja.com
+      # - VIRTUAL_HOST=www.callingninja.com
+      - VIRTUAL_HOST=www.callingninja.xyz
       # - LETSENCRYPT_HOST=web.ninja.plusnetwork.cloud
       # - LETSENCRYPT_EMAIL=nefkon@gmail.com
 
@@ -133,8 +135,9 @@ services:
       - KAFKA_TOPIC_NAME_WORKER_02=${KAFKA_TOPIC_NAME_WORKER_02}
       - KAFKA_TOPIC_NAME_WORKER_03=${KAFKA_TOPIC_NAME_WORKER_03}
       - KAFKA_TOPIC_NAME_WORKER_04=${KAFKA_TOPIC_NAME_WORKER_04}
-      - VIRTUAL_HOST=api.uploader.callingninja.com
+      # - VIRTUAL_HOST=api.uploader.callingninja.com
       # - VIRTUAL_HOST=api.uploader.plusnetwork.cloud
+      - VIRTUAL_HOST=api.uploader.callingninja.xyz
       - VIRTUAL_PORT=10448
     command: ["/wait-for-it.sh  callingninja-mongodb:27017 --timeout=30", "--", "/start-api-multifile-uploader.sh"]
     volumes:
@@ -167,7 +170,8 @@ services:
       - KAFKA_TOPIC_NAME_WORKER_04=${KAFKA_TOPIC_NAME_WORKER_04}
       - VIRTUAL_PORT=10447
       # - VIRTUAL_HOST=api.caller.plusnetwork.cloud
-      - VIRTUAL_HOST=api.caller.callingninja.com
+      # - VIRTUAL_HOST=api.caller.callingninja.com
+      - VIRTUAL_HOST=api.caller.callingninja.xyz
       # - LETSENCRYPT_HOST=api.caller.plusnetwork.cloud
       # - LETSENCRYPT_EMAIL=nefkon@gmail.com
 

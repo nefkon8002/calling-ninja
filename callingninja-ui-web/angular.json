@@ -71,8 +71,8 @@
         },
         "serve": {
           "options": {
-            "sslKey": "certs/web.ninja.plusnetwork.cloud.key",
-            "sslCert": "certs/web.ninja.plusnetwork.cloud.crt"
+            "sslKey": "certs/www.callingninja.com.key",
+            "sslCert": "certs/www.callingninja.com.crt"
           },
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
