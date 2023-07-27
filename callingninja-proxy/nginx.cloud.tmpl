@@ -169,10 +169,26 @@ proxy_set_header Proxy "";
 {{ $is_regexp := hasPrefix "~" $host }}
 {{ $upstream_name := when $is_regexp (sha1 $host) $host }}
 
+#-+++++++ UPSTREAMName-------- {{ $upstream_name }} 
+#-+++++++ UPSTREAMName-------- {{ $host }} 
+
 # {{ $host }}
 upstream {{ $upstream_name }} {
 
-	{{ range $container := $containers }}
+	{{ if eq $upstream_name  "web.ninja.plusnetwork.cloud" }}
+		server 192.168.2.20:4200;
+	{{ end }}
+	{{ if eq $upstream_name  "api.user.plusnetwork.cloud" }}
+		server 192.168.2.10:8081;
+	{{ end }}
+	{{ if eq $upstream_name  "api.caller.plusnetwork.cloud" }}
+		server 192.168.2.40:8000;
+	{{ end }}
+	{{ if eq $upstream_name  "api.uploader.plusnetwork.cloud" }}
+		server 192.168.2.30:1234;
+	{{ end }}
+
+		{{ range $container := $containers }}
 		{{ $addrLen := len $container.Addresses }}
 	
 		{{ range $knownNetwork := $CurrentContainer.Networks }}
@@ -202,19 +218,6 @@ upstream {{ $upstream_name }} {
 				{{ end }}
 			{{ end }}
 		{{ end }}
-	{{ end }}
-
-	{{ if eq $upstream_name  "www.callingninja.com" }}
-		server 192.168.2.20:4200;
-	{{ end }}
-	{{ if eq $upstream_name  "api.user.callingninja.com" }}
-		server 192.168.2.10:8081;
-	{{ end }}
-	{{ if eq $upstream_name  "api.caller.callingninja.com" }}
-		server 192.168.2.40:8000;
-	{{ end }}
-	{{ if eq $upstream_name  "api.uploader.callingninja.com" }}
-		server 192.168.2.30:1234;
 	{{ end }}
 
 
@@ -260,47 +263,47 @@ upstream {{ $upstream_name }} {
 	
 	{{ if (not $is_https) }}
 
-		{{ if eq $upstream_name  "www.callingninja.com" }}
+		{{ if eq $upstream_name  "web.ninja.plusnetwork.cloud" }}
 			server {
 				server_name {{ $host }};
 				listen 80;
 				location / {
-					proxy_pass http://www.callingninja.com;
+					proxy_pass http://web.ninja.plusnetwork.cloud;
 					proxy_redirect  off;
 				}
 			}
 		{{ end }}
 
-		{{ if eq $upstream_name  "api.user.callingninja.com" }}
+		{{ if eq $upstream_name  "api.user.plusnetwork.cloud" }}
 			server {
 				server_name {{ $host }};
 				listen 80;
 				location / {
-					proxy_pass http://api.user.callingninja.com;
+					proxy_pass http://api.user.plusnetwork.cloud;
 					proxy_redirect  off;
 				}
 			}
 		{{ end }}
 
-		{{ if eq $upstream_name  "api.caller.callingninja.com" }}
+		{{ if eq $upstream_name  "api.caller.plusnetwork.cloud" }}
 			server {
 				server_name {{ $host }};
 				listen 80;
 				{{ $access_log }}
 				location / {
-					proxy_pass http://api.caller.callingninja.com;
+					proxy_pass http://api.caller.plusnetwork.cloud;
 					proxy_redirect  off;
 				}
 			}
 		{{ end }}
 
-		{{ if eq $upstream_name  "api.uploader.callingninja.com" }}
+		{{ if eq $upstream_name  "api.uploader.plusnetwork.cloud" }}
 			server {
 				server_name {{ $host }};
 				listen 80;
 				{{ $access_log }}
 				location / {
-					proxy_pass http://api.uploader.callingninja.com;
+					proxy_pass http://api.uploader.plusnetwork.cloud;
 					proxy_redirect  off;
 				}
 			}

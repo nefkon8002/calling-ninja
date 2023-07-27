@@ -8,10 +8,10 @@ export const environment = {
   REST_CORE: 'http://localhost:8082',
   REST_CUSTOMER_SUPPORT: 'http://localhost:8083',
   // REST_FASTAPI: 'https://api.caller.plusnetwork.cloud:8000',
-  // REST_FASTAPI: 'http://api.caller.plusnetwork.cloud:8000',
-  // REST_USER: 'http://api.user.plusnetwork.cloud/:8081',
-  REST_FASTAPI: 'http://api.caller.callingninja.com',
-  REST_USER: 'http://api.user.callingninja.com',
+  REST_FASTAPI: 'http://api.caller.plusnetwork.cloud',
+  REST_USER: 'http://api.user.plusnetwork.cloud',
+  // REST_FASTAPI: 'http://api.caller.callingninja.com',
+  // REST_USER: 'http://api.user.callingninja.com',
   USER_A: '6666660000',
   USER_P: '6'
 
