@@ -50,6 +50,17 @@ origins = [
     f"{init_config.CN_FRONT}",  # Replace with the actual origin of your Angular application
     "http://localhost",
     f"{init_config.CN_USER}",
+    "callingninja.duckdns.org",
+    "callingninja-api-user",
+    "callingninja-ui-web",
+    "duckdns.org",
+    "callingninja.duckdns.org:4200",
+    "http://callingninja.duckdns.org:4200",
+    "http://callingninja.duckdns.org",
+    "callingninja.xyz",
+    "http://callingninja.xyz",
+    "https://callingninja.xyz",
+    "www.callingninja.xyz",
 ]
 ### delete temporary config variables
 del init_config
@@ -278,7 +289,10 @@ async def upload_audio_async(
     current_user=Depends(JWTBearer(["ADMIN", "CUSTOMER", "OPERATOR", "MANAGER"])),
 ):
     try:
-        if magic.from_file(uploaded_audio.filename, mime=True).split("/")[0] == "audio":
+        if (
+            magic.from_buffer(await uploaded_audio.read(), mime=True).split("/")[0]
+            == "audio"
+        ):
             session = asyncboto.Session()
             async with session.client(
                 "s3",
@@ -293,8 +307,8 @@ async def upload_audio_async(
                     + "_"
                     + uploaded_audio.filename
                 )
-                await s3_client.upload_file(
-                    uploaded_audio.filename,
+                await s3_client.upload_fileobj(
+                    uploaded_audio.file,
                     config.AWS_BUCKET_NAME,
                     file_key,
                     ExtraArgs={"ContentType": uploaded_audio.content_type},
@@ -302,7 +316,6 @@ async def upload_audio_async(
                 file_url = (
                     f"https://{config.AWS_BUCKET_NAME}.s3.amazonaws.com/{file_key}"
                 )
-                # request.session["audio_url"] = file_url
                 return {"file_key": file_key, "file_url": file_url}
         else:
             raise HTTPException(
@@ -390,7 +403,11 @@ async def query_audios(
 ):
     session = asyncboto.Session()
     try:
-        async with session.client("s3") as s3_client:
+        async with session.client(
+            "s3",
+            aws_secret_access_key=config.AWS_SECRET_ACCESS_KEY,
+            aws_access_key_id=config.AWS_ACCESS_KEY_ID,
+        ) as s3_client:
             available_audios = await s3_client.list_objects(
                 Bucket=config.AWS_BUCKET_NAME, Prefix=f"public/{current_user['mobile']}"
             )
@@ -599,4 +616,5 @@ async def info(
     config: Annotated[Config, Depends(config_setter)], current_user=auth_all
 ):
     print(current_user)
+    print(origins)
     return {"config": config, "current_user": current_user}
