@@ -227,9 +227,7 @@ upstream {{ $upstream_name }} {
 {{/* Configuracion proxy reverse http */}}		
 	
 	{{ if (not $is_https) }}
-
-		
-	{{ if eq $upstream_name  "www.callingninja.com" }}
+		{{ if eq $upstream_name  "www.callingninja.com" }}
 			server {
 				server_name {{ $host }};
 				listen 80;

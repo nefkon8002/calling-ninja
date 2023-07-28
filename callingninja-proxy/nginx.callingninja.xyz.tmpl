@@ -224,12 +224,12 @@ upstream {{ $upstream_name }} {
 {{ $cert := (coalesce $certName $vhostCert) }}
 
 {{ $is_https := (and (ne $https_method "nohttps") (ne $cert "") (exists (printf "/etc/nginx/certs/%s.crt" $cert)) (exists (printf "/etc/nginx/certs/%s.key" $cert))) }}
+
 {{/* Configuracion proxy reverse http */}}		
 	
 	{{ if (not $is_https) }}
 
-		
-	{{ if eq $upstream_name  "www.callingninja.xyz" }}
+		{{ if eq $upstream_name  "www.callingninja.xyz" }}
 			server {
 				server_name {{ $host }};
 				listen 80;
@@ -304,12 +304,9 @@ upstream {{ $upstream_name }} {
 			}
 		{{ end }}
 
-			server {
-				printf "-----------------------------------web.ninja.plusnetwork.cloud/etc/nginx/vhost.d/%s" $host
-
+		server {
 				server_name {{ $host }};
 				listen {{ $external_https_port }} ssl http2 {{ $default_server }};
-				printf "-----------------------------------web.ninja.plusnetwork.cloud/etc/nginx/vhost.d/%s" $external_https_port
 				{{ if $enable_ipv6 }}
 				listen [::]:{{ $external_https_port }} ssl http2 {{ $default_server }};
 				{{ end }}
@@ -374,100 +371,7 @@ upstream {{ $upstream_name }} {
 					include /etc/nginx/vhost.d/default_location;
 					{{ end }}
 				}
-				
-				
-				##----------------------------------------------------------------
-				# upstream name equal to neftali.plusnetwork.com.mx
-				{{ if eq $upstream_name  "neftali.plusnetwork.com.mx" }}
-				location /static/ {
-						access_log off;
-						expires 1d;
-						root "/app/static/";
-						try_files $uri @backend;
-				}
-				location @backend {
-					proxy_pass https://neftali.plusnetwork.com.mx;
-				}
-				{{ end }}
-				
-				##----------------------------------------------------------------
 
-				##----------------------------------------------------------------
-				# upstream name equal to web.ninja.plusnetwork.cloud
-				{{ if eq $upstream_name  "web.ninja.plusnetwork.cloud/" }}
-				printf "-----------------------------------web.ninja.plusnetwork.cloud/etc/nginx/vhost.d/%s" $host
-				location{   
-					proxy_pass  http://web.ninja.plusnetwork.cloud:10446/;
-				}
-				{{ end }}
-				
-				##----------------------------------------------------------------
-
-				##----------------------------------------------------------------
-				# upstream name equal to api.user.plusnetwork.cloud
-				{{ if eq $upstream_name  "api.user.plusnetwork.cloud" }}
-				location /static/ {
-						access_log off;
-						expires 1d;
-						root "/app/static/";
-						try_files $uri @backend;
-				}
-				location @backend {
-					proxy_pass http://api.user.plusnetwork.cloud:10443;
-				}
-				{{ end }}
-				
-				##----------------------------------------------------------------
-					##----------------------------------------------------------------
-				# upstream name equal to api.caller.plusnetwork.cloud
-				{{ if eq $upstream_name  "api.caller.plusnetwork.cloud" }}
-				location /static/ {
-						access_log off;
-						expires 1d;
-						root "/app/static/";
-						try_files $uri @backend;
-				}
-				location @backend {
-					proxy_pass http://api.caller.plusnetwork.cloud:10447;
-				}
-				{{ end }}
-				
-				##----------------------------------------------------------------
-					##----------------------------------------------------------------
-				# upstream name equal to api.uploader.plusnetwork.cloud
-				{{ if eq $upstream_name  "api.uploader.plusnetwork.cloud" }}
-				location /static/ {
-						access_log off;
-						expires 1d;
-						root "/app/static/";
-						try_files $uri @backend;
-				}
-				location @backend {
-					proxy_pass http://api.uploader.plusnetwork.cloud:10448;
-				}
-				{{ end }}
-				
-				##----------------------------------------------------------------
-
-				# upstream name equal to ada.plusnetwork.com.mx
-				{{ if eq $upstream_name  "ada.plusnetwork.com.mx" }}
-				# location  ~ \.(json) {
-				location /nefkon8002/ {
-						access_log off;
-						expires 1d;
-						root "/app/cardano/metadata.json";
-						try_files $uri @backend;
-				}
-				location @backend {
-					proxy_pass https://ada.plusnetwork.com.mx/nefkon8002/metadata.json;
-				}
-				{{ end }}
-
-
-
-
-			}
-	
 	{{ end }}
 
 	{{ if or (not $is_https) (eq $https_method "noredirect") }}
