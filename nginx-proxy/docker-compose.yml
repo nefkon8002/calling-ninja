@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  nginx-reverse-proxy:
+    build: .
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - reverse-proxy
+    #extra_hosts:
+    #  - "callingninja-ui-web:192.168.2.20"
+    #  - "callingninja-api-user:192.168.2.10"
+    #  - "callingninja-api-fastapi:192.168.2.40"
+networks:
+  reverse-proxy:
+    external: true

@@ -61,6 +61,8 @@ origins = [
     "http://callingninja.xyz",
     "https://callingninja.xyz",
     "www.callingninja.xyz",
+    "https://api.caller.callingninja.xyz",
+    "http://api.caller.callingninja.xyz",
 ]
 ### delete temporary config variables
 del init_config
@@ -293,6 +295,9 @@ async def upload_audio_async(
             magic.from_buffer(await uploaded_audio.read(), mime=True).split("/")[0]
             == "audio"
         ):
+            # Reset the file cursor to the beginning
+            uploaded_audio.file.seek(0)
+
             session = asyncboto.Session()
             async with session.client(
                 "s3",
@@ -519,6 +524,8 @@ async def call_manual(
 
     # create TwiML string
     twiml = f"<Response><Play>{call_request.audio_url}</Play></Response>"
+    print(call_request.audio_url)
+    print(twiml)
     # send call request to twilio api
     client.calls.create(
         method="GET",

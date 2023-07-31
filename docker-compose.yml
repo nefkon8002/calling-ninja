@@ -1,10 +1,9 @@
 ## <!-- Designed by Neftali Ramirez Chavez Junio 2023 nefkon80@gmail.com -->
-version: '3'
+version: "3"
 services:
-           
   callingninja-mysqldb:
     image: mysql:5.7
-    # build: 
+    # build:
     #   context: ./mysql/
     #   network: host
     container_name: callingninja-mysqldb
@@ -23,9 +22,9 @@ services:
     expose:
       - "3306"
     networks:
-      back :
+      back:
         ipv4_address: "192.168.2.1"
-      reverse-proxy: 
+      reverse-proxy:
 
   callingninja-api-user:
     build:
@@ -34,8 +33,8 @@ services:
       dockerfile: Dockerfile
     container_name: callingninja-api-user
     ports:
-      - "8081:8081"  
-      - "10443:8081"  
+      - "8081:8081"
+      #- "10443:8081"
     environment:
       - NODE_ENV=${NODE_ENV}
       - MONGODB_URL_CONNECTION=${MONGODB_URL_CONNECTION}
@@ -61,16 +60,21 @@ services:
     # depends_on:
     #   - callingninja-mysqldb
     #   - callingninja-mongodb
-      
-    command: ["/wait-for-it.sh  callingninja-mongodb:27017 --timeout=30", "--", "/start-api-user.sh"]
+
+    command:
+      [
+        "/wait-for-it.sh  callingninja-mongodb:27017 --timeout=30",
+        "--",
+        "/start-api-user.sh",
+      ]
     volumes:
       - ./callingninja-api-user/src:/usr/src/app/deployment/callingninja-api-user/src
       - ~/.m2/:/root/.m2/
     networks:
-      back :
+      back:
         ipv4_address: "192.168.2.10"
-      reverse-proxy:  
-  
+      reverse-proxy:
+
   callingninja-ui-web:
     build:
       context: ./callingninja-ui-web
@@ -78,10 +82,10 @@ services:
       dockerfile: Dockerfile
     container_name: callingninja-ui-web
     ports:
-      - "8080:8080"  
-      - "10446:4200" 
-      - "4200:4200"  
-      # - "10446:4200"  
+      - "8080:8080"
+      #- "10446:4200"
+      - "4200:4200"
+      # - "10446:4200"
     environment:
       - NODE_ENV=${NODE_ENV}
       - MONGODB_URL_CONNECTION=${MONGODB_URL_CONNECTION}
@@ -106,14 +110,19 @@ services:
       # - LETSENCRYPT_HOST=web.ninja.plusnetwork.cloud
       # - LETSENCRYPT_EMAIL=nefkon@gmail.com
 
-    command: ["/wait-for-it.sh  callingninja-mongodb:27017 --timeout=30", "--", "/start-ui-web.sh"]
+    command:
+      [
+        "/wait-for-it.sh  callingninja-mongodb:27017 --timeout=30",
+        "--",
+        "/start-ui-web.sh",
+      ]
     volumes:
       - ./callingninja-ui-web/src:/usr/src/app/deployment/callingninja-ui-web/src
     networks:
-      back :
+      back:
         ipv4_address: "192.168.2.20"
       reverse-proxy:
-  
+
   # callingninja-api-multifile-uploader:
   #   build:
   #     context: ./callingninja-api-multifile-uploader
@@ -121,8 +130,8 @@ services:
   #     dockerfile: Dockerfile
   #   container_name: callingninja-api-multifile-uploader
   #   ports:
-  #     - "1234:1234"  
-  #     - "10448:1234"    
+  #     - "1234:1234"
+  #     - "10448:1234"
   #   environment:
   #     - NODE_ENV=${NODE_ENV}
   #     - MONGODB_URL_CONNECTION=${MONGODB_URL_CONNECTION}
@@ -147,67 +156,82 @@ services:
   #   networks:
   #     back :
   #       ipv4_address: "192.168.2.30"
-  #     reverse-proxy:  
+  #     reverse-proxy:
 
-  # callingninja-api-fastapi:
-  #   build:
-  #     context: ./callingninja-api-fastapi
-  #     network: host
-  #     dockerfile: Dockerfile
-  #   container_name: callingninja-api-fastapi
-  #   ports:
-  #     - "8000:8000"
-  #     - "10447:8000"    
-  #   environment:
-  #     - NODE_ENV=${NODE_ENV}
-  #     - MONGODB_URL_CONNECTION=${MONGODB_URL_CONNECTION}
-  #     - MONGO_EXECUTION_COLLECTION_NAME=${MONGO_EXECUTION_COLLECTION_NAME}
-  #     - MONGO_TASK_COLLECTION_NAME=${MONGO_TASK_COLLECTION_NAME}
-  #     - MONGO_TASK_DB_NAME=${MONGO_TASK_DB_NAME}
-  #     - KAFKA_TOPIC_NAME=${KAFKA_TOPIC_NAME_WORKER_02}
-  #     - KAFKA_CONSUMER_GROUP_ID=${KAFKA_WORKER_02_GROUP_ID}
-  #     - KAFKA_HOST=${KAFKA_HOST}
-  #     - KAFKA_TOPIC_NAME_WORKER_02=${KAFKA_TOPIC_NAME_WORKER_02}
-  #     - KAFKA_TOPIC_NAME_WORKER_03=${KAFKA_TOPIC_NAME_WORKER_03}
-  #     - KAFKA_TOPIC_NAME_WORKER_04=${KAFKA_TOPIC_NAME_WORKER_04}
-  #     - VIRTUAL_PORT=10447
-  #     - VIRTUAL_PROTO=https
-  #     #- HTTPS_METHOD=noredirect
-  #     # - VIRTUAL_HOST=api.caller.plusnetwork.cloud
-  #     #- VIRTUAL_HOST=api.caller.callingninja.com
-  #     - VIRTUAL_HOST=api.caller.callingninja.xyz
-  #     # - LETSENCRYPT_HOST=api.caller.plusnetwork.cloud
-  #     # - LETSENCRYPT_EMAIL=nefkon@gmail.com
+  callingninja-api-fastapi:
+    build:
+      context: ./callingninja-api-fastapi
+      network: host
+      dockerfile: Dockerfile
+    container_name: callingninja-api-fastapi
+    ports:
+      - "8000:8000"
+      #- "10447:8000"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - MONGODB_URL_CONNECTION=${MONGODB_URL_CONNECTION}
+      - MONGO_EXECUTION_COLLECTION_NAME=${MONGO_EXECUTION_COLLECTION_NAME}
+      - MONGO_TASK_COLLECTION_NAME=${MONGO_TASK_COLLECTION_NAME}
+      - MONGO_TASK_DB_NAME=${MONGO_TASK_DB_NAME}
+      - KAFKA_TOPIC_NAME=${KAFKA_TOPIC_NAME_WORKER_02}
+      - KAFKA_CONSUMER_GROUP_ID=${KAFKA_WORKER_02_GROUP_ID}
+      - KAFKA_HOST=${KAFKA_HOST}
+      - KAFKA_TOPIC_NAME_WORKER_02=${KAFKA_TOPIC_NAME_WORKER_02}
+      - KAFKA_TOPIC_NAME_WORKER_03=${KAFKA_TOPIC_NAME_WORKER_03}
+      - KAFKA_TOPIC_NAME_WORKER_04=${KAFKA_TOPIC_NAME_WORKER_04}
+      - VIRTUAL_PORT=10447
+      - VIRTUAL_PROTO=https
+      #- HTTPS_METHOD=noredirect
+      # - VIRTUAL_HOST=api.caller.plusnetwork.cloud
+      #- VIRTUAL_HOST=api.caller.callingninja.com
+      - VIRTUAL_HOST=api.caller.callingninja.xyz
+      # - LETSENCRYPT_HOST=api.caller.plusnetwork.cloud
+      # - LETSENCRYPT_EMAIL=nefkon@gmail.com
 
-  #   command: ["/wait-for-it.sh  callingninja-mongodb:27017 --timeout=30", "--", "/start-api-fastapi.sh"]
-  #   volumes:
-  #     - ./callingninja-api-fastapi:/usr/src/app/deployment/callingninja-api-fastapi
-  #   networks:
-  #     back :
-  #       ipv4_address: "192.168.2.40"
-  #     reverse-proxy:  
-  
+    command:
+      [
+        "/wait-for-it.sh  callingninja-mongodb:27017 --timeout=30",
+        "--",
+        "/start-api-fastapi.sh",
+      ]
+    volumes:
+      - ./callingninja-api-fastapi:/usr/src/app/deployment/callingninja-api-fastapi
+    networks:
+      back:
+        ipv4_address: "192.168.2.40"
+      reverse-proxy:
+
+  nginx-reverse-proxy:
+    build:
+      context: ./nginx-proxy
+      network: host
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - reverse-proxy
+    #extra_hosts:
+    #  - "callingninja-ui-web:192.168.2.20"
+    #  - "callingninja-api-user:192.168.2.10"
+    #  - "callingninja-api-fastapi:192.168.2.40"
+
 volumes:
-    mysql_data:
-    postgres_data:
-    postgres:
-    mongo_data:
+  mysql_data:
+  postgres_data:
+  postgres:
+  mongo_data:
 
 networks:
-    reverse-proxy:
-      external:
-        name: reverse-proxy
-    back:
-      driver: bridge 
-      ipam:
-        driver: default
-        config:
-          - subnet: "192.168.0.0/16" 
-   
-
-  
-
-
+  reverse-proxy:
+    external:
+      name: reverse-proxy
+  back:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: "192.168.0.0/16"
 
   # zero-postgres:
   #   image: postgres:15.3-alpine
@@ -224,7 +248,6 @@ networks:
   #   networks:
   #     back :
   #       ipv4_address: "193.24.2.34"
-     
 
   # callingninja-mongodb:
   #   # image: mongo:3.4
@@ -243,11 +266,9 @@ networks:
   #     - ./mongo/init-mongo.js:/docker-entrypoint-initdb.d/inzeroit-mongo.js:ro ##ro:readonly
   #     - mongo_data:/var/lib/mongo
   #   networks:
-  #      back : 
-  #         ipv4_address: "192.168.2.2" 
+  #      back :
+  #         ipv4_address: "192.168.2.2"
   #      reverse-proxy:
-
-
 
   # sms-api-task:
   #   build:
@@ -256,7 +277,7 @@ networks:
   #     dockerfile: Dockerfile-dev
   #   container_name: sms-api-task
   #   ports:
-  #     - "8096:8096"  
+  #     - "8096:8096"
   #   environment:
   #     - DB_HOST=${DB_HOST}
   #     - DB_VERS=${DB_VERS}
@@ -272,7 +293,7 @@ networks:
   #     # - DATABASE_URL=${DATABASE_URL}
   #     - DB_CFG=${DB_CFG}
   #     - USER_CFG=${USER_CFG}
-  #     - PASS_CFG=${PASS_CFG} 
+  #     - PASS_CFG=${PASS_CFG}
   #     - HOST_CFG=${HOST_CFG}
   #     - DIALECT_CFG=${DIALECT_CFG}
   #     - JWT_SECRET_KEY=${JWT_SECRET_KEY}
@@ -280,7 +301,7 @@ networks:
   #     - REDIS_URL=${REDIS_URL}
   #     - CLOUDAMQP_URL=${CLOUDAMQP_URL}
   #     - NODE_ENV=${NODE_ENV}
-      
+
   #     - MONGODB_URL_CONNECTION=${MONGODB_URL_CONNECTION}
   #     - MONGO_EXECUTION_COLLECTION_NAME=${MONGO_EXECUTION_COLLECTION_NAME}
   #     - MONGO_TASK_COLLECTION_NAME=${MONGO_TASK_COLLECTION_NAME}
@@ -290,9 +311,8 @@ networks:
   #     - KAFKA_HOST=${KAFKA_HOST}
   #     - KAFKA_TOPIC_NAME_WORKER_04=${KAFKA_TOPIC_NAME_WORKER_04}
 
-    
   #   command: ["/wait-for-it.sh mongodb:27017--timeout=70", "--", "/start-sms-api-task.sh"]
-  
+
   #   volumes:
   #     - ./sms-api-task/src:/usr/src/app/sms-api-task/src
   #     - ./sms-api-task/src/public/views:/usr/src/app/sms-api-task/dist/public/views
@@ -303,8 +323,7 @@ networks:
   #   networks:
   #     back :
   #       ipv4_address: "172.24.2.30"
-  #     reverse-proxy:  
-
+  #     reverse-proxy:
 
   # kafka-worker-01:
   #   build:
@@ -313,7 +332,7 @@ networks:
   #     dockerfile: Dockerfile-worker-01
   #   container_name: kafka-worker-01
   #   ports:
-  #     - "8088:8084"  
+  #     - "8088:8084"
   #   environment:
   #     - DB_HOST=${DB_HOST}
   #     - DB_VERS=${DB_VERS}
@@ -327,7 +346,7 @@ networks:
   #     - OPEN_CAGE_DATA_KEY=${OPEN_CAGE_DATA_KEY}
   #     - DB_CFG=${DB_CFG}
   #     - USER_CFG=${USER_CFG}
-  #     - PASS_CFG=${PASS_CFG} 
+  #     - PASS_CFG=${PASS_CFG}
   #     - HOST_CFG=${HOST_CFG}
   #     - DIALECT_CFG=${DIALECT_CFG}
   #     - JWT_SECRET_KEY=${JWT_SECRET_KEY}
@@ -345,7 +364,7 @@ networks:
   #   command: ["/wait-for-it.sh  mongodb:27017 --timeout=30", "--", "/start-kafka-worker.sh"]
   #   # command: ["/wait-for-it.sh  schema-registry:8081 --timeout=80", "--", "/start-kafka-workers.sh"]
   #   # command: ["/wait-for-it.sh  kafka-manager:9000 --timeout=80", "--", "/start-kafka-workers.sh"]
-  
+
   #   volumes:
   #     - ./kafka-workers/src:/usr/src/app/kafka-workers/src/
   #   networks:
@@ -359,7 +378,7 @@ networks:
   #     dockerfile: Dockerfile-worker-02
   #   container_name: kafka-worker-02
   #   ports:
-  #     - "8089:8084"  
+  #     - "8089:8084"
   #   environment:
   #     - NODE_ENV=${NODE_ENV}
   #     - MONGODB_URL_CONNECTION=${MONGODB_URL_CONNECTION}
@@ -374,7 +393,7 @@ networks:
   #     # const { DB_CFG, USER_CFG, PASS_CFG, HOST_CFG} = process.env;
   #     - DB_CFG=${DB_CFG}
   #     - USER_CFG=${USER_CFG}
-  #     - PASS_CFG=${PASS_CFG} 
+  #     - PASS_CFG=${PASS_CFG}
   #     - HOST_CFG=${HOST_CFG}
   #     # - DIALECT_CFG=${DIALECT_CFG}
   #     # - JWT_SECRET_KEY=${JWT_SECRET_KEY}
@@ -392,7 +411,7 @@ networks:
   #   command: ["/wait-for-it.sh  mongodb:27017 --timeout=30", "--", "/start-kafka-worker-02.sh"]
   #   # command: ["/wait-for-it.sh  schema-registry:8081 --timeout=80", "--", "/start-kafka-workers.sh"]
   #   # command: ["/wait-for-it.sh  kafka-manager:9000 --timeout=80", "--", "/start-kafka-workers.sh"]
-  
+
   #   volumes:
   #     - ./kafka-workers/src:/usr/src/app/kafka-workers/src/
   #   networks:
@@ -406,7 +425,7 @@ networks:
   #     dockerfile: Dockerfile-worker-03
   #   container_name: kafka-worker-03
   #   ports:
-  #     - "8090:8084"  
+  #     - "8090:8084"
   #   environment:
   #     - NODE_ENV=${NODE_ENV}
   #     - MONGODB_URL_CONNECTION=${MONGODB_URL_CONNECTION}
@@ -420,7 +439,7 @@ networks:
   #     - KAFKA_TOPIC_NAME_WORKER_04=${KAFKA_TOPIC_NAME_WORKER_04}
   #     - DB_CFG=${DB_CFG}
   #     - USER_CFG=${USER_CFG}
-  #     - PASS_CFG=${PASS_CFG} 
+  #     - PASS_CFG=${PASS_CFG}
   #     - HOST_CFG=${HOST_CFG}
   #   depends_on:
   #   #   - zookeeper
@@ -434,7 +453,7 @@ networks:
   #   command: ["/wait-for-it.sh  mongodb:27017 --timeout=30", "--", "/start-kafka-worker-03.sh"]
   #   # command: ["/wait-for-it.sh  schema-registry:8081 --timeout=80", "--", "/start-kafka-workers.sh"]
   #   # command: ["/wait-for-it.sh  kafka-manager:9000 --timeout=80", "--", "/start-kafka-workers.sh"]
-  
+
   #   volumes:
   #     - ./kafka-workers/src:/usr/src/app/kafka-workers/src/
   #   networks:
@@ -448,7 +467,7 @@ networks:
   #     dockerfile: Dockerfile-worker-04
   #   container_name: kafka-worker-04
   #   ports:
-  #     - "8091:8084"  
+  #     - "8091:8084"
   #   environment:
   #     - NODE_ENV=${NODE_ENV}
   #     - MONGODB_URL_CONNECTION=${MONGODB_URL_CONNECTION}
@@ -461,7 +480,7 @@ networks:
   #     - KAFKA_TOPIC_NAME_WORKER_04=${KAFKA_TOPIC_NAME_WORKER_04}
   #     - DB_CFG=${DB_CFG}
   #     - USER_CFG=${USER_CFG}
-  #     - PASS_CFG=${PASS_CFG} 
+  #     - PASS_CFG=${PASS_CFG}
   #     - HOST_CFG=${HOST_CFG}
   #   depends_on:
   #   #   - zookeeper
@@ -475,7 +494,7 @@ networks:
   #   command: ["/wait-for-it.sh  mongodb:27017 --timeout=30", "--", "/start-kafka-worker-04.sh"]
   #   # command: ["/wait-for-it.sh  schema-registry:8081 --timeout=80", "--", "/start-kafka-workers.sh"]
   #   # command: ["/wait-for-it.sh  kafka-manager:9000 --timeout=80", "--", "/start-kafka-workers.sh"]
-  
+
   #   volumes:
   #     - ./kafka-workers/src:/usr/src/app/kafka-workers/src/
   #   networks:
@@ -489,7 +508,7 @@ networks:
   #     dockerfile: Dockerfile-server-01
   #   container_name: kafka-server-01
   #   ports:
-  #     - "${PORT_TASK_SERVER}:8084"  
+  #     - "${PORT_TASK_SERVER}:8084"
   #   environment:
   #     - DB_HOST=${DB_HOST}
   #     - DB_VERS=${DB_VERS}
@@ -504,7 +523,7 @@ networks:
   #     - OPEN_CAGE_DATA_KEY=${OPEN_CAGE_DATA_KEY}
   #     - DB_CFG=${DB_CFG}
   #     - USER_CFG=${USER_CFG}
-  #     - PASS_CFG=${PASS_CFG} 
+  #     - PASS_CFG=${PASS_CFG}
   #     - HOST_CFG=${HOST_CFG}# get https://proxy.golang.org/golang.org/x/@v/v0.12.0-pre.1.info: 404 Not Found (0.454s)
 
   #     - DIALECT_CFG=${DIALECT_CFG}
@@ -524,7 +543,7 @@ networks:
   #   command: ["/wait-for-it.sh  mongodb:27017 --timeout=30", "--", "/start-kafka-server.sh"]
   #   # command: ["/wait-for-it.sh  schema-registry:8081 --timeout=80", "--", "/start-kafka-workers.sh"]
   #   # command: ["/wait-for-it.sh  kafka-manager:9000 --timeout=80", "--", "/start-kafka-workers.sh"]
-  
+
   #   volumes:
   #     - ./kafka-workers/src:/usr/src/app/kafka-workers/src/
   #     - ./kafka-workers/src/public/views:/usr/src/app/kafka-workers/out/public/views
@@ -532,7 +551,7 @@ networks:
   #   networks:
   #     back :
   #       ipv4_address: "172.24.2.17"
-  
+
   # sms-consumer:
   #   build:
   #     context: ./sms-consumer
@@ -540,7 +559,7 @@ networks:
   #     dockerfile: Dockerfile-dev
   #   container_name: sms-consumer
   #   ports:
-  #     - "8086:8086"  
+  #     - "8086:8086"
   #   environment:
   #     - DB_HOST=${DB_HOST}
   #     - DB_VERS=${DB_VERS}
@@ -556,16 +575,16 @@ networks:
   #     # - DATABASE_URL=${DATABASE_URL}
   #     - DB_CFG=${DB_CFG}
   #     - USER_CFG=${USER_CFG}
-  #     - PASS_CFG=${PASS_CFG} 
+  #     - PASS_CFG=${PASS_CFG}
   #     - HOST_CFG=${HOST_CFG}
   #     - DIALECT_CFG=${DIALECT_CFG}
   #     - JWT_SECRET_KEY=${JWT_SECRET_KEY}
 
   #     - REDIS_URL=${REDIS_URL}
   #     - CLOUDAMQP_URL=${CLOUDAMQP_URL}
-    
+
   #   command: ["/wait-for-it.sh redisdb:6379 --timeout=70", "--", "/start-sms-consumer.sh"]
-  
+
   #   volumes:
   #     - ./sms-consumer/src:/usr/src/app/sms-consumer/src
   #     - ./sms-consumer/src/public/views:/usr/src/app/sms-consumer/dist/public/views
@@ -578,8 +597,6 @@ networks:
   #     back :
   #       ipv4_address: "172.24.2.10"
 
-
-        
   # sms-report:
   #   build:
   #     context: ./sms-report
@@ -587,7 +604,7 @@ networks:
   #     dockerfile: Dockerfile-dev
   #   container_name: sms-report
   #   ports:
-  #     - "8082:8082"  
+  #     - "8082:8082"
   #   environment:
   #     - DB_HOST=${DB_HOST}
   #     - DB_VERS=${DB_VERS}
@@ -603,16 +620,16 @@ networks:
   #     # - DATABASE_URL=${DATABASE_URL}
   #     - DB_CFG=${DB_CFG}
   #     - USER_CFG=${USER_CFG}
-  #     - PASS_CFG=${PASS_CFG} 
+  #     - PASS_CFG=${PASS_CFG}
   #     - HOST_CFG=${HOST_CFG}
   #     - DIALECT_CFG=${DIALECT_CFG}
   #     - JWT_SECRET_KEY=${JWT_SECRET_KEY}
 
   #     - REDIS_URL=${REDIS_URL}
   #     - CLOUDAMQP_URL=${CLOUDAMQP_URL}
-    
+
   #   command: ["/wait-for-it.sh redisdb:6379 --timeout=70", "--", "/start-sms-report.sh"]
-  
+
   #   volumes:
   #     - ./sms-report/src:/usr/src/app/sms-report/src
   #     - ./sms-report/src/public/views:/usr/src/app/sms-report/dist/public/views
@@ -624,7 +641,7 @@ networks:
   #     back :
   #       ipv4_address: "172.24.2.8"
 
-   # Kafka Stack
+  # Kafka Stack
   # zookeeper:
   #   # image: confluentinc/cp-zookeeper:5.0.0
   #   # image: confluentinc/cp-zookeeper:5.4.0
@@ -678,7 +695,7 @@ networks:
   #   # image: confluentinc/cp-kafka:5.0.0
   #   # image: confluentinc/cp-enterprise-kafka:5.4.0
   #   image: confluentinc/cp-enterprise-kafka:6.1.8
-    
+
   #   container_name: kafka03
   #   depends_on:
   #     - zookeeper
@@ -823,15 +840,14 @@ networks:
 
   # redisdb:
   #   image: redis:alpine
-  #   command: ["$REDIS_COMMAND"] 
+  #   command: ["$REDIS_COMMAND"]
   #   volumes:
   #    - redis_data:/var/lib/redis
   #   ports:
   #     - "6379:6379"
   #   networks:
   #      back :
-  #         ipv4_address: "172.24.2.20"   
-
+  #         ipv4_address: "172.24.2.20"
 
   # rabbitmq:
   #   image: rabbitmq:3.11.3-management-alpine
@@ -851,8 +867,4 @@ networks:
   #       # - ./rabbitmq/rabbitmq.config:/etc/rabbitmq/rabbitmq.config
   #   networks:
   #       back :
-  #         ipv4_address: "172.24.2.9"   
-
-  
-
- 
+  #         ipv4_address: "172.24.2.9"
