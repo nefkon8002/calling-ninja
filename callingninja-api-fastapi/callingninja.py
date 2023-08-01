@@ -49,11 +49,11 @@ init_config = get_config()
 origins = [
     f"{init_config.CN_FRONT}",  # Replace with the actual origin of your Angular application
     "http://localhost",
+    "http://localhost:4200",
     f"{init_config.CN_USER}",
     "callingninja.duckdns.org",
     "callingninja-api-user",
     "callingninja-ui-web",
-    "duckdns.org",
     "callingninja.duckdns.org:4200",
     "http://callingninja.duckdns.org:4200",
     "http://callingninja.duckdns.org",
@@ -61,6 +61,8 @@ origins = [
     "http://callingninja.xyz",
     "https://callingninja.xyz",
     "www.callingninja.xyz",
+    "https://api.caller.callingninja.xyz",
+    "http://api.caller.callingninja.xyz",
 ]
 ### delete temporary config variables
 del init_config
@@ -293,6 +295,9 @@ async def upload_audio_async(
             magic.from_buffer(await uploaded_audio.read(), mime=True).split("/")[0]
             == "audio"
         ):
+            # Reset the file cursor to the beginning
+            uploaded_audio.file.seek(0)
+
             session = asyncboto.Session()
             async with session.client(
                 "s3",
@@ -519,6 +524,8 @@ async def call_manual(
 
     # create TwiML string
     twiml = f"<Response><Play>{call_request.audio_url}</Play></Response>"
+    print(call_request.audio_url)
+    print(twiml)
     # send call request to twilio api
     client.calls.create(
         method="GET",

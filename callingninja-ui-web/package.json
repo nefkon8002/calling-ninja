@@ -5,7 +5,8 @@
     "heroku-postbuild": "ng build --prod",
     "build-prod": "ng build",
     "start": "node server.js",
-    "start.dev": "ng serve --ssl --host=0.0.0.0 --configuration=development --disableHostCheck=true",
+    "start.dev": "ng serve --host=0.0.0.0 --configuration=development --disableHostCheck=true",
+    "start.prod": "ng serve --ssl --host=0.0.0.0 --configuration=production",
     "start.build.dev": "ng build --configuration=development",
     "start.build.prod": "ng build --configuration=production"
   },

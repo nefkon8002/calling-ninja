@@ -5,6 +5,8 @@ WORKDIR /usr/src/app/deployment/callingninja-api-fastapi
 COPY . ./
 COPY start-api-fastapi.sh /start-api-fastapi.sh
 COPY wait-for-it.sh /wait-for-it.sh
+RUN apt-get update && \
+    apt-get install -y libmagic1
 RUN chmod +x /start-api-fastapi.sh
 RUN chmod +x /wait-for-it.sh
 RUN pip install --no-cache-dir --upgrade -r /usr/src/app/deployment/callingninja-api-fastapi/requirements.txt

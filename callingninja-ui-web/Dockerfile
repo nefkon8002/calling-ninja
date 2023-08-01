@@ -10,5 +10,5 @@ RUN chmod +x /wait-for-it.sh
 RUN npm install -g @angular/cli@13.2.6 --save
 RUN npm install
 EXPOSE 8080
-# EXPOSE 4200
+EXPOSE 4200
 ENTRYPOINT ["/wait-for-it.sh"]

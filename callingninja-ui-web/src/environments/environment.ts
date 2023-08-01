@@ -13,25 +13,17 @@ export const environment = {
   //REST_USER: 'https://api.user.plusnetwork.cloud:8088',
   REST_CORE: 'http://localhost:8082',
   REST_CUSTOMER_SUPPORT: 'http://localhost:8083',
-  // REST_FASTAPI: 'http://callingninja-api-fastapi:8000',
-  // REST_USER: 'http://callingninja-api-user:8081',
+  REST_FASTAPI: 'http://localhost:8000',
+  REST_USER: 'http://localhost:8081',
 
   // REST_FASTAPI: 'http://api.caller.plusnetwork.cloud',
   // REST_USER: 'http://api.user.plusnetwork.cloud',
-
-  REST_FASTAPI: 'https://api.caller.callingninja.xyz',
-  REST_USER: 'https://api.user.callingninja.xyz',
-
-  // REST_FASTAPI: 'https://api.caller.callingninja.xyz:8000',
-  // REST_USER: 'https://api.user.callingninja.xyz:8081',
-
-  // REST_FASTAPI: 'http://api.caller.callingninja.xyz',
-  // REST_USER: 'http://api.user.callingninja.xyz',
-
+  //REST_FASTAPI: 'http://api.caller.callingninja.xyz',
+  //REST_USER: 'http://api.user.callingninja.xyz',
   // REST_FASTAPI: 'http://api.caller.callingninja.com',
   // REST_USER: 'http://api.user.callingninja.com',
 
-  USER_A: '6666660000',
+  USER_A: '6',
   USER_P: '6'
 
 };
