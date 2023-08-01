@@ -49,11 +49,11 @@ init_config = get_config()
 origins = [
     f"{init_config.CN_FRONT}",  # Replace with the actual origin of your Angular application
     "http://localhost",
+    "http://localhost:4200",
     f"{init_config.CN_USER}",
     "callingninja.duckdns.org",
     "callingninja-api-user",
     "callingninja-ui-web",
-    "duckdns.org",
     "callingninja.duckdns.org:4200",
     "http://callingninja.duckdns.org:4200",
     "http://callingninja.duckdns.org",

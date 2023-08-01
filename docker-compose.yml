@@ -2,6 +2,7 @@
 version: "3"
 services:
   callingninja-mysqldb:
+    platform: linux/x86_64
     image: mysql:5.7
     # build:
     #   context: ./mysql/
@@ -19,6 +20,8 @@ services:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     ports:
       - 3306:3306
+    dns:
+      - 8.8.8.8
     expose:
       - "3306"
     networks:
@@ -34,7 +37,9 @@ services:
     container_name: callingninja-api-user
     ports:
       - "8081:8081"
-      #- "10443:8081"
+      - "10443:8081"
+    dns:
+      - 8.8.8.8
     environment:
       - NODE_ENV=${NODE_ENV}
       - MONGODB_URL_CONNECTION=${MONGODB_URL_CONNECTION}
@@ -85,7 +90,9 @@ services:
       - "8080:8080"
       #- "10446:4200"
       - "4200:4200"
-      # - "10446:4200"
+      - "10446:4200"
+    dns:
+      - 8.8.8.8
     environment:
       - NODE_ENV=${NODE_ENV}
       - MONGODB_URL_CONNECTION=${MONGODB_URL_CONNECTION}
@@ -123,45 +130,45 @@ services:
         ipv4_address: "192.168.2.20"
       reverse-proxy:
 
-  callingninja-api-multifile-uploader:
-    build:
-      context: ./callingninja-api-multifile-uploader
-      network: host
-      dockerfile: Dockerfile
-    container_name: callingninja-api-multifile-uploader
-    ports:
-      - "1234:1234"
-      - "10448:1234"
-    environment:
-      - NODE_ENV=${NODE_ENV}
-      - MONGODB_URL_CONNECTION=${MONGODB_URL_CONNECTION}
-      - MONGO_EXECUTION_COLLECTION_NAME=${MONGO_EXECUTION_COLLECTION_NAME}
-      - MONGO_TASK_COLLECTION_NAME=${MONGO_TASK_COLLECTION_NAME}
-      - MONGO_TASK_DB_NAME=${MONGO_TASK_DB_NAME}
-      - KAFKA_TOPIC_NAME=${KAFKA_TOPIC_NAME_WORKER_02}
-      - KAFKA_CONSUMER_GROUP_ID=${KAFKA_WORKER_02_GROUP_ID}
-      - KAFKA_HOST=${KAFKA_HOST}
-      - KAFKA_TOPIC_NAME_WORKER_02=${KAFKA_TOPIC_NAME_WORKER_02}
-      - KAFKA_TOPIC_NAME_WORKER_03=${KAFKA_TOPIC_NAME_WORKER_03}
-      - KAFKA_TOPIC_NAME_WORKER_04=${KAFKA_TOPIC_NAME_WORKER_04}
-      # - VIRTUAL_HOST=api.uploader.callingninja.com
-      # - VIRTUAL_HOST=api.uploader.plusnetwork.cloud
-      - HTTPS_METHOD=noredirect
-      - VIRTUAL_PROTO=https
-      - VIRTUAL_HOST=api.uploader.callingninja.xyz
-      - VIRTUAL_PORT=10448
-    command:
-      [
-        "/wait-for-it.sh  callingninja-mongodb:27017 --timeout=30",
-        "--",
-        "/start-api-multifile-uploader.sh",
-      ]
-    volumes:
-      - ./callingninja-api-multifile-uploader:/usr/src/app/deployment/callingninja-api-multifile-uploader
-    networks:
-      back:
-        ipv4_address: "192.168.2.30"
-      reverse-proxy:
+  # callingninja-api-multifile-uploader:
+  #   build:
+  #     context: ./callingninja-api-multifile-uploader
+  #     network: host
+  #     dockerfile: Dockerfile
+  #   container_name: callingninja-api-multifile-uploader
+  #   ports:
+  #     - "1234:1234"
+  #     - "10448:1234"
+  #   environment:
+  #     - NODE_ENV=${NODE_ENV}
+  #     - MONGODB_URL_CONNECTION=${MONGODB_URL_CONNECTION}
+  #     - MONGO_EXECUTION_COLLECTION_NAME=${MONGO_EXECUTION_COLLECTION_NAME}
+  #     - MONGO_TASK_COLLECTION_NAME=${MONGO_TASK_COLLECTION_NAME}
+  #     - MONGO_TASK_DB_NAME=${MONGO_TASK_DB_NAME}
+  #     - KAFKA_TOPIC_NAME=${KAFKA_TOPIC_NAME_WORKER_02}
+  #     - KAFKA_CONSUMER_GROUP_ID=${KAFKA_WORKER_02_GROUP_ID}
+  #     - KAFKA_HOST=${KAFKA_HOST}
+  #     - KAFKA_TOPIC_NAME_WORKER_02=${KAFKA_TOPIC_NAME_WORKER_02}
+  #     - KAFKA_TOPIC_NAME_WORKER_03=${KAFKA_TOPIC_NAME_WORKER_03}
+  #     - KAFKA_TOPIC_NAME_WORKER_04=${KAFKA_TOPIC_NAME_WORKER_04}
+  #     # - VIRTUAL_HOST=api.uploader.callingninja.com
+  #     # - VIRTUAL_HOST=api.uploader.plusnetwork.cloud
+  #     - HTTPS_METHOD=noredirect
+  #     - VIRTUAL_PROTO=https
+  #     - VIRTUAL_HOST=api.uploader.callingninja.xyz
+  #     - VIRTUAL_PORT=10448
+  #   command:
+  #     [
+  #       "/wait-for-it.sh  callingninja-mongodb:27017 --timeout=30",
+  #       "--",
+  #       "/start-api-multifile-uploader.sh",
+  #     ]
+  #   volumes:
+  #     - ./callingninja-api-multifile-uploader:/usr/src/app/deployment/callingninja-api-multifile-uploader
+  #   networks:
+  #     back:
+  #       ipv4_address: "192.168.2.30"
+  #     reverse-proxy:
 
   callingninja-api-fastapi:
     build:
@@ -171,7 +178,7 @@ services:
     container_name: callingninja-api-fastapi
     ports:
       - "8000:8000"
-      #- "10447:8000"
+      - "10447:8000"
     environment:
       - NODE_ENV=${NODE_ENV}
       - MONGODB_URL_CONNECTION=${MONGODB_URL_CONNECTION}
@@ -214,6 +221,8 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    dns:
+      - 8.8.8.8
     networks:
       - reverse-proxy
     #extra_hosts:
