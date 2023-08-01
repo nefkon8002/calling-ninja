@@ -26,7 +26,7 @@ public class UserSeederDev {
         this.databaseStarting = databaseStarting;
         // this.customerPointsRepository = customerPointsRepository;
         // Al momento del arranque no realiza nada 
-        //this.deleteAllAndInitializeAndSeedDataBase();
+        //this.deleteAllAndInitializeAndSeedDataBase(); 
         LogManager.getLogger(this.getClass()).warn("------- API USER LOADED ----------");
     }
 
