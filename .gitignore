@@ -9,3 +9,5 @@ uploads/
 nginx-proxy/dist/
 *.crt
 *.key
+callingninja-mq-rabbitmq/mnesia/
+callingninja-mq-rabbitmq/.erlang.cookie
