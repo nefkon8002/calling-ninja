@@ -35,3 +35,10 @@ def get_config():
         return ProductionConfig()
     else:
         return DevelopmentConfig()
+
+
+# pydantic settings instance from src/config.py
+@lru_cache()  # creates the config var on startup only. hot-reloading does not reload this variable! to turn this off comment this line and the same one in src/config.py
+def config_setter():
+    config = get_config()
+    return config
