@@ -35,14 +35,14 @@ export class InitcallService {
             .set('audio_url', audio_url);
 
         //as ? string directlty to endpoint
-        //const url = `${EndPoints.CALLER}call_manual?${params.toString()}`;
+        //const url = `${EndPoints.NINJA}call_manual?${params.toString()}`;
 
         //as formdata to endpoint using the params variable
-        //return this.httpService.post(EndPoints.CALLER + "call_manual", params)
+        //return this.httpService.post(EndPoints.NINJA + "call_manual", params)
 
         // as json body
         const requestBody = { from_number, to_number, audio_url };
-        return this.httpService.post(EndPoints.CALLER + 'call_manual', requestBody);
+        return this.httpService.post(EndPoints.NINJA + '/call_manual', requestBody);
     }
 
 

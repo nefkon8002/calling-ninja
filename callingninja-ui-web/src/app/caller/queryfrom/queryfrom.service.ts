@@ -24,7 +24,7 @@ export class QueryfromService {
         interface ResponseData {
             from_numbers: string;
         }
-        return this.http.get<ResponseData>(EndPoints.UPLOADAUDIO + 'get_from_numbers');
+        return this.http.get<ResponseData>(EndPoints.NINJA + '/get_from_numbers');
     }
 
     querySessionStorage(key: string): string {
