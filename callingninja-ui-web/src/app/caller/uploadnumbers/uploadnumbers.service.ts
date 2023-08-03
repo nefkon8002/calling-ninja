@@ -24,7 +24,7 @@ export class NumbersUploadService {
     //    interface ResponseData {
     //        from_numbers: string;
     //    }
-    //    return this.http.get<ResponseData>(EndPoints.UPLOADAUDIO + 'get_from_numbers');
+    //    return this.http.get<ResponseData>(EndPoints.STORAGE + '/get_from_numbers');
     //}
 
     uploadText(file: File) {
@@ -35,6 +35,6 @@ export class NumbersUploadService {
             to_numbers: string;
         }
 
-        return this.http.post<ResponseData>(EndPoints.UPLOADAUDIO + 'upload_numbers', formData);
+        return this.http.post<ResponseData>(EndPoints.STORAGE + '/upload_numbers', formData);
     }
 }

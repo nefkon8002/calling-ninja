@@ -1,5 +1,5 @@
 import jwt
-from fastapi import HTTPException, status, Request
+from fastapi import HTTPException, status, Request, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 # from src.config import config
@@ -46,3 +46,11 @@ class JWTBearer(HTTPBearer):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="expired token"
             )
+
+
+class auth_levels:
+    auth_all = Depends(JWTBearer(["ADMIN", "OPERATOR", "MANAGER", "CUSTOMER"]))
+    auth_admin = Depends(JWTBearer(["ADMIN"]))
+    auth_manager = Depends(JWTBearer(["MANAGER"]))
+    auth_operator = Depends(JWTBearer(["OPERATOR"]))
+    auth_customer = Depends(JWTBearer(["CUSTOMER"]))
