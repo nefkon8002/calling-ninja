@@ -13,7 +13,7 @@ from src.config import get_config, Config, config_setter
 from src.security import auth_levels
 from src.data.database import start_database
 
-from src.dtq_celery.celery_utils import create_celery
+from src.dtq_celery.config.celery_utils import create_celery
 
 
 ### retrieve config variables temporarily to set in origins list
