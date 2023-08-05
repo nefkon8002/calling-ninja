@@ -9,3 +9,4 @@ uploads/
 nginx-proxy/dist/
 *.crt
 *.key
+callingninja-mq-rabbitmq/

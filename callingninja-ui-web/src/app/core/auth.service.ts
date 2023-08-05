@@ -30,8 +30,8 @@ export class AuthService {
   constructor(private httpService: HttpService, private http: HttpClient, private router: Router, private snackBar: MatSnackBar) {
   }
 
-  login(mobile: string, password: string): Observable<User> {
-    return this.httpService.authBasic(mobile, password)
+  login(logininput: string, password: string): Observable<User> {
+    return this.httpService.authBasic(logininput, password)
       .post(AuthService.END_POINT)
       .pipe(
         map(jsonToken => {
